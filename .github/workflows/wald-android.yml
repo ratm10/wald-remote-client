@@ -1,7 +1,8 @@
-# Waldlust 원격지원 — Android 단일 검증 빌드 (슬림)
-# 목적: 전체 매트릭스(수시간) 대신 aarch64 apk 1종만 빌드해 파이프라인/서버박기/브랜딩 검증.
+# Waldlust 원격지원 — Android 유니버설 APK 빌드 (슬림)
+# 목적: arm64-v8a(64비트) + armeabi-v7a(32비트)를 한 APK에 담아 Android 7 등 32비트
+#       기기까지 설치 지원(arm64 전용은 32비트 기기에서 INSTALL_FAILED_NO_MATCHING_ABIS).
 # 트리거: 수동(workflow_dispatch). 서명키 없이 debug 서명 apk 생성(설치 가능).
-# 원본 build-rustdesk-android 잡(flutter-build.yml)에서 aarch64만 추리고
+# 원본 build-rustdesk-android 잡(flutter-build.yml)에서 x86 계열만 빼고 ARM 2종을 빌드,
 # 아티팩트 업로드를 '무조건'으로 바꿈.
 
 name: Waldlust Android (slim)
@@ -122,16 +123,20 @@ jobs:
 
       - name: Install vcpkg dependencies
         run: |
-          if ! ./flutter/build_android_deps.sh "arm64-v8a"; then
-            find "${VCPKG_ROOT}/" -name "*.log" | while read -r _1; do
-              echo "$_1:"
-              echo "======"
-              cat "$_1"
-              echo "======"
-              echo ""
-            done
-            exit 1
-          fi
+          # 64비트(arm64-v8a) + 32비트(armeabi-v7a) 둘 다 빌드 → 유니버설 APK 로 Android 7 등
+          # 32비트 기기 설치 지원(INSTALL_FAILED_NO_MATCHING_ABIS 해결).
+          for abi in arm64-v8a armeabi-v7a; do
+            if ! ./flutter/build_android_deps.sh "$abi"; then
+              find "${VCPKG_ROOT}/" -name "*.log" | while read -r _1; do
+                echo "$_1:"
+                echo "======"
+                cat "$_1"
+                echo "======"
+                echo ""
+              done
+              exit 1
+            fi
+          done
         shell: bash
 
       - name: Restore bridge files
@@ -157,11 +162,13 @@ jobs:
           ANDROID_NDK_ROOT: ${{ steps.setup-ndk.outputs.ndk-path }}
           WALDLUST_PRESET_PASSWORD: ${{ secrets.WALDLUST_PRESET_PASSWORD }}
         run: |
-          rustup target add ${{ matrix.job.target }}
+          rustup target add aarch64-linux-android armv7-linux-androideabi
           cargo install cargo-ndk --version ${{ env.CARGO_NDK_VERSION }} --locked
           ./flutter/ndk_arm64.sh
-          mkdir -p ./flutter/android/app/src/main/jniLibs/arm64-v8a
-          cp ./target/${{ matrix.job.target }}/release/liblibrustdesk.so ./flutter/android/app/src/main/jniLibs/arm64-v8a/librustdesk.so
+          ./flutter/ndk_arm.sh
+          mkdir -p ./flutter/android/app/src/main/jniLibs/arm64-v8a ./flutter/android/app/src/main/jniLibs/armeabi-v7a
+          cp ./target/aarch64-linux-android/release/liblibrustdesk.so ./flutter/android/app/src/main/jniLibs/arm64-v8a/librustdesk.so
+          cp ./target/armv7-linux-androideabi/release/liblibrustdesk.so ./flutter/android/app/src/main/jniLibs/armeabi-v7a/librustdesk.so
 
       - name: Build rustdesk apk
         shell: bash
@@ -173,17 +180,20 @@ jobs:
           sed -i "s/org.gradle.jvmargs=-Xmx1024M/org.gradle.jvmargs=-Xmx2g/g" ./flutter/android/gradle.properties
           # 서명키 없이 빌드: release 서명 대신 debug 서명 사용
           sed -i "s/signingConfigs.release/signingConfigs.debug/g" ./flutter/android/app/build.gradle
-          mkdir -p ./flutter/android/app/src/main/jniLibs/arm64-v8a
+          # 32비트(armeabi-v7a)+64비트(arm64-v8a) 네이티브 라이브러리 모두 배치 → 유니버설 APK
+          mkdir -p ./flutter/android/app/src/main/jniLibs/arm64-v8a ./flutter/android/app/src/main/jniLibs/armeabi-v7a
           cp ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so ./flutter/android/app/src/main/jniLibs/arm64-v8a/
-          cp ./target/${{ matrix.job.target }}/release/liblibrustdesk.so ./flutter/android/app/src/main/jniLibs/arm64-v8a/librustdesk.so
+          cp ${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so ./flutter/android/app/src/main/jniLibs/armeabi-v7a/
+          cp ./target/aarch64-linux-android/release/liblibrustdesk.so ./flutter/android/app/src/main/jniLibs/arm64-v8a/librustdesk.so
+          cp ./target/armv7-linux-androideabi/release/liblibrustdesk.so ./flutter/android/app/src/main/jniLibs/armeabi-v7a/librustdesk.so
           pushd flutter
-          flutter build apk "--${{ matrix.job.reltype }}" --target-platform android-arm64 --split-per-abi
-          mv build/app/outputs/flutter-apk/app-arm64-v8a-${{ matrix.job.reltype }}.apk ../waldlust-${{ env.VERSION }}-${{ matrix.job.arch }}.apk
+          flutter build apk "--${{ matrix.job.reltype }}" --target-platform android-arm,android-arm64
+          mv build/app/outputs/flutter-apk/app-${{ matrix.job.reltype }}.apk ../waldlust-${{ env.VERSION }}-android.apk
           popd
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: waldlust-${{ env.VERSION }}-${{ matrix.job.arch }}-apk
-          path: ./waldlust-${{ env.VERSION }}-${{ matrix.job.arch }}.apk
+          name: waldlust-${{ env.VERSION }}-android-apk
+          path: ./waldlust-${{ env.VERSION }}-android.apk
           if-no-files-found: error
