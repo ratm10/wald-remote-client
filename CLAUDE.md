@@ -8,9 +8,10 @@ AGENTS.md
 - `origin/master` 는 업스트림 미러다(2026-09-29 기준 분기점 4a54029ca 에 멈춰 있다). 포크 고유 변경은 `git log origin/master..HEAD` 와 `git diff --submodule=diff origin/master...HEAD`(서브모듈 포함)로 본다.
 - `git diff 1.4.8` 은 쓰지 않는다. 포크는 1.4.8 태그 뒤 업스트림 17커밋에서 갈라져 업스트림 변경이 섞인다. 1.4.8 태그(`origin` 에도 있다)는 명세 코드 힌트(`rustdesk@1.4.8:…`)를 열 때만 쓴다. `upstream`(rustdesk/rustdesk) 리모트는 업스트림 최신이 필요할 때만 추가한다.
 - 포크 빌드 워크플로는 `.github/workflows/wald-*.yml` 이다(전부 수동 `workflow_dispatch`). Secret `WALDLUST_PRESET_PASSWORD` 가 있으면 관리(무인 키오스크) 빌드가 된다. 이 값은 표식일 뿐 접속 비밀번호가 아니다. 접속 비밀번호는 기기마다 랜덤으로 만들어 heartbeat 로 어드민에 보고한다(`src/common.rs` 의 `set_waldlust_preset_password`).
+- 로컬 테스트 빌드는 `WALDLUST_PRESET_PASSWORD` 없이(비관리 빌드) 하고, `WALDLUST_HEARTBEAT_URL` 을 더미(예 `http://127.0.0.1:9/api/heartbeat`)로 줘서 운영 어드민에 보고하지 않게 한다. 로컬 Android 빌드 절차·주의점은 명세 F-46.
 - 포크는 `api-server` 를 설정하지 않아 데스크탑 로그인·주소록 요청이 `https://admin.rustdesk.com` 으로 간다(명세 F-39). DSK-01 에서 `api-server` 를 고정하기 전에는 실제 운영자 계정으로 로그인을 시험하지 않는다.
 - 비밀번호·키·토큰으로 의심되는 값은 대화 출력·커밋·PR·로그에 원문으로 쓰지 않는다. 파일:줄, 길이, 5자 이내 접두만 적는다(명세 §0 규칙 7). 검색 결과를 옮길 때도 값을 가린다.
-- 이 저장소와 `hbb_common` 포크는 공개 저장소다. 명세·인수인계 문서·운영 서버 정보는 커밋하지 않는다. `docs/HANDOVER_SPEC.md`(명세)와 `docs/HANDOVER.md`(인수인계 문서 원본)는 로컬 사본으로만 두고 `.git/info/exclude` 에 넣는다(정본 위치는 명세 Q-43).
+- 이 저장소와 `hbb_common` 포크는 공개 저장소다. 명세·인수인계 문서·인계 산출물·운영 서버 정보는 커밋하지 않는다(명세 Q-43: 우선 로컬). `docs/HANDOVER_SPEC.md`(명세), `docs/HANDOVER.md`(인수인계 문서 원본), 인계 산출물(`docs/handover/` 등 명세 §6 경로)은 로컬에만 두고 `.git/info/exclude` 에 넣는다.
 - `docs/HANDOVER_SPEC.md` 는 통째로 읽지 않는다. `grep -n '^#' docs/HANDOVER_SPEC.md` 로 절 위치를 찾아 그 범위만 연다.
 
 <!-- wald-remote fork only. docs/HANDOVER_SPEC.md 는 수만 토큰이라 @import 하지 않는다 -->
