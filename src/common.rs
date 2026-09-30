@@ -134,6 +134,8 @@ pub fn global_init() -> bool {
     set_waldlust_preset_password();
     // Waldlust: 기기 정보 + 생존신호를 관리 대시보드로 주기 보고(온라인/기종/OS 표시용).
     start_waldlust_heartbeat();
+    // Waldlust(DSK-03): 로그인·주소록 API 서버를 빌드 때 값으로 고정한다(값이 없으면 계정 기능을 끈다).
+    crate::wald_api::apply();
     true
 }
 
