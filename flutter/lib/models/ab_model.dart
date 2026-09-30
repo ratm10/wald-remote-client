@@ -158,8 +158,8 @@ class AbModel {
         if (_personalAbGuid != null) {
           debugPrint("pull ab list");
           List<AbProfile> abProfiles = List.empty(growable: true);
-          abProfiles.add(AbProfile(_personalAbGuid!, _personalAddressBookName,
-              gFFI.userModel.userName.value, null, ShareRule.read.value, null));
+          // Waldlust(DSK-04): 개인 주소록(My address book)은 목록에 넣지 않는다 — 브랜드 = 공유 주소록만 보인다.
+          // _personalAbGuid 는 신형(공유) 주소록 모드 판별에만 쓴다.
           // get all address book name
           await _getSharedAbProfiles(abProfiles, quiet: quiet);
           addressbooks.removeWhere((key, value) =>
@@ -759,6 +759,11 @@ class AbModel {
         _currentName.value = _personalAddressBookName;
       } else if (addressbooks.containsKey(_legacyAddressBookName)) {
         _currentName.value = _legacyAddressBookName;
+      } else if (addressbooks.isNotEmpty) {
+        // Waldlust(DSK-04): 개인 주소록이 없으므로 드롭다운 순서(이름순)의 첫 브랜드를 고른다.
+        _currentName.value = (addressbooks.keys.toList()
+              ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase())))
+            .first;
       } else {
         _currentName.value = '';
       }
