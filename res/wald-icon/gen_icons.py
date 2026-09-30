@@ -152,6 +152,25 @@ def render_template(w, h, glyph_h, color=(0, 0, 0, 255)):
     return img.resize((w, h), Image.BOX)  # 작은 한 색 아이콘은 면적 평균으로 줄여 가장자리 번짐을 막는다
 
 
+def floating_window_xml():
+    """Android 플로팅 창(FloatingWindowService 의 R.drawable.floating_window): 빨간 원 + 흰 W.
+    업스트림 파일과 같은 320dp·viewport 32 를 쓴다(서비스가 intrinsic 크기로 그려 반으로 자른다)."""
+    k = 19.2 / (LOGO_BOX[2] - LOGO_BOX[0])  # W. 폭 = 지름의 60%
+    ox = 16 - (LOGO_BOX[0] + LOGO_BOX[2]) / 2 * k
+    oy = 16 - (LOGO_BOX[1] + LOGO_BOX[3]) / 2 * k
+    p = lambda x, y: f"{x * k + ox:.3f},{y * k + oy:.3f}"
+    w = "M" + "L".join(p(x, y) for x, y in W_POLY) + "Z"
+    dot = f"M{p(DOT[0], DOT[1])}L{p(DOT[2], DOT[1])}L{p(DOT[2], DOT[3])}L{p(DOT[0], DOT[3])}Z"
+    bg = "#%02X%02X%02X" % BG[:3]
+    return (
+        '<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="320dp"'
+        ' android:height="320dp" android:viewportWidth="32" android:viewportHeight="32">\n'
+        f'    <path android:fillColor="{bg}" android:pathData="M16,0A16,16 0,0 1,32 16A16,16 0,0 1,16 32A16,16 0,0 1,0 16A16,16 0,0 1,16 0z"/>\n'
+        f'    <path android:fillColor="#FFFFFF" android:pathData="{w}{dot}"/>\n'
+        "</vector>\n"
+    )
+
+
 def save_ico(path, font_path, sizes=(16, 32, 48, 64, 128, 256)):
     imgs = [render(s, "square", font_path) for s in sizes]
     imgs[-1].save(path, format="ICO", sizes=[(s, s) for s in sizes], append_images=imgs[:-1], bitmap_format="bmp")
@@ -194,6 +213,8 @@ def main():
     render_template(56, 40, 28).save(r("res/mac-tray-dark-x2.png"))
 
     res = r("flutter/android/app/src/main/res")
+    with open(os.path.join(res, "drawable", "floating_window.xml"), "w") as fp:
+        fp.write(floating_window_xml())
     for dpi, f in ANDROID_DENSITIES.items():
         d = os.path.join(res, f"mipmap-{dpi}")
         # 런처는 밀도와 상관없이 48dp 로 보이고 'remote' 가 구분점이라 모든 밀도에 글자를 넣는다
