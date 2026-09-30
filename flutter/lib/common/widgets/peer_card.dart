@@ -2,6 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
+import 'package:flutter_hbb/common/widgets/wald_ab.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/models/peer_tab_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
@@ -469,6 +470,12 @@ class _PeerCardState extends State<_PeerCard>
       } else {
         return icon.marginOnly(right: right);
       }
+    } else if (widget.tab == PeerTabIndex.ab &&
+        waldCanRename(gFFI.abModel.current)) {
+      // Waldlust(DSK-06): 주소록 카드에 수정 버튼(이름 편집).
+      return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [waldEditButton(peer), _actionMore(peer)]);
     } else {
       return _actionMore(peer);
     }
@@ -1197,6 +1204,12 @@ class AddressBookPeerCard extends BasePeerCard {
         menuItems.add(_editTagAction(peer.id));
       }
       menuItems.add(_editNoteAction(peer.id));
+    }
+    // Waldlust(DSK-06): 브랜드 주소록은 읽기 전용이고 기기 이름 변경만 허용한다(wald_ab.dart).
+    if (!gFFI.abModel.current.canWrite() &&
+        waldCanRename(gFFI.abModel.current)) {
+      menuItems.add(MenuEntryDivider());
+      menuItems.add(waldRenameMenuEntry(peer, menuPadding));
     }
     final addressbooks = gFFI.abModel.addressBooksCanWrite();
     if (gFFI.peerTabModel.currentTab == PeerTabIndex.ab.index) {
