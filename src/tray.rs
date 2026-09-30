@@ -271,6 +271,11 @@ async fn start_query_session_count(sender: std::sync::mpsc::Sender<Data>) {
 }
 
 fn load_icon_from_asset() -> Option<image::DynamicImage> {
+    // Waldlust(DSK-10): macOS 트레이는 템플릿 아이콘(알파만 쓰임)이라 색 있는 assets/icon.png 를 쓰면
+    // 통째로 칠해진다. macOS 는 res/mac-tray-dark-x2.png 를 쓴다.
+    if cfg!(target_os = "macos") {
+        return None;
+    }
     let Some(path) = std::env::current_exe().map_or(None, |x| x.parent().map(|x| x.to_path_buf()))
     else {
         return None;
