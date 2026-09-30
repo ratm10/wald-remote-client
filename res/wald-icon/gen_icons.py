@@ -40,9 +40,9 @@ W_BOX = (213.6, 336.4, 774.2, 691.0)  # 점을 뺀 W
 # 'remote' 배치(1024 기준): 로고 배율(1.0 = 기존 검정 아이콘의 W. 크기), 글자 너비(W 너비 대비),
 # 로고와 글자 사이 간격(로고 높이 대비)
 LOGO_SCALE = 1.00
-TEXT_WIDTH = 1.10
-TEXT_GAP = 0.18
-# 로고 묶음의 가로 중심. 기존 아이콘이 W. 를 이 위치에 두었다.
+TEXT_WIDTH = 1.40
+TEXT_GAP = 0.15
+# 로고 묶음의 가로 중심. 기존 아이콘이 W. 를 이 위치에 두었다. 'remote' 도 이 중심에 맞춘다.
 CENTER_X = (LOGO_BOX[0] + LOGO_BOX[2]) / 2
 CENTER_Y = 512.0
 
@@ -76,8 +76,7 @@ def _content_ops(font_path, with_text):
     # 로고: 가로 중심 유지, 세로는 묶음의 위쪽
     dx = CENTER_X - CENTER_X * s
     dy = top - LOGO_BOX[1] * s
-    w_cx = ((W_BOX[0] + W_BOX[2]) / 2) * s + dx
-    text = (size, w_cx, top + logo_h + gap)
+    text = (size, CENTER_X, top + logo_h + gap)
     return s, (dx, dy), text
 
 
