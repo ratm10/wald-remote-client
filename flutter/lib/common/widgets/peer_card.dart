@@ -23,7 +23,8 @@ typedef PopupMenuEntryBuilder = Future<List<mod_menu.PopupMenuEntry<String>>>
 
 enum PeerUiType { grid, tile, list }
 
-final peerCardUiType = PeerUiType.grid.obs;
+// Waldlust(DSK-04): 기본 보기 = 목록형(세 번째). 사용자가 고른 값(peer-card-ui-type)이 있으면 그 값이 우선한다.
+final peerCardUiType = PeerUiType.list.obs;
 
 bool? hideUsernameOnCard;
 

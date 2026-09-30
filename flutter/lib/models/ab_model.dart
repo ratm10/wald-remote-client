@@ -765,10 +765,14 @@ class AbModel {
       } else if (addressbooks.containsKey(_legacyAddressBookName)) {
         _currentName.value = _legacyAddressBookName;
       } else if (addressbooks.isNotEmpty) {
-        // Waldlust(DSK-04): 개인 주소록이 없으므로 드롭다운 순서(이름순)의 첫 브랜드를 고른다.
-        _currentName.value = (addressbooks.keys.toList()
-              ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase())))
-            .first;
+        // Waldlust(DSK-04): 개인 주소록이 없으므로 '전체'(guid all)를, 없으면 이름순 첫 브랜드를 고른다.
+        final all = addressbooks.entries
+            .where((e) => e.value.sharedProfile()?.guid == 'all');
+        _currentName.value = all.isNotEmpty
+            ? all.first.key
+            : (addressbooks.keys.toList()
+                  ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase())))
+                .first;
       } else {
         _currentName.value = '';
       }

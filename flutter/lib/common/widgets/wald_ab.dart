@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
 import 'package:flutter_hbb/models/ab_model.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/wald_peer_names.dart';
+import 'package:get/get.dart';
 
 /// Waldlust(DSK-06): 주소록 기기 이름 편집.
 ///
@@ -53,4 +56,74 @@ Widget waldEditButton(Peer peer) {
       ),
     ),
   );
+}
+
+/// Waldlust(DSK-04): 주소록 왼쪽 패널에 선택 드롭다운·태그 대신 브랜드 목록을 둔다(`address_book.dart`).
+/// const 가 아닌 것은 업스트림 패널 코드가 죽은 코드로 표시되지 않게 하려는 것이다.
+final waldAbBrandPanel = true;
+
+const _kAllAbGuid = 'all'; // 서버의 '전체' 주소록(권한 범위 전체 기기)
+
+/// 브랜드(공유 주소록) 목록. 맨 위는 '전체', 나머지는 드롭다운과 같은 이름순. 고르면 오른쪽에 그 기기 목록이 보인다.
+class WaldAbBrandList extends StatelessWidget {
+  final bool isPortrait;
+  const WaldAbBrandList({Key? key, required this.isPortrait}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final abModel = gFFI.abModel;
+      final names = abModel.addressBookNames()
+        ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+      final allIndex = names.indexWhere((e) =>
+          abModel.addressbooks[e]?.sharedProfile()?.guid == _kAllAbGuid);
+      if (allIndex > 0) names.insert(0, names.removeAt(allIndex));
+      final current = abModel.currentName.value;
+      final list = ListView.builder(
+          shrinkWrap: isPortrait,
+          itemCount: names.length,
+          itemBuilder: (context, index) => _buildItem(context, names[index],
+              isAll: index == 0 && allIndex >= 0,
+              selected: names[index] == current));
+      if (isPortrait) {
+        return LimitedBox(
+            maxHeight: max(MediaQuery.of(context).size.height / 6, 100.0),
+            child: list);
+      }
+      return list.marginOnly(top: 8);
+    });
+  }
+
+  Widget _buildItem(BuildContext context, String name,
+      {required bool isAll, required bool selected}) {
+    return InkWell(
+      onTap: () async {
+        // 업스트림은 이미 받은 주소록을 다시 받지 않는다. 다른 주소록에서 바꾼 이름이 늦게 보이지 않게 다시 받는다.
+        final pulled = gFFI.abModel.addressbooks[name]?.initialized == true;
+        await gFFI.abModel.setCurrentName(name);
+        if (pulled) {
+          gFFI.abModel.pullAb(force: ForcePullAb.current, quiet: true);
+        }
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: selected ? MyTheme.color(context).highlight : null,
+          border: Border(
+              bottom: BorderSide(
+                  width: 0.7,
+                  color: Theme.of(context).dividerColor.withOpacity(0.1))),
+        ),
+        child: Row(
+          children: [
+            Icon(isAll ? Icons.apps_rounded : Icons.storefront_outlined,
+                    color: MyTheme.accent, size: 19)
+                .marginOnly(right: 6),
+            Expanded(
+                child: Text(gFFI.abModel.translatedName(name),
+                    overflow: TextOverflow.ellipsis)),
+          ],
+        ).paddingSymmetric(vertical: 6),
+      ),
+    ).marginSymmetric(horizontal: 12).marginOnly(bottom: 4);
+  }
 }
