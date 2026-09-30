@@ -3071,8 +3071,10 @@ pub mod server_side {
         if let Ok(app_dir) = env.get_string(&app_dir) {
             *config::APP_DIR.write().unwrap() = app_dir.into();
         }
-        // Waldlust(DSK-01): 부팅 자동 시작은 UI 없이 이 경로만 돌고 global_init() 을 부르지 않는다.
-        crate::wald_variant::apply();
+        // Waldlust(DSK-01·DSK-02): 부팅 자동 시작은 UI 없이 이 경로만 돈다(initialize() 를 거치지 않는다).
+        // 여기서도 global_init() 을 불러 수신 전용 프리셋·관리 빌드 비밀번호·포크 heartbeat 를 시작한다(명세 F-47).
+        // 나중에 UI 가 열려 initialize() 가 다시 불러도 각 초기화는 한 번만 돈다.
+        let _ = crate::common::global_init();
         if let Ok(custom_client_config) = env.get_string(&custom_client_config) {
             if !custom_client_config.is_empty() {
                 let custom_client_config: String = custom_client_config.into();
