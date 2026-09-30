@@ -47,6 +47,15 @@ class HomePageState extends State<HomePage> {
 
   void initPages() {
     _pages.clear();
+    // Waldlust(DSK-02): 수신 전용은 화면 공유를 첫 탭, 채팅을 두 번째 탭으로 두고 설정 잠금이면
+    // 설정 탭을 뺀다. 채팅 탭 번호를 1로 가정하는 코드(chat_model, server_page)와도 맞는다.
+    if (isAndroid && bind.isIncomingOnly()) {
+      _pages.add(ServerPage());
+      _chatPageTabIndex = _pages.length;
+      _pages.add(ChatPage(type: ChatPageType.mobileMain));
+      if (!bind.isDisableSettings()) _pages.add(SettingsPage());
+      return;
+    }
     if (!bind.isIncomingOnly()) {
       _pages.add(ConnectionPage(
         appBarActions: [],

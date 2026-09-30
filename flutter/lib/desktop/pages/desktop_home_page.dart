@@ -222,7 +222,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                                   ?.color
                                   ?.withOpacity(0.5)),
                         ).marginOnly(top: 5),
-                        buildPopupMenu(context)
+                        // Waldlust(DSK-02): 수신 전용 + 설정 잠금이면 설정 진입점(⋮)을 숨긴다.
+                        if (!(bind.isIncomingOnly() && bind.isDisableSettings()))
+                          buildPopupMenu(context)
                       ],
                     ),
                   ),
