@@ -11,12 +11,17 @@
 ;    기준으로 exe 를 찾기 때문. (경로를 바꾸면 서비스 등록이 어긋난다 → DisableDirPage=yes)
 ;
 ; 빌드: ISCC.exe /DMyBuildDir=<flutter build 산출물 폴더> waldlust.iss
+; 수신 전용 빌드(DSK-01)는 /DMyVariantSuffix=-incoming 을 더해 산출물 이름만 바꾼다.
+; AppId·설치 경로·서비스 이름은 두 변형이 같아서, 한쪽 설치 위에 다른 쪽을 덮어 설치하면 ID 가 유지된다.
 
 #ifndef MyAppVersion
   #define MyAppVersion "1.4.8"
 #endif
 #ifndef MyBuildDir
   #define MyBuildDir "rustdesk"
+#endif
+#ifndef MyVariantSuffix
+  #define MyVariantSuffix ""
 #endif
 
 [Setup]
@@ -31,7 +36,7 @@ DisableProgramGroupPage=yes
 DefaultGroupName=Waldlust 원격지원
 UninstallDisplayName=Waldlust 원격지원
 UninstallDisplayIcon={app}\Waldlust.exe
-OutputBaseFilename=waldlust-setup-{#MyAppVersion}-x86_64
+OutputBaseFilename=waldlust-setup-{#MyAppVersion}-x86_64{#MyVariantSuffix}
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

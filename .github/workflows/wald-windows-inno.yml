@@ -3,13 +3,26 @@
 # 인스톨러가 Program Files 복사 + 제어판 등록 + 시작메뉴를 담당하고, RustDesk 고유
 # 서비스/방화벽 등록은 앱의 --after-install 로 위임한다(res/inno/waldlust.iss 참고).
 # 미서명 상태(향후 코드서명 붙일 자리는 .iss 의 SignTool 주석 참고).
+# 변형(DSK-01): variant=incoming 이면 수신 전용 빌드(waldlust-setup-x.x.x-x86_64-incoming.exe).
+# Secret WALDLUST_INCOMING_PASSWORD 와 variable WALDLUST_INCOMING_SALT 로 공통 영구 비밀번호
+# 해시를 만들어 넣는다(없으면 build.rs 가 멈춘다). AppId·설치 경로·서비스 이름은 두 변형이 같다.
 
 name: Waldlust Windows Inno installer
 
 on:
   workflow_dispatch:
+    inputs:
+      variant:
+        description: "빌드 변형: bidirectional(양방향) / incoming(수신 전용)"
+        type: choice
+        options:
+          - bidirectional
+          - incoming
+        default: bidirectional
 
 env:
+  WALDLUST_VARIANT: ${{ inputs.variant }}
+  VARIANT_SUFFIX: ${{ inputs.variant == 'incoming' && '-incoming' || '' }}
   SCITER_RUST_VERSION: "1.75"
   FLUTTER_VERSION: "3.24.5"
   LLVM_VERSION: "15.0.6"
@@ -99,6 +112,21 @@ jobs:
             find "${VCPKG_ROOT}/" -name "*.log" -exec cat {} \; ; exit 1
           fi
 
+      - name: Compute incoming-only password hash
+        if: ${{ inputs.variant == 'incoming' }}
+        env:
+          WALDLUST_INCOMING_PASSWORD: ${{ secrets.WALDLUST_INCOMING_PASSWORD }}
+          WALDLUST_INCOMING_SALT: ${{ vars.WALDLUST_INCOMING_SALT }}
+          PYTHONUTF8: "1"
+        run: |
+          # 평문은 이 스텝에서만 쓰고 해시·솔트만 다음 스텝에 넘긴다. 값은 로그에서 가린다.
+          $out = python3 res/wald-variant/preset_hash.py
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          foreach ($line in $out) {
+            Write-Output "::add-mask::$($line.Split('=', 2)[1])"
+            Add-Content -Path $env:GITHUB_ENV -Value $line
+          }
+
       - name: Build rustdesk
         env:
           WALDLUST_PRESET_PASSWORD: ${{ secrets.WALDLUST_PRESET_PASSWORD }}
@@ -117,13 +145,15 @@ jobs:
           fi
           # 경로 이스케이프 회피: flutter 산출물을 .iss 옆에 복사하고 상대경로 기본값(rustdesk) 사용.
           cp -r ./rustdesk ./res/inno/rustdesk
-          "$ISCC" //DMyAppVersion=${{ env.VERSION }} res/inno/waldlust.iss
+          SUFFIX_ARG=()
+          [ -n "$VARIANT_SUFFIX" ] && SUFFIX_ARG=("//DMyVariantSuffix=$VARIANT_SUFFIX")
+          "$ISCC" //DMyAppVersion=${{ env.VERSION }} "${SUFFIX_ARG[@]}" res/inno/waldlust.iss
           find ./res/inno -name "waldlust-setup-*.exe" -exec mv {} ./SignOutput/ \;
           ls -la ./SignOutput
 
       - name: Upload Inno installer
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: waldlust-${{ env.VERSION }}-windows-x64-inno-setup
+          name: waldlust-${{ env.VERSION }}-windows-x64-inno-setup${{ env.VARIANT_SUFFIX }}
           path: ./SignOutput/*.exe
           if-no-files-found: error
