@@ -122,6 +122,8 @@ impl Drop for SimpleCallOnReturn {
 }
 
 pub fn global_init() -> bool {
+    // Waldlust(DSK-01): 수신 전용 빌드면 프리셋(발신 차단·공통 영구 비밀번호 등)을 가장 먼저 적용한다.
+    crate::wald_variant::apply();
     #[cfg(target_os = "linux")]
     {
         if !crate::platform::linux::is_x11() {
@@ -286,12 +288,14 @@ fn send_waldlust_heartbeat(client: &reqwest::blocking::Client, include_apps: boo
         "uptime": uptime,
         "latencyMs": latency_ms,
         "netType": net_type,
+        "variant": crate::wald_variant::name(), // "bidirectional"/"incoming"
     });
     if !apps.is_empty() {
         body["apps"] = serde_json::json!(apps);
     }
     // 기기별 접속비번 보고(관리 빌드에서만). 서버는 값이 올 때만 갱신한다.
-    if !conn_pw.is_empty() {
+    // 수신 전용 빌드는 공통 영구 비밀번호(해시만 내장)를 쓰므로 보고하지 않는다(DSK-02).
+    if !conn_pw.is_empty() && !crate::wald_variant::is_incoming() {
         body["pw"] = serde_json::json!(conn_pw);
     }
     // 실패는 조용히 무시(다음 주기에 재시도). 서버 점검/오프라인이어도 클라 동작에 영향 없음.
@@ -302,7 +306,7 @@ fn send_waldlust_heartbeat(client: &reqwest::blocking::Client, include_apps: boo
 // 영구비번은 해시로만 저장돼 평문 복구가 불가하므로, 생성 시점의 평문을 여기에 두고
 // heartbeat 로 대시보드에 보고한다. (기기 자신의 접속비번을 그 기기 로컬에 두는 것이라
 // 기기간 격리 — 한 대가 뚫려도 다른 기기 비번은 안전 — 는 유지된다.)
-const WALDLUST_MANAGED_PW_KEY: &str = "wald-conn-pw";
+pub(crate) const WALDLUST_MANAGED_PW_KEY: &str = "wald-conn-pw";
 
 // 이 프로세스가 "기기별 영구비번을 소유(생성·저장·보고)해도 되는" 권위 프로세스인지.
 //
@@ -318,7 +322,7 @@ const WALDLUST_MANAGED_PW_KEY: &str = "wald-conn-pw";
 // → Windows 설치형에서는 데몬(SYSTEM)만 비번을 소유·보고한다. 유저 프로세스는 생성/보고 둘 다 건너뛰고
 //   RustDesk 기존 동기화로 데몬 비번을 받는다. 포터블/비설치는 단일 저장소라 아무 프로세스나 소유.
 // macOS/Linux 는 root↔user 양방향 동기화, Android 는 단일 프로세스라 종전대로 항상 소유.
-fn waldlust_owns_password() -> bool {
+pub(crate) fn waldlust_owns_password() -> bool {
     #[cfg(windows)]
     {
         !crate::platform::is_installed() || crate::platform::is_root()
@@ -339,6 +343,11 @@ fn set_waldlust_preset_password() {
     //  보안문제로 폐기했다. 이제 이 값은 "관리 빌드"라는 표식으로만 쓰고, 실제 비번은
     //  기기마다 랜덤 생성한다.)
     const MANAGED: Option<&str> = option_env!("WALDLUST_PRESET_PASSWORD");
+    // 수신 전용 빌드는 공통 영구 비밀번호(사전 비밀번호)를 쓴다(DSK-02). 여기서 기기별 비밀번호를
+    // 만들면 로컬 값이 사전 비밀번호보다 우선해 공통 비밀번호가 통하지 않는다.
+    if crate::wald_variant::is_incoming() {
+        return;
+    }
     if !matches!(MANAGED, Some(s) if !s.is_empty()) {
         return;
     }
@@ -2455,13 +2464,20 @@ pub fn read_custom_client(config: &str) {
         log::error!("Failed to dec custom client config");
         return;
     };
-    let Ok(mut data) =
+    let Ok(data) =
         serde_json::from_slice::<std::collections::HashMap<String, serde_json::Value>>(&data)
     else {
         log::error!("Failed to parse custom client config");
         return;
     };
+    apply_custom_client_config(data);
+}
 
+// Waldlust(DSK-01): 서명 검증을 마친 맞춤 설정을 설정 맵에 나눠 넣는다. 수신 전용 빌드 프리셋
+// (wald_variant.rs)도 같은 분배 로직을 쓰도록 read_custom_client 에서 떼어 냈다.
+pub(crate) fn apply_custom_client_config(
+    mut data: std::collections::HashMap<String, serde_json::Value>,
+) {
     if let Some(app_name) = data.remove("app-name") {
         if let Some(app_name) = app_name.as_str() {
             *config::APP_NAME.write().unwrap() = app_name.to_owned();

@@ -44,6 +44,8 @@ fn initialize(app_dir: &str, custom_client_config: &str) {
     {
         *config::APP_DIR.write().unwrap() = app_dir.to_owned();
     }
+    // Waldlust(DSK-01): 수신 전용 프리셋은 설정 파일을 읽기 전에 적용한다(Android 는 APP_DIR 이 정해진 직후).
+    crate::wald_variant::apply();
     // core_main's load_custom_client does not work for flutter since it is only applied to its load_library in main.c
     if custom_client_config.is_empty() {
         crate::load_custom_client();
@@ -3069,6 +3071,8 @@ pub mod server_side {
         if let Ok(app_dir) = env.get_string(&app_dir) {
             *config::APP_DIR.write().unwrap() = app_dir.into();
         }
+        // Waldlust(DSK-01): 부팅 자동 시작은 UI 없이 이 경로만 돌고 global_init() 을 부르지 않는다.
+        crate::wald_variant::apply();
         if let Ok(custom_client_config) = env.get_string(&custom_client_config) {
             if !custom_client_config.is_empty() {
                 let custom_client_config: String = custom_client_config.into();

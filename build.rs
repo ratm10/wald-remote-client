@@ -77,7 +77,44 @@ fn install_android_deps() {
     println!("cargo:rustc-link-lib=OpenSLES");
 }
 
+// Waldlust(DSK-01): 빌드 변형을 확인한다. 수신 전용 빌드는 공통 영구 비밀번호 해시가 없으면 멈춘다
+// (src/wald_variant.rs, res/wald-variant/preset_hash.py). 값은 출력하지 않는다.
+fn check_waldlust_variant() {
+    for key in [
+        "WALDLUST_VARIANT",
+        "WALDLUST_INCOMING_PW_STORAGE",
+        "WALDLUST_INCOMING_PW_SALT",
+    ] {
+        println!("cargo:rerun-if-env-changed={}", key);
+    }
+    match std::env::var("WALDLUST_VARIANT").unwrap_or_default().as_str() {
+        "" | "bidirectional" => return,
+        "incoming" => {}
+        _ => panic!("WALDLUST_VARIANT 는 비우거나 bidirectional 또는 incoming 이어야 한다"),
+    }
+    let storage = std::env::var("WALDLUST_INCOMING_PW_STORAGE").unwrap_or_default();
+    let salt = std::env::var("WALDLUST_INCOMING_PW_SALT").unwrap_or_default();
+    // "00" + base64(SHA-256) 44자(끝은 '=')
+    let storage_ok = storage.len() == 46
+        && storage.starts_with("00")
+        && storage.ends_with('=')
+        && storage[2..]
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'+' || b == b'/' || b == b'=');
+    let salt_ok = salt.len() >= 16
+        && salt
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b == b'-' || b == b'_');
+    if !storage_ok || !salt_ok {
+        panic!(
+            "수신 전용 빌드(WALDLUST_VARIANT=incoming)에는 공통 영구 비밀번호 해시가 필요하다: \
+             res/wald-variant/preset_hash.py 로 WALDLUST_INCOMING_PW_STORAGE·WALDLUST_INCOMING_PW_SALT 를 만든다"
+        );
+    }
+}
+
 fn main() {
+    check_waldlust_variant();
     hbb_common::gen_version();
     install_android_deps();
     #[cfg(all(windows, feature = "inline"))]
