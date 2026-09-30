@@ -8,6 +8,7 @@ import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/models/model.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
+import 'package:flutter_hbb/models/wald_peer_names.dart';
 import 'package:get/get.dart';
 import 'package:bot_toast/bot_toast.dart';
 
@@ -134,6 +135,10 @@ class AbModel {
     try {
       await _pullAb(force: force, quiet: quiet);
       _refreshTab();
+      // Waldlust(DSK-05): 최근접속목록·즐겨찾기에도 같은 이름을 보이도록 권한 범위 전체 기기 이름을 받는다.
+      if (force == ForcePullAb.listAndCurrent && !legacyMode.value) {
+        await WaldPeerNames.instance.refresh();
+      }
     } catch (_) {}
     _pulling = false;
     _pulledOnce = true;

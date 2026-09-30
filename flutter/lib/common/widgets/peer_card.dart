@@ -5,6 +5,7 @@ import 'package:flutter_hbb/common/widgets/dialog.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/models/peer_tab_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
+import 'package:flutter_hbb/models/wald_peer_names.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -993,7 +994,9 @@ class RecentPeerCard extends BasePeerCard {
       menuItems.add(_createShortCutAction(peer.id));
     }
     menuItems.add(MenuEntryDivider());
-    if (isMobile || isDesktop || isWebDesktop) {
+    // Waldlust(DSK-05): 어드민 이름이 있는 기기는 로컬 이름 변경을 숨긴다(카드에는 어드민 이름이 보인다).
+    if ((isMobile || isDesktop || isWebDesktop) &&
+        !WaldPeerNames.instance.contains(peer.id)) {
       menuItems.add(_renameAction(peer.id));
     }
     if (await bind.mainPeerHasPassword(id: peer.id)) {
@@ -1057,7 +1060,9 @@ class FavoritePeerCard extends BasePeerCard {
       menuItems.add(_createShortCutAction(peer.id));
     }
     menuItems.add(MenuEntryDivider());
-    if (isMobile || isDesktop || isWebDesktop) {
+    // Waldlust(DSK-05): 어드민 이름이 있는 기기는 로컬 이름 변경을 숨긴다(카드에는 어드민 이름이 보인다).
+    if ((isMobile || isDesktop || isWebDesktop) &&
+        !WaldPeerNames.instance.contains(peer.id)) {
       menuItems.add(_renameAction(peer.id));
     }
     if (await bind.mainPeerHasPassword(id: peer.id)) {
