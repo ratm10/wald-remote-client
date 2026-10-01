@@ -68,66 +68,32 @@ class WaldColors extends ThemeExtension<WaldColors> {
   const WaldColors({
     required this.primaryBg,
     required this.primaryFg,
-    required this.secondaryBg,
     required this.secondaryBorder,
-    required this.secondaryFg,
-    required this.selectionBg,
     required this.headerBg,
-    required this.permOn,
-    required this.permOff,
-    required this.permOffFg,
-    required this.textMuted,
   });
 
-  /// 주요 버튼 바탕·글자.
+  /// 주요 버튼 바탕·글자(테마 버튼을 쓰지 않는 버튼용, 예: 연결 관리 창).
   final Color primaryBg;
   final Color primaryFg;
 
-  /// 보조(테두리) 버튼 바탕·테두리·글자.
-  final Color secondaryBg;
+  /// 보조(테두리) 버튼 테두리.
   final Color secondaryBorder;
-  final Color secondaryFg;
 
-  /// 선택된 목록 행 바탕.
-  final Color selectionBg;
-
-  /// 연결 관리 창 머리 바탕(글자는 흰색).
+  /// 어두운 띠 바탕(연결 관리 창 머리, 홈 화면 안내 카드). 글자는 흰색.
   final Color headerBg;
-
-  /// 연결 관리 창 권한 타일(켜짐 바탕, 꺼짐 바탕·아이콘).
-  final Color permOn;
-  final Color permOff;
-  final Color permOffFg;
-
-  /// 보조 설명 글자.
-  final Color textMuted;
 
   static const light = WaldColors(
     primaryBg: WaldPalette.neutral900,
     primaryFg: WaldPalette.white,
-    secondaryBg: WaldPalette.white,
     secondaryBorder: WaldPalette.neutral300,
-    secondaryFg: WaldPalette.neutral900,
-    selectionBg: Color(0x1F155DFC),
     headerBg: WaldPalette.neutral900,
-    permOn: WaldPalette.blue600,
-    permOff: WaldPalette.neutral200,
-    permOffFg: WaldPalette.neutral500,
-    textMuted: WaldPalette.neutral500,
   );
 
   static const dark = WaldColors(
     primaryBg: WaldPalette.neutral100,
     primaryFg: WaldPalette.neutral900,
-    secondaryBg: WaldPalette.neutral900,
     secondaryBorder: WaldPalette.neutral700,
-    secondaryFg: WaldPalette.neutral100,
-    selectionBg: Color(0x3D155DFC),
     headerBg: WaldPalette.neutral800,
-    permOn: WaldPalette.blue600,
-    permOff: WaldPalette.neutral700,
-    permOffFg: WaldPalette.neutral400,
-    textMuted: WaldPalette.neutral400,
   );
 
   static WaldColors of(BuildContext context) {
@@ -140,28 +106,14 @@ class WaldColors extends ThemeExtension<WaldColors> {
   WaldColors copyWith({
     Color? primaryBg,
     Color? primaryFg,
-    Color? secondaryBg,
     Color? secondaryBorder,
-    Color? secondaryFg,
-    Color? selectionBg,
     Color? headerBg,
-    Color? permOn,
-    Color? permOff,
-    Color? permOffFg,
-    Color? textMuted,
   }) {
     return WaldColors(
       primaryBg: primaryBg ?? this.primaryBg,
       primaryFg: primaryFg ?? this.primaryFg,
-      secondaryBg: secondaryBg ?? this.secondaryBg,
       secondaryBorder: secondaryBorder ?? this.secondaryBorder,
-      secondaryFg: secondaryFg ?? this.secondaryFg,
-      selectionBg: selectionBg ?? this.selectionBg,
       headerBg: headerBg ?? this.headerBg,
-      permOn: permOn ?? this.permOn,
-      permOff: permOff ?? this.permOff,
-      permOffFg: permOffFg ?? this.permOffFg,
-      textMuted: textMuted ?? this.textMuted,
     );
   }
 
@@ -172,15 +124,8 @@ class WaldColors extends ThemeExtension<WaldColors> {
     return WaldColors(
       primaryBg: l(primaryBg, other.primaryBg),
       primaryFg: l(primaryFg, other.primaryFg),
-      secondaryBg: l(secondaryBg, other.secondaryBg),
       secondaryBorder: l(secondaryBorder, other.secondaryBorder),
-      secondaryFg: l(secondaryFg, other.secondaryFg),
-      selectionBg: l(selectionBg, other.selectionBg),
       headerBg: l(headerBg, other.headerBg),
-      permOn: l(permOn, other.permOn),
-      permOff: l(permOff, other.permOff),
-      permOffFg: l(permOffFg, other.permOffFg),
-      textMuted: l(textMuted, other.textMuted),
     );
   }
 }

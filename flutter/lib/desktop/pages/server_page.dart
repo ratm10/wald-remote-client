@@ -14,7 +14,6 @@ import 'package:get/get.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../common.dart';
 import '../../common/widgets/chat_page.dart';
@@ -316,9 +315,13 @@ class ConnectionManagerState extends State<ConnectionManager>
         child: Row(
           children: [
             ActionIcon(
-                icon: Icons.arrow_left, iconSize: 22, onTap: sc.backward),
+                icon: waldIcon(Icons.arrow_left),
+                iconSize: 22,
+                onTap: sc.backward),
             ActionIcon(
-                icon: Icons.arrow_right, iconSize: 22, onTap: sc.forward),
+                icon: waldIcon(Icons.arrow_right),
+                iconSize: 22,
+                onTap: sc.forward),
           ],
         ));
   }
@@ -441,16 +444,10 @@ class _CmHeaderState extends State<_CmHeader>
   Widget build(BuildContext context) {
     super.build(context);
     return Container(
+      // Waldlust(DSK-07): 파란 그라데이션 대신 어드민 톤 어두운 단색(글자는 흰색 그대로).
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        gradient: LinearGradient(
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-          colors: [
-            Color(0xff00bfe1),
-            Color(0xff0071ff),
-          ],
-        ),
+        borderRadius: BorderRadius.circular(WaldSize.radius),
+        color: WaldColors.of(context).headerBg,
       ),
       margin: EdgeInsets.symmetric(horizontal: 5.0, vertical: 10.0),
       padding: EdgeInsets.only(
@@ -553,9 +550,14 @@ class _CmHeaderState extends State<_CmHeader>
                       .toggleCMChatPage(MessageKey(client.peerId, client.id));
                 }
               }),
-              icon: SvgPicture.asset(client.type_() == ClientType.file
-                  ? 'assets/file_transfer.svg'
-                  : 'assets/chat2.svg'),
+              icon: waldSvg(
+                  client.type_() == ClientType.file
+                      ? 'assets/file_transfer.svg'
+                      : 'assets/chat2.svg',
+                  color: Colors.white,
+                  width: 24,
+                  height: 24,
+                  iconSize: WaldSize.iconLg),
               splashRadius: kDesktopIconButtonSplashRadius,
             ),
           )
@@ -617,10 +619,11 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
       waitDuration: Duration.zero,
       child: Container(
         decoration: BoxDecoration(
+          // Waldlust(DSK-07): 켜짐은 강조색(파랑), 꺼짐은 무채색, 모서리 8.
           color: enabled
               ? (canModify ? MyTheme.accent : MyTheme.accent.withOpacity(0.6))
-              : Colors.grey[700],
-          borderRadius: BorderRadius.circular(10.0),
+              : WaldPalette.neutral600,
+          borderRadius: BorderRadius.circular(WaldSize.radius),
         ),
         padding: EdgeInsets.all(8.0),
         child: InkWell(
@@ -686,7 +689,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                   ? [
                       buildPermissionIcon(
                         client.audio,
-                        Icons.volume_up_rounded,
+                        waldIcon(Icons.volume_up_rounded),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -701,7 +704,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       ),
                       buildPermissionIcon(
                         client.recording,
-                        Icons.videocam_rounded,
+                        waldIcon(Icons.videocam_rounded),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -718,7 +721,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                   : [
                       buildPermissionIcon(
                         client.keyboard,
-                        Icons.keyboard,
+                        waldIcon(Icons.keyboard),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -733,7 +736,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       ),
                       buildPermissionIcon(
                         client.clipboard,
-                        Icons.assignment_rounded,
+                        waldIcon(Icons.assignment_rounded),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -748,7 +751,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       ),
                       buildPermissionIcon(
                         client.audio,
-                        Icons.volume_up_rounded,
+                        waldIcon(Icons.volume_up_rounded),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -763,7 +766,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       ),
                       buildPermissionIcon(
                         client.file,
-                        Icons.upload_file_rounded,
+                        waldIcon(Icons.upload_file_rounded),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -778,7 +781,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       ),
                       buildPermissionIcon(
                         client.restart,
-                        Icons.restart_alt_rounded,
+                        waldIcon(Icons.restart_alt_rounded),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -793,7 +796,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       ),
                       buildPermissionIcon(
                         client.recording,
-                        Icons.videocam_rounded,
+                        waldIcon(Icons.videocam_rounded),
                         (enabled) {
                           bind.cmSwitchPermission(
                               connId: client.id,
@@ -810,7 +813,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       if (isWindows)
                         buildPermissionIcon(
                           client.blockInput,
-                          Icons.block,
+                          waldIcon(Icons.block),
                           (enabled) {
                             bind.cmSwitchPermission(
                                 connId: client.id,
@@ -826,7 +829,7 @@ class _PrivilegeBoardState extends State<_PrivilegeBoard> {
                       if (bind.mainSupportedPrivacyModeImpls() != '[]')
                         buildPermissionIcon(
                           client.privacyMode,
-                          Icons.visibility_off,
+                          waldIcon(Icons.visibility_off),
                           (enabled) {
                             bind.cmSwitchPermission(
                                 connId: client.id,
@@ -879,7 +882,7 @@ class _CmControlPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: buildButton(context,
-                    color: MyTheme.accent,
+                    color: WaldColors.of(context).primaryBg,
                     onClick: null, onTapDown: (details) async {
                   final devicesInfo =
                       await AudioInput.getDevicesInfo(true, true);
@@ -935,20 +938,20 @@ class _CmControlPanel extends StatelessWidget {
                   );
                 },
                     icon: Icon(
-                      Icons.call_rounded,
-                      color: Colors.white,
+                      waldIcon(Icons.call_rounded),
+                      color: WaldColors.of(context).primaryFg,
                       size: 14,
                     ),
                     text: "Audio input",
-                    textColor: Colors.white),
+                    textColor: WaldColors.of(context).primaryFg),
               ),
               Expanded(
                 child: buildButton(
                   context,
-                  color: Colors.red,
+                  color: WaldPalette.red600,
                   onClick: () => closeVoiceCall(),
                   icon: Icon(
-                    Icons.call_end_rounded,
+                    waldIcon(Icons.call_end_rounded),
                     color: Colors.white,
                     size: 14,
                   ),
@@ -965,23 +968,23 @@ class _CmControlPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: buildButton(context,
-                    color: MyTheme.accent,
+                    color: WaldColors.of(context).primaryBg,
                     onClick: () => handleVoiceCall(true),
                     icon: Icon(
-                      Icons.call_rounded,
-                      color: Colors.white,
+                      waldIcon(Icons.call_rounded),
+                      color: WaldColors.of(context).primaryFg,
                       size: 14,
                     ),
                     text: "Accept",
-                    textColor: Colors.white),
+                    textColor: WaldColors.of(context).primaryFg),
               ),
               Expanded(
                 child: buildButton(
                   context,
-                  color: Colors.red,
+                  color: WaldPalette.red600,
                   onClick: () => handleVoiceCall(false),
                   icon: Icon(
-                    Icons.phone_disabled_rounded,
+                    waldIcon(Icons.phone_disabled_rounded),
                     color: Colors.white,
                     size: 14,
                   ),
@@ -995,9 +998,9 @@ class _CmControlPanel extends StatelessWidget {
         Offstage(
           offstage: !client.fromSwitch,
           child: buildButton(context,
-              color: Colors.purple,
+              color: WaldPalette.blue600,
               onClick: () => handleSwitchBack(context),
-              icon: Icon(Icons.reply, color: Colors.white),
+              icon: Icon(waldIcon(Icons.reply), color: Colors.white),
               text: "Switch Sides",
               textColor: Colors.white),
         ),
@@ -1005,29 +1008,29 @@ class _CmControlPanel extends StatelessWidget {
           offstage: !showElevation,
           child: buildButton(
             context,
-            color: MyTheme.accent,
+            color: WaldColors.of(context).primaryBg,
             onClick: () {
               handleElevate(context);
               windowManager.minimize();
             },
             icon: Icon(
-              Icons.security_rounded,
-              color: Colors.white,
+              waldIcon(Icons.security_rounded),
+              color: WaldColors.of(context).primaryFg,
               size: 14,
             ),
             text: 'Elevate',
-            textColor: Colors.white,
+            textColor: WaldColors.of(context).primaryFg,
           ),
         ),
         Row(
           children: [
             Expanded(
               child: buildButton(context,
-                  color: Colors.redAccent,
+                  color: WaldPalette.red600,
                   onClick: handleDisconnect,
                   text: 'Disconnect',
                   icon: Icon(
-                    Icons.link_off_rounded,
+                    waldIcon(Icons.link_off_rounded),
                     color: Colors.white,
                     size: 14,
                   ),
@@ -1045,10 +1048,10 @@ class _CmControlPanel extends StatelessWidget {
       children: [
         Expanded(
             child: buildButton(context,
-                color: MyTheme.accent,
+                color: WaldColors.of(context).primaryBg,
                 onClick: handleClose,
                 text: 'Close',
-                textColor: Colors.white)),
+                textColor: WaldColors.of(context).primaryFg)),
       ],
     ).marginOnly(bottom: buttonBottomMargin);
   }
@@ -1065,14 +1068,14 @@ class _CmControlPanel extends StatelessWidget {
       children: [
         Offstage(
           offstage: !showElevation || !showAccept,
-          child: buildButton(context, color: Colors.green[700], onClick: () {
+          child: buildButton(context, color: WaldPalette.green600, onClick: () {
             handleAccept(context);
             handleElevate(context);
             windowManager.minimize();
           },
               text: 'Accept and Elevate',
               icon: Icon(
-                Icons.security_rounded,
+                waldIcon(Icons.security_rounded),
                 color: Colors.white,
                 size: 14,
               ),
@@ -1088,13 +1091,13 @@ class _CmControlPanel extends StatelessWidget {
                   children: [
                     buildButton(
                       context,
-                      color: MyTheme.accent,
+                      color: WaldColors.of(context).primaryBg,
                       onClick: () {
                         handleAccept(context);
                         windowManager.minimize();
                       },
                       text: 'Accept',
-                      textColor: Colors.white,
+                      textColor: WaldColors.of(context).primaryFg,
                     ),
                   ],
                 ),
@@ -1103,7 +1106,8 @@ class _CmControlPanel extends StatelessWidget {
               child: buildButton(
                 context,
                 color: Colors.transparent,
-                border: Border.all(color: Colors.grey),
+                border:
+                    Border.all(color: WaldColors.of(context).secondaryBorder),
                 onClick: handleDisconnect,
                 text: 'Cancel',
                 textColor: null,
@@ -1268,10 +1272,8 @@ class __FileTransferLogPageState extends State<_FileTransferLogPage> {
           children: [
             Transform.rotate(
               angle: item.action == CmFileAction.remoteToLocal ? 0 : pi,
-              child: SvgPicture.asset(
-                "assets/arrow.svg",
-                colorFilter: svgColor(Theme.of(context).tabBarTheme.labelColor),
-              ),
+              child: waldSvg("assets/arrow.svg",
+                  color: Theme.of(context).tabBarTheme.labelColor),
             ),
             Text(item.action == CmFileAction.remoteToLocal
                 ? translate('Send')
@@ -1282,7 +1284,7 @@ class __FileTransferLogPageState extends State<_FileTransferLogPage> {
         return Column(
           children: [
             Icon(
-              Icons.delete,
+              waldIcon(Icons.delete),
               color: Theme.of(context).tabBarTheme.labelColor,
             ),
             Text(translate('Delete'))
@@ -1292,7 +1294,7 @@ class __FileTransferLogPageState extends State<_FileTransferLogPage> {
         return Column(
           children: [
             Icon(
-              Icons.create_new_folder,
+              waldIcon(Icons.create_new_folder),
               color: Theme.of(context).tabBarTheme.labelColor,
             ),
             Text(translate('Create Folder'))
@@ -1302,7 +1304,7 @@ class __FileTransferLogPageState extends State<_FileTransferLogPage> {
         return Column(
           children: [
             Icon(
-              Icons.drive_file_move_outlined,
+              waldIcon(Icons.drive_file_move_outlined),
               color: Theme.of(context).tabBarTheme.labelColor,
             ),
             Text(translate('Rename'))
@@ -1426,12 +1428,12 @@ class __FileTransferLogPageState extends State<_FileTransferLogPage> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset(
-                              "assets/transfer.svg",
-                              colorFilter: svgColor(
-                                  Theme.of(context).tabBarTheme.labelColor),
-                              height: 40,
-                            ).paddingOnly(bottom: 10),
+                            waldSvg("assets/transfer.svg",
+                                    color: Theme.of(context)
+                                        .tabBarTheme
+                                        .labelColor,
+                                    height: 40)
+                                .paddingOnly(bottom: 10),
                             Text(
                               translate("No transfers in progress"),
                               textAlign: TextAlign.center,
