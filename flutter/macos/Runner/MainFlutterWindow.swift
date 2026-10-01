@@ -35,6 +35,62 @@ class RelativeMouseState {
     private init() {}
 }
 
+// Waldlust(DSK-07): 상단 탭 막대(앱바)를 40pt 로 높였으므로(Dart kDesktopRemoteTabBarHeight 와 같은 값)
+// 신호등 버튼을 그 막대의 세로 가운데로 옮긴다. 제목 표시줄은 숨긴 스타일(투명·fullSizeContentView)이라
+// 기본으로는 28pt 막대 기준에 놓인다. 제목 표시줄 영역(창 끌기 영역)도 같은 높이로 늘린다.
+// AppKit 이 크기 변경·전체화면 해제·키 창 전환 때 다시 배치하므로 그때마다 다시 맞춘다.
+enum WaldTitleBar {
+    static let height: CGFloat = 40
+
+    static func attach(_ window: NSWindow) {
+        let center = NotificationCenter.default
+        var tokens: [NSObjectProtocol] = []
+        let names: [Notification.Name] = [
+            NSWindow.didResizeNotification,
+            NSWindow.didExitFullScreenNotification,
+            NSWindow.didBecomeKeyNotification,
+            NSWindow.didBecomeMainNotification,
+            NSWindow.didChangeScreenNotification,
+        ]
+        for name in names {
+            tokens.append(center.addObserver(forName: name, object: window, queue: .main) { [weak window] _ in
+                if let window = window { layout(window) }
+            })
+        }
+        var closeToken: NSObjectProtocol?
+        closeToken = center.addObserver(forName: NSWindow.willCloseNotification, object: window, queue: .main) { _ in
+            tokens.forEach { center.removeObserver($0) }
+            if let closeToken = closeToken { center.removeObserver(closeToken) }
+        }
+        DispatchQueue.main.async { [weak window] in
+            if let window = window { layout(window) }
+        }
+    }
+
+    static func layout(_ window: NSWindow) {
+        guard !window.styleMask.contains(.fullScreen),
+              let close = window.standardWindowButton(.closeButton),
+              let titlebarView = close.superview,
+              let container = titlebarView.superview else { return }
+        let parentHeight = container.superview?.bounds.height ?? window.frame.height
+        let target = NSRect(x: container.frame.origin.x, y: parentHeight - height,
+                            width: container.frame.width, height: height)
+        if container.frame != target {
+            container.frame = target
+        }
+        if titlebarView.frame != container.bounds {
+            titlebarView.frame = container.bounds
+        }
+        for type in [NSWindow.ButtonType.closeButton, .miniaturizeButton, .zoomButton] {
+            guard let button = window.standardWindowButton(type) else { continue }
+            let y = ((height - button.frame.height) / 2).rounded()
+            if button.frame.origin.y != y {
+                button.setFrameOrigin(NSPoint(x: button.frame.origin.x, y: y))
+            }
+        }
+    }
+}
+
 class MainFlutterWindow: NSWindow {
     override func awakeFromNib() {
         rustdesk_core_main();
@@ -65,9 +121,15 @@ class MainFlutterWindow: NSWindow {
             WakelockPlusMacosPlugin.register(with: controller.registrar(forPlugin: "WakelockPlusMacosPlugin"))
             WindowSizePlugin.register(with: controller.registrar(forPlugin: "WindowSizePlugin"))
             TextureRgbaRendererPlugin.register(with: controller.registrar(forPlugin: "TextureRgbaRendererPlugin"))
+            // Waldlust(DSK-07): 원격·파일 전송 등 하위 창도 신호등을 높인 탭 막대에 맞춘다.
+            if let window = controller.view.window {
+                WaldTitleBar.attach(window)
+            }
         }
 
         super.awakeFromNib()
+        // Waldlust(DSK-07): 메인 창 신호등을 높인 탭 막대에 맞춘다.
+        WaldTitleBar.attach(self)
     }
 
     override public func order(_ place: NSWindow.OrderingMode, relativeTo otherWin: Int) {
