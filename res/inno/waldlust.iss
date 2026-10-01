@@ -45,6 +45,9 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 SetupIconFile=..\icon.ico
 CloseApplications=yes
+; 설치가 끝나면 탐색기에 아이콘 갱신을 알린다(SHChangeNotify SHCNE_ASSOCCHANGED). 같은 경로의 exe 를 덮어쓰면
+; 탐색기가 바탕화면·시작 메뉴 바로가기에 옛 아이콘을 계속 보여 주기 때문이다(DSK-10).
+ChangesAssociations=yes
 ; 코드서명은 SignTool 을 등록해 두면 여기서 자동 적용된다(향후):
 ; SignTool=mysigner
 ; SignedUninstaller=yes
