@@ -51,6 +51,10 @@ enum MouseFocusScope {
   none
 }
 
+// Waldlust(DSK-07): 디자인 미리보기(test/wald_preview.dart)는 연결 없이 화면만 띄운다.
+@visibleForTesting
+bool waldFileManagerPreview = false;
+
 class FileManagerPage extends StatefulWidget {
   FileManagerPage(
       {Key? key,
@@ -96,6 +100,11 @@ class _FileManagerPageState extends State<FileManagerPage>
   void initState() {
     super.initState();
     _ffi = FFI(null);
+    if (waldFileManagerPreview) {
+      Get.put<FFI>(_ffi, tag: 'ft_${widget.id}');
+      _ffi.dialogManager.setOverlayState(_overlayKeyState);
+      return;
+    }
     _ffi.start(widget.id,
         isFileTransfer: true,
         password: widget.password,
