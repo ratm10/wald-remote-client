@@ -123,21 +123,50 @@ bool isDoubleEqual(double a, double b) {
 }
 
 class IconFont {
+  static const _family1 = 'Tabbar';
+  static const _family2 = 'PeerSearchbar';
+  static const _family3 = 'AddressBook';
+  static const _family4 = 'DeviceGroup';
+  static const _family5 = 'More';
+
   IconFont._();
 
-  // Waldlust(DSK-07): 자체 아이콘 글꼴 대신 Lucide 를 가리킨다(호출부는 그대로 둔다).
-  static const IconData max = LucideIcons.square;
-  static const IconData restore = LucideIcons.copy;
-  static const IconData close = LucideIcons.x;
-  static const IconData min = LucideIcons.minus;
-  static const IconData add = LucideIcons.plus;
-  static const IconData menu = LucideIcons.settings;
-  static const IconData search = LucideIcons.search;
-  static const IconData roundClose = LucideIcons.circleX;
-  static const IconData addressBook = LucideIcons.bookUser;
-  static const IconData deviceGroupOutline = LucideIcons.monitorSmartphone;
-  static const IconData deviceGroupFill = LucideIcons.monitorSmartphone;
-  static const IconData more = LucideIcons.chevronDown;
+  // Waldlust(DSK-07): Lucide 모드면 자체 아이콘 글꼴 대신 Lucide 를 가리킨다(호출부는 그대로 둔다).
+  static const IconData max = kWaldLucideIcons
+      ? LucideIcons.square
+      : IconData(0xe606, fontFamily: _family1);
+  static const IconData restore = kWaldLucideIcons
+      ? LucideIcons.copy
+      : IconData(0xe607, fontFamily: _family1);
+  static const IconData close =
+      kWaldLucideIcons ? LucideIcons.x : IconData(0xe668, fontFamily: _family1);
+  static const IconData min = kWaldLucideIcons
+      ? LucideIcons.minus
+      : IconData(0xe609, fontFamily: _family1);
+  static const IconData add = kWaldLucideIcons
+      ? LucideIcons.plus
+      : IconData(0xe664, fontFamily: _family1);
+  static const IconData menu = kWaldLucideIcons
+      ? LucideIcons.settings
+      : IconData(0xe628, fontFamily: _family1);
+  static const IconData search = kWaldLucideIcons
+      ? LucideIcons.search
+      : IconData(0xe6a4, fontFamily: _family2);
+  static const IconData roundClose = kWaldLucideIcons
+      ? LucideIcons.circleX
+      : IconData(0xe6ed, fontFamily: _family2);
+  static const IconData addressBook = kWaldLucideIcons
+      ? LucideIcons.bookUser
+      : IconData(0xe602, fontFamily: _family3);
+  static const IconData deviceGroupOutline = kWaldLucideIcons
+      ? LucideIcons.monitorSmartphone
+      : IconData(0xe623, fontFamily: _family4);
+  static const IconData deviceGroupFill = kWaldLucideIcons
+      ? LucideIcons.monitorSmartphone
+      : IconData(0xe748, fontFamily: _family4);
+  static const IconData more = kWaldLucideIcons
+      ? LucideIcons.chevronDown
+      : IconData(0xe609, fontFamily: _family5);
 }
 
 class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
