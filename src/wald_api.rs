@@ -40,6 +40,16 @@ fn apply_preset(api: &str) {
     );
 }
 
+/// hbbs(접속 중계)로 보내는 접속 요청에 실을 로그인 토큰 — 항상 빈 값이다.
+///
+/// 업스트림 클라이언트는 토큰이 있으면 hbbs 와 키 교환(`secure_tcp`)부터 하고 응답을 기다린다
+/// (src/client.rs `Client::start`·`hc_connection`). 우리 hbbs 는 OSS 라 키 교환도 토큰도 쓰지 않아서,
+/// 로그인한 채로는 키 교환을 기다리다 시간 초과로 모든 접속이 실패했다. 로그인은 API 서버(로그인·주소록)에만
+/// 쓰고 토큰은 hbbs 로 보내지 않는다.
+pub fn rendezvous_token(_access_token: &str) -> &'static str {
+    ""
+}
+
 fn is_valid(api: &str) -> bool {
     match url::Url::parse(api) {
         Ok(u) => {
@@ -86,6 +96,11 @@ mod tests {
             LocalConfig::get_option(keys::OPTION_DISABLE_GROUP_PANEL),
             "Y"
         );
+    }
+
+    #[test]
+    fn test_rendezvous_token_is_empty() {
+        assert_eq!(rendezvous_token("some-access-token"), "");
     }
 
     #[test]

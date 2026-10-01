@@ -209,6 +209,7 @@ impl Client {
         debug_assert!(peer == interface.get_id());
         interface.update_direct(None);
         interface.update_received(false);
+        let token = crate::wald_api::rendezvous_token(token);
         match Self::_start(peer, key, token, conn_type, interface.clone()).await {
             Err(err) => {
                 let err_str = err.to_string();
@@ -3984,6 +3985,7 @@ pub async fn hc_connection(
     rendezvous_server: String,
     token: &str,
 ) -> Option<tokio::sync::mpsc::UnboundedSender<()>> {
+    let token = crate::wald_api::rendezvous_token(token);
     if feedback == 0 || rendezvous_server.is_empty() || token.is_empty() {
         return None;
     }
