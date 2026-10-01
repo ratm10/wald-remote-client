@@ -126,7 +126,7 @@ abstract class MenuEntryBase<T> {
       fontSize: MenuConfig.fontSize,
       fontWeight: FontWeight.normal);
   disabledStyle() => TextStyle(
-      color: Colors.grey,
+      color: WaldPalette.neutral400,
       fontSize: MenuConfig.fontSize,
       fontWeight: FontWeight.normal);
 }
@@ -248,7 +248,7 @@ class MenuEntryRadios<T> extends MenuEntryBase<T> {
                               Icons.check,
                               color: (opt.enabled ?? true.obs).isTrue
                                   ? conf.commonColor
-                                  : Colors.grey,
+                                  : WaldPalette.neutral400,
                             ))
                         : const SizedBox.shrink()),
                   ))),
@@ -680,7 +680,9 @@ class MenuEntrySubMenu<T> extends MenuEntryBase<T> {
             alignment: Alignment.centerRight,
             child: Obx(() => Icon(
                   Icons.keyboard_arrow_right,
-                  color: super.enabled!.value ? conf.commonColor : Colors.grey,
+                  color: super.enabled!.value
+                      ? conf.commonColor
+                      : WaldPalette.neutral400,
                 )),
           ))
         ]),
