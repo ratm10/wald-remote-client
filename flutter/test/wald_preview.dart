@@ -314,6 +314,32 @@ class _GalleryPreviewState extends State<_GalleryPreview> {
                 onPressed: noop, icon: const Icon(Icons.done_rounded))),
             _guide(dialogButton('Disabled', onPressed: null)),
           ]),
+          _section('Lucide 아이콘 — 16 / 18 / 20', [
+            for (final size in [16.0, 18.0, 20.0])
+              Wrap(spacing: 10, children: [
+                for (final icon in const [
+                  LucideIcons.monitor,
+                  LucideIcons.keyboard,
+                  LucideIcons.messageSquare,
+                  LucideIcons.phone,
+                  LucideIcons.zap,
+                  LucideIcons.pin,
+                  LucideIcons.circleDot,
+                  LucideIcons.x,
+                  LucideIcons.folder,
+                  LucideIcons.folderPlus,
+                  LucideIcons.trash2,
+                  LucideIcons.refreshCw,
+                  LucideIcons.house,
+                  LucideIcons.settings,
+                  LucideIcons.star,
+                  LucideIcons.history,
+                  LucideIcons.bookUser,
+                  LucideIcons.shieldCheck,
+                ])
+                  Icon(icon, size: size),
+              ]),
+          ]),
           _section('입력', [
             const SizedBox(
                 width: 240,

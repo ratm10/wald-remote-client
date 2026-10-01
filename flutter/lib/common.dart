@@ -9,6 +9,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common/formatter/id_formatter.dart';
+import 'package:flutter_hbb/common/wald_icons.dart';
 import 'package:flutter_hbb/common/wald_theme.dart';
 import 'package:flutter_hbb/desktop/widgets/refresh_wrapper.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
@@ -49,6 +50,7 @@ import 'package:flutter_hbb/native/common.dart'
 import 'package:flutter_hbb/utils/http_service.dart' as http;
 
 // Waldlust(DSK-07): 어드민 톤 토큰(WaldPalette·WaldColors 등)을 common.dart 를 쓰는 곳에 함께 내보낸다.
+export 'package:flutter_hbb/common/wald_icons.dart';
 export 'package:flutter_hbb/common/wald_theme.dart';
 
 final globalKey = GlobalKey<NavigatorState>();
@@ -121,28 +123,21 @@ bool isDoubleEqual(double a, double b) {
 }
 
 class IconFont {
-  static const _family1 = 'Tabbar';
-  static const _family2 = 'PeerSearchbar';
-  static const _family3 = 'AddressBook';
-  static const _family4 = 'DeviceGroup';
-  static const _family5 = 'More';
-
   IconFont._();
 
-  static const IconData max = IconData(0xe606, fontFamily: _family1);
-  static const IconData restore = IconData(0xe607, fontFamily: _family1);
-  static const IconData close = IconData(0xe668, fontFamily: _family1);
-  static const IconData min = IconData(0xe609, fontFamily: _family1);
-  static const IconData add = IconData(0xe664, fontFamily: _family1);
-  static const IconData menu = IconData(0xe628, fontFamily: _family1);
-  static const IconData search = IconData(0xe6a4, fontFamily: _family2);
-  static const IconData roundClose = IconData(0xe6ed, fontFamily: _family2);
-  static const IconData addressBook = IconData(0xe602, fontFamily: _family3);
-  static const IconData deviceGroupOutline =
-      IconData(0xe623, fontFamily: _family4);
-  static const IconData deviceGroupFill =
-      IconData(0xe748, fontFamily: _family4);
-  static const IconData more = IconData(0xe609, fontFamily: _family5);
+  // Waldlust(DSK-07): 자체 아이콘 글꼴 대신 Lucide 를 가리킨다(호출부는 그대로 둔다).
+  static const IconData max = LucideIcons.square;
+  static const IconData restore = LucideIcons.copy;
+  static const IconData close = LucideIcons.x;
+  static const IconData min = LucideIcons.minus;
+  static const IconData add = LucideIcons.plus;
+  static const IconData menu = LucideIcons.settings;
+  static const IconData search = LucideIcons.search;
+  static const IconData roundClose = LucideIcons.circleX;
+  static const IconData addressBook = LucideIcons.bookUser;
+  static const IconData deviceGroupOutline = LucideIcons.monitorSmartphone;
+  static const IconData deviceGroupFill = LucideIcons.monitorSmartphone;
+  static const IconData more = LucideIcons.chevronDown;
 }
 
 class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
@@ -2939,7 +2934,7 @@ Widget dialogButton(String text,
               child: Text(translate(text), style: style, strutStyle: strut),
             )
           : OutlinedButton.icon(
-              icon: icon,
+              icon: waldLucideIconWidget(icon)!,
               onPressed: onPressed,
               label: Text(translate(text), style: style, strutStyle: strut),
             );
@@ -2951,7 +2946,7 @@ Widget dialogButton(String text,
               child: Text(translate(text), style: style, strutStyle: strut),
             )
           : ElevatedButton.icon(
-              icon: icon,
+              icon: waldLucideIconWidget(icon)!,
               style: ElevatedButton.styleFrom(elevation: 0).merge(buttonStyle),
               onPressed: onPressed,
               label: Text(translate(text), style: style, strutStyle: strut),
