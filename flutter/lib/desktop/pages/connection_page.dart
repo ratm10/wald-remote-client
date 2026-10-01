@@ -516,22 +516,25 @@ class _ConnectionPageState extends State<ConnectionPage>
             Padding(
               padding: const EdgeInsets.only(top: 13.0),
               child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                // Waldlust(DSK-07): 높이 32(테마 버튼과 같게), 라벨 줄 상자 고정, 옆 메뉴는 보조 버튼 테두리.
                 SizedBox(
-                  height: 28.0,
+                  height: WaldSize.buttonHeight,
                   child: ElevatedButton(
                     onPressed: () {
                       onConnect();
                     },
-                    child: Text(translate("Connect")),
+                    child: Text(translate("Connect"),
+                        strutStyle: waldButtonStrut()),
                   ),
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  height: 28.0,
-                  width: 28.0,
+                  height: WaldSize.buttonHeight,
+                  width: WaldSize.buttonHeight,
                   decoration: BoxDecoration(
-                    border: Border.all(color: Theme.of(context).dividerColor),
-                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                        color: WaldColors.of(context).secondaryBorder),
+                    borderRadius: BorderRadius.circular(WaldSize.radius),
                   ),
                   child: Center(
                     child: StatefulBuilder(

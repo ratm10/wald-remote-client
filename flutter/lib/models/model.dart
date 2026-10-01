@@ -1125,8 +1125,10 @@ class FfiModel with ChangeNotifier {
         close();
       }
 
-      final style =
-          ElevatedButton.styleFrom(backgroundColor: Colors.green[700]);
+      // Waldlust(DSK-07): 초록 바탕 + 흰 글자(다크 모드 주요 버튼 글자가 어두워 명시한다).
+      final style = ElevatedButton.styleFrom(
+          backgroundColor: WaldPalette.green600,
+          foregroundColor: WaldPalette.white);
 
       return CustomAlertDialog(
         title: null,

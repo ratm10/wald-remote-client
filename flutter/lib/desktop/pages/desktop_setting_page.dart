@@ -2750,10 +2750,8 @@ class _WaylandCardState extends State<WaylandCard> {
       'Clear Wayland screen selection',
       showConfirmMsgBox,
       tip: 'clear_Wayland_screen_selection_tip',
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(
-            Theme.of(context).colorScheme.error.withOpacity(0.75)),
-      ),
+      // Waldlust(DSK-07): 빨강 바탕 + 흰 글자(다크 모드에서도).
+      style: waldDangerStyle(),
     );
   }
 
@@ -2793,10 +2791,8 @@ class _WaylandCardState extends State<WaylandCard> {
         'Reset keyboard shortcuts permission',
         showConfirmMsgBox,
         tip: 'clear-shortcuts-inhibitor-permission-tip',
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(
-              Theme.of(context).colorScheme.error.withOpacity(0.75)),
-        ),
+        // Waldlust(DSK-07): 빨강 바탕 + 흰 글자(다크 모드에서도).
+        style: waldDangerStyle(),
       ),
     ]);
   }
@@ -2805,11 +2801,13 @@ class _WaylandCardState extends State<WaylandCard> {
 // ignore: non_constant_identifier_names
 Widget _Button(String label, Function() onPressed,
     {bool enabled = true, String? tip, ButtonStyle? style}) {
+  // Waldlust(DSK-07): 좌우 여백은 테마(16)에 맡기고, 한글 라벨 줄 상자를 고정한다.
   var button = ElevatedButton(
     onPressed: enabled ? onPressed : null,
     child: Text(
       translate(label),
-    ).marginSymmetric(horizontal: 15),
+      strutStyle: waldButtonStrut(),
+    ),
     style: style,
   );
   StatefulWidget child;
@@ -2831,7 +2829,8 @@ Widget _SubButton(String label, Function() onPressed, [bool enabled = true]) {
         onPressed: enabled ? onPressed : null,
         child: Text(
           translate(label),
-        ).marginSymmetric(horizontal: 15),
+          strutStyle: waldButtonStrut(),
+        ),
       ),
     ],
   ).marginOnly(left: _kContentHSubMargin);
@@ -2877,7 +2876,9 @@ Widget _lock(
                               Icons.security_sharp,
                               size: 20,
                             ),
-                            Text(translate(label)).marginOnly(left: 5),
+                            Text(translate(label),
+                                    strutStyle: waldButtonStrut())
+                                .marginOnly(left: 5),
                           ]).marginSymmetric(vertical: 2)),
                   onPressed: () async {
                     final unlockPin = bind.mainGetUnlockPin();

@@ -1106,8 +1106,8 @@ void setPasswordDialog({VoidCallback? notEmptyCallback}) async {
             }
             close();
           },
-          buttonStyle: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(Colors.red)),
+          // Waldlust(DSK-07): 빨강 바탕 + 흰 글자(다크 모드에서도).
+          buttonStyle: waldDangerStyle(),
         );
         final okButton = dialogButton(
           "OK",

@@ -347,8 +347,9 @@ class MyTheme {
         : EdgeInsets.fromLTRB(p, 0, (p - mobileTextButtonPaddingLR), (p / 2));
   }
 
+  // Waldlust(DSK-07): 어드민처럼 버튼 사이 간격을 8 로(기존 24).
   static EdgeInsets dialogButtonPadding = (isDesktop || isWebDesktop)
-      ? EdgeInsets.only(left: dialogPadding)
+      ? EdgeInsets.only(left: 8)
       : EdgeInsets.only(left: dialogPadding / 3);
 
   static ScrollbarThemeData scrollbarTheme = ScrollbarThemeData(
@@ -422,27 +423,19 @@ class MyTheme {
             style: TextButton.styleFrom(
               splashFactory: NoSplash.splashFactory,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
+                borderRadius: BorderRadius.circular(WaldSize.radius),
               ),
             ),
           )
         : mobileTextButtonTheme,
+    // Waldlust(DSK-07): 어드민 톤 버튼(주요 = 검정, 보조 = 흰 바탕 + 테두리).
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: MyTheme.accent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldElevatedStyle(Brightness.light,
+          desktop: isDesktop || isWebDesktop),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        backgroundColor: grayBg,
-        foregroundColor: Colors.black87,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldOutlinedStyle(Brightness.light,
+          desktop: isDesktop || isWebDesktop),
     ),
     switchTheme: switchTheme(),
     radioTheme: radioTheme(),
@@ -521,32 +514,18 @@ class MyTheme {
               disabledForegroundColor: Colors.white70,
               foregroundColor: Colors.white70,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
+                borderRadius: BorderRadius.circular(WaldSize.radius),
               ),
             ),
           )
         : mobileTextButtonTheme,
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: MyTheme.accent,
-        foregroundColor: Colors.white,
-        disabledForegroundColor: Colors.white70,
-        disabledBackgroundColor: Colors.white10,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldElevatedStyle(Brightness.dark,
+          desktop: isDesktop || isWebDesktop),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        backgroundColor: Color(0xFF24252B),
-        side: BorderSide(color: Colors.white12, width: 0.5),
-        disabledForegroundColor: Colors.white70,
-        foregroundColor: Colors.white70,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldOutlinedStyle(Brightness.dark,
+          desktop: isDesktop || isWebDesktop),
     ),
     switchTheme: switchTheme(),
     radioTheme: radioTheme(),
@@ -922,7 +901,8 @@ class OverlayDialogManager {
                       offstage: !showCancel,
                       child: Center(
                           child: (isDesktop || isWebDesktop)
-                              ? dialogButton('Cancel', onPressed: cancel)
+                              ? dialogButton('Cancel',
+                                  onPressed: cancel, isOutline: true)
                               : TextButton(
                                   style: flatButtonStyle,
                                   onPressed: cancel,
@@ -2950,29 +2930,31 @@ Widget dialogButton(String text,
     TextStyle? style,
     ButtonStyle? buttonStyle}) {
   if (isDesktop || isWebDesktop) {
+    // Waldlust(DSK-07): 한글 라벨이 위로 뜨지 않게 줄 상자를 고정한다.
+    final strut = waldButtonStrut(style?.fontSize ?? WaldSize.buttonFont);
     if (isOutline) {
       return icon == null
           ? OutlinedButton(
               onPressed: onPressed,
-              child: Text(translate(text), style: style),
+              child: Text(translate(text), style: style, strutStyle: strut),
             )
           : OutlinedButton.icon(
               icon: icon,
               onPressed: onPressed,
-              label: Text(translate(text), style: style),
+              label: Text(translate(text), style: style, strutStyle: strut),
             );
     } else {
       return icon == null
           ? ElevatedButton(
               style: ElevatedButton.styleFrom(elevation: 0).merge(buttonStyle),
               onPressed: onPressed,
-              child: Text(translate(text), style: style),
+              child: Text(translate(text), style: style, strutStyle: strut),
             )
           : ElevatedButton.icon(
               icon: icon,
               style: ElevatedButton.styleFrom(elevation: 0).merge(buttonStyle),
               onPressed: onPressed,
-              label: Text(translate(text), style: style),
+              label: Text(translate(text), style: style, strutStyle: strut),
             );
     }
   } else {

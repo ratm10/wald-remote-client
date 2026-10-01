@@ -1126,11 +1126,13 @@ class _CmControlPanel extends StatelessWidget {
       GestureTapDownCallback? onTapDown}) {
     assert(!(onClick == null && onTapDown == null));
     Widget textWidget;
+    // Waldlust(DSK-07): 라벨 줄 상자 고정(한글이 위로 뜨지 않게), 높이 32·모서리 8(테마 버튼과 같게).
     if (icon != null) {
       textWidget = Text(
         translate(text),
         style: TextStyle(color: textColor),
         textAlign: TextAlign.center,
+        strutStyle: waldButtonStrut(),
       );
     } else {
       textWidget = Expanded(
@@ -1138,12 +1140,13 @@ class _CmControlPanel extends StatelessWidget {
           translate(text),
           style: TextStyle(color: textColor),
           textAlign: TextAlign.center,
+          strutStyle: waldButtonStrut(),
         ),
       );
     }
-    final borderRadius = BorderRadius.circular(10.0);
+    final borderRadius = BorderRadius.circular(WaldSize.radius);
     final btn = Container(
-      height: 28,
+      height: WaldSize.buttonHeight,
       decoration: BoxDecoration(
           color: color, borderRadius: borderRadius, border: border),
       child: InkWell(
@@ -1161,7 +1164,8 @@ class _CmControlPanel extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Offstage(offstage: icon == null, child: icon).marginOnly(right: 5),
+            // Waldlust(DSK-07): 아이콘이 없을 때 남던 오른쪽 여백 5 를 없앤다(라벨이 오른쪽으로 치우쳤다).
+            if (icon != null) icon.marginOnly(right: 5),
             textWidget,
           ],
         ),

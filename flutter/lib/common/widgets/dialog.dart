@@ -2570,8 +2570,8 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
             "Remove",
             icon: Icon(Icons.delete_outline_rounded),
             onPressed: () => change(''),
-            buttonStyle: ButtonStyle(
-                backgroundColor: MaterialStatePropertyAll(Colors.red)),
+            // Waldlust(DSK-07): 빨강 바탕 + 흰 글자(다크 모드에서도).
+            buttonStyle: waldDangerStyle(),
           ),
         Obx(() => dialogButton(
               "OK",
