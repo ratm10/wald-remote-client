@@ -10,6 +10,7 @@
 // - 플랫폼 로고·로그인 제공자 로고·키보드 배열 그림·연결 보안 배지·화면 번호 SVG 는 유지한다.
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common/wald_theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 export 'package:lucide_icons_flutter/lucide_icons.dart' show LucideIcons;
@@ -179,7 +180,8 @@ const Map<String, IconData> kWaldAssetIcon = {
   'assets/call_wait.svg': LucideIcons.phoneCall,
   'assets/rec.svg': LucideIcons.circleDot,
   'assets/close.svg': LucideIcons.x,
-  // 파일 전송
+  // 파일 전송(arrow 는 오른쪽 화살표를 돌려 뒤로·위로·보내기·받기에 쓴다)
+  'assets/arrow.svg': LucideIcons.arrowRight,
   'assets/refresh.svg': LucideIcons.refreshCw,
   'assets/search.svg': LucideIcons.search,
   'assets/home.svg': LucideIcons.house,
@@ -205,5 +207,30 @@ Widget waldIconBox(IconData icon,
   return SizedBox.square(
     dimension: box,
     child: Center(child: Icon(icon, size: size, color: color)),
+  );
+}
+
+/// SvgPicture.asset 대신 쓴다. Lucide 모드이고 대응이 있으면 같은 크기 상자 가운데에 Lucide 를,
+/// 아니면 SVG 를 그린다. [color] 는 SVG 에 주던 svgColor(color) 와 같다. 크기를 주지 않으면
+/// 예전 SVG 의 기본 크기(32)를 쓰고, 아이콘은 상자의 18/32 크기다(예: 32 → 18).
+Widget waldSvg(String asset,
+    {Color? color, double? width, double? height, double? iconSize}) {
+  final lucide = waldAssetIcon(asset);
+  if (lucide == null) {
+    return SvgPicture.asset(asset,
+        colorFilter:
+            color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
+        width: width,
+        height: height);
+  }
+  final w = width ?? height ?? 32;
+  final h = height ?? width ?? 32;
+  return SizedBox(
+    width: w,
+    height: h,
+    child: Center(
+      child: Icon(lucide,
+          size: iconSize ?? (w < h ? w : h) * WaldSize.icon / 32, color: color),
+    ),
   );
 }

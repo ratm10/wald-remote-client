@@ -15,7 +15,6 @@ import 'package:flutter_hbb/desktop/widgets/list_search_action_listener.dart';
 import 'package:flutter_hbb/desktop/widgets/menu_button.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
 import 'package:flutter_hbb/models/file_model.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:flutter_hbb/web/dummy.dart'
     if (dart.library.html) 'package:flutter_hbb/web/web_unique.dart';
@@ -225,7 +224,7 @@ class _FileManagerPageState extends State<FileManagerPage>
       switch (job.type) {
         case JobType.deleteDir:
         case JobType.deleteFile:
-          return Icon(Icons.delete_outline, color: color);
+          return Icon(waldIcon(Icons.delete_outline), color: color);
         default:
           return Transform.rotate(
             angle: isWeb
@@ -235,7 +234,7 @@ class _FileManagerPageState extends State<FileManagerPage>
                 : job.isRemoteToLocal
                     ? pi
                     : 0,
-            child: Icon(Icons.arrow_forward_ios, color: color),
+            child: Icon(waldIcon(Icons.arrow_forward_ios), color: color),
           );
       }
     }
@@ -301,6 +300,7 @@ class _FileManagerPageState extends State<FileManagerPage>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            // Waldlust(DSK-07): 재개·삭제는 툴바와 같은 어두운 알약.
                             Offstage(
                               offstage: item.state != JobState.paused,
                               child: MenuButton(
@@ -308,26 +308,22 @@ class _FileManagerPageState extends State<FileManagerPage>
                                 onPressed: () {
                                   jobController.resumeJob(item.id);
                                 },
-                                child: SvgPicture.asset(
-                                  "assets/refresh.svg",
-                                  colorFilter: svgColor(Colors.white),
-                                ),
-                                color: MyTheme.accent,
-                                hoverColor: MyTheme.accent80,
+                                child: waldSvg("assets/refresh.svg",
+                                    color: Colors.white),
+                                color: WaldPalette.neutral800,
+                                hoverColor: WaldPalette.neutral700,
                               ),
                             ),
                             MenuButton(
                               tooltip: translate("Delete"),
-                              child: SvgPicture.asset(
-                                "assets/close.svg",
-                                colorFilter: svgColor(Colors.white),
-                              ),
+                              child: waldSvg("assets/close.svg",
+                                  color: Colors.white),
                               onPressed: () {
                                 jobController.jobTable.removeAt(index);
                                 jobController.cancelJob(item.id);
                               },
-                              color: MyTheme.accent,
-                              hoverColor: MyTheme.accent80,
+                              color: WaldPalette.neutral800,
+                              hoverColor: WaldPalette.neutral700,
                             ),
                           ],
                         ).marginAll(12),
@@ -353,12 +349,11 @@ class _FileManagerPageState extends State<FileManagerPage>
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          SvgPicture.asset(
-                            "assets/transfer.svg",
-                            colorFilter: svgColor(
-                                Theme.of(context).tabBarTheme.labelColor),
-                            height: 40,
-                          ).paddingOnly(bottom: 10),
+                          waldSvg("assets/transfer.svg",
+                                  color:
+                                      Theme.of(context).tabBarTheme.labelColor,
+                                  height: 40)
+                              .paddingOnly(bottom: 10),
                           Text(
                             translate("No transfers in progress"),
                             textAlign: TextAlign.center,
@@ -573,11 +568,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                     ),
                     child: RotatedBox(
                       quarterTurns: 2,
-                      child: SvgPicture.asset(
-                        "assets/arrow.svg",
-                        colorFilter:
-                            svgColor(Theme.of(context).tabBarTheme.labelColor),
-                      ),
+                      child: waldSvg("assets/arrow.svg",
+                          color: Theme.of(context).tabBarTheme.labelColor),
                     ),
                     color: Theme.of(context).cardColor,
                     hoverColor: Theme.of(context).hoverColor,
@@ -590,11 +582,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                     tooltip: translate('Parent directory'),
                     child: RotatedBox(
                       quarterTurns: 3,
-                      child: SvgPicture.asset(
-                        "assets/arrow.svg",
-                        colorFilter:
-                            svgColor(Theme.of(context).tabBarTheme.labelColor),
-                      ),
+                      child: waldSvg("assets/arrow.svg",
+                          color: Theme.of(context).tabBarTheme.labelColor),
                     ),
                     color: Theme.of(context).cardColor,
                     hoverColor: Theme.of(context).hoverColor,
@@ -658,22 +647,16 @@ class _FileManagerViewState extends State<FileManagerView> {
                         Future.delayed(
                             Duration.zero, () => _locationNode.requestFocus());
                       },
-                      child: SvgPicture.asset(
-                        "assets/search.svg",
-                        colorFilter:
-                            svgColor(Theme.of(context).tabBarTheme.labelColor),
-                      ),
+                      child: waldSvg("assets/search.svg",
+                          color: Theme.of(context).tabBarTheme.labelColor),
                       color: Theme.of(context).cardColor,
                       hoverColor: Theme.of(context).hoverColor,
                     );
                   case LocationStatus.pathLocation:
                     return MenuButton(
                       onPressed: null,
-                      child: SvgPicture.asset(
-                        "assets/close.svg",
-                        colorFilter:
-                            svgColor(Theme.of(context).tabBarTheme.labelColor),
-                      ),
+                      child: waldSvg("assets/close.svg",
+                          color: Theme.of(context).tabBarTheme.labelColor),
                       color: Theme.of(context).disabledColor,
                       hoverColor: Theme.of(context).hoverColor,
                     );
@@ -684,11 +667,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                         onSearchText("", isLocal);
                         _locationStatus.value = LocationStatus.bread;
                       },
-                      child: SvgPicture.asset(
-                        "assets/close.svg",
-                        colorFilter:
-                            svgColor(Theme.of(context).tabBarTheme.labelColor),
-                      ),
+                      child: waldSvg("assets/close.svg",
+                          color: Theme.of(context).tabBarTheme.labelColor),
                       color: Theme.of(context).cardColor,
                       hoverColor: Theme.of(context).hoverColor,
                     );
@@ -702,11 +682,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                 onPressed: () {
                   controller.refresh();
                 },
-                child: SvgPicture.asset(
-                  "assets/refresh.svg",
-                  colorFilter:
-                      svgColor(Theme.of(context).tabBarTheme.labelColor),
-                ),
+                child: waldSvg("assets/refresh.svg",
+                    color: Theme.of(context).tabBarTheme.labelColor),
                 color: Theme.of(context).cardColor,
                 hoverColor: Theme.of(context).hoverColor,
               ),
@@ -728,11 +705,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                       onPressed: () {
                         controller.goToHomeDirectory();
                       },
-                      child: SvgPicture.asset(
-                        "assets/home.svg",
-                        colorFilter:
-                            svgColor(Theme.of(context).tabBarTheme.labelColor),
-                      ),
+                      child: waldSvg("assets/home.svg",
+                          color: Theme.of(context).tabBarTheme.labelColor),
                       color: Theme.of(context).cardColor,
                       hoverColor: Theme.of(context).hoverColor,
                     ),
@@ -772,8 +746,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                             title: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                SvgPicture.asset("assets/folder_new.svg",
-                                    colorFilter: svgColor(MyTheme.accent)),
+                                waldSvg("assets/folder_new.svg",
+                                    color: MyTheme.accent),
                                 Text(
                                   translate("Create Folder"),
                                 ).paddingOnly(
@@ -799,13 +773,13 @@ class _FileManagerViewState extends State<FileManagerView> {
                             actions: [
                               dialogButton(
                                 "Cancel",
-                                icon: Icon(Icons.close_rounded),
+                                icon: Icon(waldIcon(Icons.close_rounded)),
                                 onPressed: cancel,
                                 isOutline: true,
                               ),
                               dialogButton(
                                 "Ok",
-                                icon: Icon(Icons.done_rounded),
+                                icon: Icon(waldIcon(Icons.done_rounded)),
                                 onPressed: submit,
                               ),
                             ],
@@ -814,11 +788,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                           );
                         });
                       },
-                      child: SvgPicture.asset(
-                        "assets/folder_new.svg",
-                        colorFilter:
-                            svgColor(Theme.of(context).tabBarTheme.labelColor),
-                      ),
+                      child: waldSvg("assets/folder_new.svg",
+                          color: Theme.of(context).tabBarTheme.labelColor),
                       color: Theme.of(context).cardColor,
                       hoverColor: Theme.of(context).hoverColor,
                     ),
@@ -831,11 +802,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                                   selectedItems.clear();
                                 }
                               : null,
-                          child: SvgPicture.asset(
-                            "assets/trash.svg",
-                            colorFilter: svgColor(
-                                Theme.of(context).tabBarTheme.labelColor),
-                          ),
+                          child: waldSvg("assets/trash.svg",
+                              color: Theme.of(context).tabBarTheme.labelColor),
                           color: Theme.of(context).cardColor,
                           hoverColor: Theme.of(context).hoverColor,
                         )),
@@ -891,7 +859,7 @@ class _FileManagerViewState extends State<FileManagerView> {
                             webselectFiles(is_folder: value);
                           }
                         },
-                        child: Icon(Icons.arrow_drop_down),
+                        child: Icon(waldIcon(Icons.arrow_drop_down)),
                       ),
                       icon: Text(
                         translate(isUploadFolder.isTrue
@@ -903,18 +871,9 @@ class _FileManagerViewState extends State<FileManagerView> {
                         ),
                       ).marginOnly(left: 8),
                     )).marginOnly(left: 16),
+              // Waldlust(DSK-07): 테마 주요 버튼(색·비활성은 테마). 화살표는 버튼 글자색을 따르고,
+              // 보내기는 라벨 뒤(→), 받기는 라벨 앞(←)에 둔다.
               Obx(() => ElevatedButton.icon(
-                    style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          isLocal
-                              ? EdgeInsets.only(left: 10)
-                              : EdgeInsets.only(right: 10)),
-                      backgroundColor: MaterialStateProperty.all(
-                        selectedItems.items.isEmpty
-                            ? MyTheme.accent80
-                            : MyTheme.accent,
-                      ),
-                    ),
                     onPressed: SelectedItems.valid(selectedItems.items)
                         ? () {
                             final otherSideData =
@@ -923,56 +882,26 @@ class _FileManagerViewState extends State<FileManagerView> {
                             selectedItems.clear();
                           }
                         : null,
-                    icon: isLocal
-                        ? Text(
-                            translate('Send'),
-                            textAlign: TextAlign.right,
-                            style: TextStyle(
-                              color: selectedItems.items.isEmpty
-                                  ? Theme.of(context).brightness ==
-                                          Brightness.light
-                                      ? MyTheme.grayBg
-                                      : MyTheme.darkGray
-                                  : Colors.white,
-                            ),
-                          )
-                        : isWeb
-                            ? Offstage()
-                            : RotatedBox(
-                                quarterTurns: 2,
-                                child: SvgPicture.asset(
-                                  "assets/arrow.svg",
-                                  colorFilter: svgColor(
-                                      selectedItems.items.isEmpty
-                                          ? Theme.of(context).brightness ==
-                                                  Brightness.light
-                                              ? MyTheme.grayBg
-                                              : MyTheme.darkGray
-                                          : Colors.white),
-                                  alignment: Alignment.bottomRight,
-                                ),
-                              ),
-                    label: isLocal
-                        ? SvgPicture.asset(
-                            "assets/arrow.svg",
-                            colorFilter: svgColor(selectedItems.items.isEmpty
-                                ? Theme.of(context).brightness ==
-                                        Brightness.light
-                                    ? MyTheme.grayBg
-                                    : MyTheme.darkGray
-                                : Colors.white),
-                          )
-                        : Text(
-                            translate(isWeb ? 'Download' : 'Receive'),
-                            style: TextStyle(
-                              color: selectedItems.items.isEmpty
-                                  ? Theme.of(context).brightness ==
-                                          Brightness.light
-                                      ? MyTheme.grayBg
-                                      : MyTheme.darkGray
-                                  : Colors.white,
-                            ),
-                          ),
+                    iconAlignment:
+                        isLocal ? IconAlignment.end : IconAlignment.start,
+                    icon: !isLocal && isWeb
+                        ? Offstage()
+                        : Builder(
+                            builder: (context) => RotatedBox(
+                                  quarterTurns: isLocal ? 0 : 2,
+                                  child: waldSvg("assets/arrow.svg",
+                                      color: IconTheme.of(context).color,
+                                      width: WaldSize.iconLg,
+                                      iconSize: WaldSize.iconSm),
+                                )),
+                    label: Text(
+                      translate(isLocal
+                          ? 'Send'
+                          : isWeb
+                              ? 'Download'
+                              : 'Receive'),
+                      strutStyle: waldButtonStrut(),
+                    ),
                   )),
             ],
           ).marginOnly(top: 8.0)
@@ -1036,10 +965,8 @@ class _FileManagerViewState extends State<FileManagerView> {
               .toList(),
           elevation: 8,
         ),
-        child: SvgPicture.asset(
-          "assets/dots.svg",
-          colorFilter: svgColor(Theme.of(context).tabBarTheme.labelColor),
-        ),
+        child: waldSvg("assets/dots.svg",
+            color: Theme.of(context).tabBarTheme.labelColor),
         color: Theme.of(context).cardColor,
         hoverColor: Theme.of(context).hoverColor,
       ),
@@ -1200,15 +1127,13 @@ class _FileManagerViewState extends State<FileManagerView> {
                                                         .color
                                                         ?.withOpacity(0.7))
                                                 .paddingAll(4)
-                                            : SvgPicture.asset(
+                                            : waldSvg(
                                                 entry.isFile
                                                     ? "assets/file.svg"
                                                     : "assets/folder.svg",
-                                                colorFilter: svgColor(
-                                                    Theme.of(context)
-                                                        .tabBarTheme
-                                                        .labelColor),
-                                              ),
+                                                color: Theme.of(context)
+                                                    .tabBarTheme
+                                                    .labelColor),
                                         Expanded(
                                             child: Text(entry.name.nonBreaking,
                                                 style: TextStyle(
@@ -1463,8 +1388,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                     ascending.value != null
                         ? Icon(
                             ascending.value!
-                                ? Icons.keyboard_arrow_up_rounded
-                                : Icons.keyboard_arrow_down_rounded,
+                                ? waldIcon(Icons.keyboard_arrow_up_rounded)
+                                : waldIcon(Icons.keyboard_arrow_down_rounded),
                           )
                         : SizedBox()
                   ],
@@ -1506,7 +1431,8 @@ class _FileManagerViewState extends State<FileManagerView> {
                     },
                     child: BreadCrumb(
                       items: items,
-                      divider: const Icon(Icons.keyboard_arrow_right_rounded),
+                      divider:
+                          Icon(waldIcon(Icons.keyboard_arrow_right_rounded)),
                       overflow: ScrollableOverflow(
                         controller: _breadCrumbScroller,
                       ),
@@ -1515,7 +1441,7 @@ class _FileManagerViewState extends State<FileManagerView> {
                 ),
                 ActionIcon(
                   message: "",
-                  icon: Icons.keyboard_arrow_down_rounded,
+                  icon: waldIcon(Icons.keyboard_arrow_down_rounded),
                   onTap: () async {
                     final renderBox = _locationBarKey.currentContext
                         ?.findRenderObject() as RenderBox;
@@ -1659,12 +1585,11 @@ class _FileManagerViewState extends State<FileManagerView> {
       ..selection = TextSelection.collapsed(offset: text.length);
     return Row(
       children: [
-        SvgPicture.asset(
-          _locationStatus.value == LocationStatus.pathLocation
-              ? "assets/folder.svg"
-              : "assets/search.svg",
-          colorFilter: svgColor(Theme.of(context).tabBarTheme.labelColor),
-        ),
+        waldSvg(
+            _locationStatus.value == LocationStatus.pathLocation
+                ? "assets/folder.svg"
+                : "assets/search.svg",
+            color: Theme.of(context).tabBarTheme.labelColor),
         Expanded(
           child: TextField(
             focusNode: _locationNode,
@@ -1696,7 +1621,7 @@ class _FileManagerViewState extends State<FileManagerView> {
 Widget buildWindowsThisPC(BuildContext context, [TextStyle? textStyle]) {
   final color = Theme.of(context).iconTheme.color?.withOpacity(0.7);
   return Row(children: [
-    Icon(Icons.computer, size: 20, color: color),
+    Icon(waldIcon(Icons.computer), size: 20, color: color),
     SizedBox(width: 10),
     Text(translate('This PC'), style: textStyle)
   ]);
