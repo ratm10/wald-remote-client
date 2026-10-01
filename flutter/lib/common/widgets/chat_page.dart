@@ -31,7 +31,7 @@ class ChatPage extends StatelessWidget implements PageShape {
     PopupMenuButton<MessageKey>(
         tooltip: "",
         icon: unreadTopRightBuilder(gFFI.chatModel.mobileUnreadSum,
-            icon: Icon(Icons.group)),
+            icon: Icon(waldIcon(Icons.group))),
         itemBuilder: (context) {
           // only mobile need [appBarActions], just bind gFFI.chatModel
           final chatModel = gFFI.chatModel;
@@ -47,8 +47,8 @@ class ChatPage extends StatelessWidget implements PageShape {
                 children: [
                   Icon(
                           key.isOut
-                              ? Icons.call_made_rounded
-                              : Icons.call_received_rounded,
+                              ? waldIcon(Icons.call_made_rounded)
+                              : waldIcon(Icons.call_received_rounded),
                           color: MyTheme.accent)
                       .marginOnly(right: 6),
                   Text("${user.firstName}   ${user.id}"),
@@ -127,7 +127,7 @@ class ChatPage extends StatelessWidget implements PageShape {
                         padding:
                             EdgeInsets.symmetric(horizontal: 6, vertical: 0),
                         color: MyTheme.accent,
-                        icon: Icons.send_rounded,
+                        icon: waldIcon(Icons.send_rounded),
                       ),
                     ),
                     messageOptions: MessageOptions(

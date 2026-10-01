@@ -403,7 +403,7 @@ class PopupMenuItemState<T, W extends PopupMenuItem<T>> extends State<W> {
 ///
 /// A [CheckedPopupMenuItem] is kMinInteractiveDimension pixels high, which
 /// matches the default minimum height of a [PopupMenuItem]. The horizontal
-/// layout uses [ListTile]; the checkmark is an [Icons.done] icon, shown in the
+/// layout uses [ListTile]; the checkmark is an [waldIcon(Icons.done)] icon, shown in the
 /// [ListTile.leading] position.
 ///
 /// {@tool snippet}
@@ -486,7 +486,7 @@ class CheckedPopupMenuItem<T> extends PopupMenuItem<T> {
   ///
   /// Defaults to false.
   ///
-  /// When true, an [Icons.done] checkmark is displayed.
+  /// When true, an [waldIcon(Icons.done)] checkmark is displayed.
   ///
   /// When this popup menu item is selected, the checkmark will fade in or out
   /// as appropriate to represent the implied new state.
@@ -498,7 +498,7 @@ class CheckedPopupMenuItem<T> extends PopupMenuItem<T> {
   /// the child. The text should be short enough that it won't wrap.
   ///
   /// This widget is placed in the [ListTile.title] slot of a [ListTile] whose
-  /// [ListTile.leading] slot is an [Icons.done] icon.
+  /// [ListTile.leading] slot is an [waldIcon(Icons.done)] icon.
   @override
   Widget? get child => super.child;
 
@@ -539,7 +539,7 @@ class _CheckedPopupMenuItemState<T>
       enabled: widget.enabled,
       leading: FadeTransition(
         opacity: _opacity,
-        child: Icon(_controller.isDismissed ? null : Icons.done),
+        child: Icon(_controller.isDismissed ? null : waldIcon(Icons.done)),
       ),
       title: widget.child,
     );

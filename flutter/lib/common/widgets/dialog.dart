@@ -304,7 +304,7 @@ Future<String> changeDirectAccessPort(
                             prefix: Text('$currentIP : '),
                             suffix: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.clear, size: 16),
+                                icon: Icon(waldIcon(Icons.clear), size: 16),
                                 onPressed: () => controller.clear())),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -352,7 +352,7 @@ Future<String> changeAutoDisconnectTimeout(String old) async {
                             isCollapsed: true,
                             suffix: IconButton(
                                 padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.clear, size: 16),
+                                icon: Icon(waldIcon(Icons.clear), size: 16),
                                 onPressed: () => controller.clear())),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(
@@ -395,9 +395,9 @@ class DialogTextField extends StatelessWidget {
   final int? maxLength;
 
   static const kUsernameTitle = 'Username';
-  static const kUsernameIcon = Icon(Icons.account_circle_outlined);
+  static final kUsernameIcon = Icon(waldIcon(Icons.account_circle_outlined));
   static const kPasswordTitle = 'Password';
-  static const kPasswordIcon = Icon(Icons.lock_outline);
+  static final kPasswordIcon = Icon(waldIcon(Icons.lock_outline));
 
   DialogTextField(
       {Key? key,
@@ -769,7 +769,9 @@ class _PasswordWidgetState extends State<PasswordWidget> {
       suffixIcon: IconButton(
         icon: Icon(
             // Based on passwordVisible state choose the icon
-            _passwordVisible ? Icons.visibility : Icons.visibility_off,
+            _passwordVisible
+                ? waldIcon(Icons.visibility)
+                : waldIcon(Icons.visibility_off),
             color: MyTheme.lightTheme.primaryColor),
         onPressed: () {
           // Update the state i.e. toggle the state of passwordVisible variable
@@ -1029,7 +1031,7 @@ _connectDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.password_rounded, color: MyTheme.accent),
+          Icon(waldIcon(Icons.password_rounded), color: MyTheme.accent),
           Text(translate('Password Required')).paddingOnly(left: 10),
         ],
       ),
@@ -1043,13 +1045,13 @@ _connectDialog(
       actions: [
         dialogButton(
           'Cancel',
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: cancel,
           isOutline: true,
         ),
         dialogButton(
           'OK',
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(waldIcon(Icons.done_rounded)),
           onPressed: submit,
         ),
       ],
@@ -1070,7 +1072,7 @@ void showWaitUacDialog(
             actions: [
               dialogButton(
                 'OK',
-                icon: Icon(Icons.done_rounded),
+                icon: Icon(waldIcon(Icons.done_rounded)),
                 onPressed: close,
               ),
             ],
@@ -1161,7 +1163,8 @@ void showRequestElevationDialog(
     ),
     child: Row(
       children: [
-        Icon(Icons.info_outline_rounded, size: 20).marginOnly(right: 10),
+        Icon(waldIcon(Icons.info_outline_rounded), size: 20)
+            .marginOnly(right: 10),
         Expanded(
           child: Text(
             translate('still_click_uac_tip'),
@@ -1232,13 +1235,13 @@ void showRequestElevationDialog(
       actions: [
         dialogButton(
           'Cancel',
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: close,
           isOutline: true,
         ),
         dialogButton(
           'OK',
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(waldIcon(Icons.done_rounded)),
           onPressed: submit,
         )
       ],
@@ -1326,7 +1329,8 @@ void showRestartRemoteDevice(PeerInfo pi, String id, SessionID sessionId,
   final res = await dialogManager
       .show<bool>((setState, close, context) => CustomAlertDialog(
             title: Row(children: [
-              Icon(Icons.warning_rounded, color: Colors.redAccent, size: 28),
+              Icon(waldIcon(Icons.warning_rounded),
+                  color: Colors.redAccent, size: 28),
               Flexible(
                   child: Text(translate("Restart remote device"))
                       .paddingOnly(left: 10)),
@@ -1336,13 +1340,13 @@ void showRestartRemoteDevice(PeerInfo pi, String id, SessionID sessionId,
             actions: [
               dialogButton(
                 "Cancel",
-                icon: Icon(Icons.close_rounded),
+                icon: Icon(waldIcon(Icons.close_rounded)),
                 onPressed: close,
                 isOutline: true,
               ),
               dialogButton(
                 "OK",
-                icon: Icon(Icons.done_rounded),
+                icon: Icon(waldIcon(Icons.done_rounded)),
                 onPressed: () => close(true),
               ),
             ],
@@ -1391,7 +1395,7 @@ showSetOSPassword(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.password_rounded, color: MyTheme.accent),
+          Icon(waldIcon(Icons.password_rounded), color: MyTheme.accent),
           Text(translate('OS Password')).paddingOnly(left: 10),
         ],
       ),
@@ -1417,13 +1421,13 @@ showSetOSPassword(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: closeWithCallback,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(waldIcon(Icons.done_rounded)),
           onPressed: submit,
         ),
       ],
@@ -1482,7 +1486,7 @@ showSetOSAccount(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.password_rounded, color: MyTheme.accent),
+          Icon(waldIcon(Icons.password_rounded), color: MyTheme.accent),
           Text(translate('OS Account')).paddingOnly(left: 10),
         ],
       ),
@@ -1502,13 +1506,13 @@ showSetOSAccount(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: close,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(waldIcon(Icons.done_rounded)),
           onPressed: submit,
         ),
       ],
@@ -1940,7 +1944,7 @@ void deleteConfirmDialog(Function onSubmit, String title) async {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.delete_rounded,
+              waldIcon(Icons.delete_rounded),
               color: Colors.red,
             ),
             Expanded(
@@ -1954,13 +1958,13 @@ void deleteConfirmDialog(Function onSubmit, String title) async {
         actions: [
           dialogButton(
             "Cancel",
-            icon: Icon(Icons.close_rounded),
+            icon: Icon(waldIcon(Icons.close_rounded)),
             onPressed: close,
             isOutline: true,
           ),
           dialogButton(
             "OK",
-            icon: Icon(Icons.done_rounded),
+            icon: Icon(waldIcon(Icons.done_rounded)),
             onPressed: submit,
           ),
         ],
@@ -2096,7 +2100,7 @@ void renameDialog(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.edit_rounded, color: MyTheme.accent),
+          Icon(waldIcon(Icons.edit_rounded), color: MyTheme.accent),
           Text(translate('Rename')).paddingOnly(left: 10),
         ],
       ),
@@ -2122,13 +2126,13 @@ void renameDialog(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: cancel,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(waldIcon(Icons.done_rounded)),
           onPressed: submit,
         ),
       ],
@@ -2478,13 +2482,13 @@ void addPeersToAbDialog(
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: cancel,
           isOutline: true,
         ),
         dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(waldIcon(Icons.done_rounded)),
           onPressed: submit,
         ),
       ],
@@ -2522,7 +2526,7 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.key, color: MyTheme.accent),
+          Icon(waldIcon(Icons.key), color: MyTheme.accent),
           Text(translate(peer.password.isEmpty
                   ? 'Set shared password'
                   : 'Change Password'))
@@ -2537,7 +2541,9 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
               decoration: InputDecoration(
                 suffixIcon: IconButton(
                   icon: Icon(
-                      passwordVisible ? Icons.visibility : Icons.visibility_off,
+                      passwordVisible
+                          ? waldIcon(Icons.visibility)
+                          : waldIcon(Icons.visibility_off),
                       color: MyTheme.lightTheme.primaryColor),
                   onPressed: () {
                     setState(() {
@@ -2549,7 +2555,8 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
             ).workaroundFreezeLinuxMint(),
             if (!gFFI.abModel.current.isPersonal())
               Row(children: [
-                Icon(Icons.info, color: Colors.amber).marginOnly(right: 4),
+                Icon(waldIcon(Icons.info), color: Colors.amber)
+                    .marginOnly(right: 4),
                 Text(
                   translate('share_warning_tip'),
                   style: TextStyle(fontSize: 12),
@@ -2561,21 +2568,21 @@ void setSharedAbPasswordDialog(String abName, Peer peer) {
       actions: [
         dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: cancel,
           isOutline: true,
         ),
         if (peer.password.isNotEmpty)
           dialogButton(
             "Remove",
-            icon: Icon(Icons.delete_outline_rounded),
+            icon: Icon(waldIcon(Icons.delete_outline_rounded)),
             onPressed: () => change(''),
             // Waldlust(DSK-07): 빨강 바탕 + 흰 글자(다크 모드에서도).
             buttonStyle: waldDangerStyle(),
           ),
         Obx(() => dialogButton(
               "OK",
-              icon: Icon(Icons.done_rounded),
+              icon: Icon(waldIcon(Icons.done_rounded)),
               onPressed:
                   isInputEmpty.value ? null : () => change(controller.text),
             )),

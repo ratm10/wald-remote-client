@@ -1288,19 +1288,19 @@ Color? _msgboxColor(String type) {
 Widget msgboxIcon(String type) {
   IconData? iconData;
   if (type.contains("error") || type == "re-input-password") {
-    iconData = Icons.cancel;
+    iconData = waldIcon(Icons.cancel);
   }
   if (type.contains("success")) {
-    iconData = Icons.check_circle;
+    iconData = waldIcon(Icons.check_circle);
   }
   if (type == "wait-uac" || type == "wait-remote-accept-nook") {
-    iconData = Icons.hourglass_top;
+    iconData = waldIcon(Icons.hourglass_top);
   }
   if (type == 'on-uac' || type == 'on-foreground-elevated') {
-    iconData = Icons.admin_panel_settings;
+    iconData = waldIcon(Icons.admin_panel_settings);
   }
   if (type.contains('info')) {
-    iconData = Icons.info;
+    iconData = waldIcon(Icons.info);
   }
   if (iconData != null) {
     return Icon(iconData, size: 50, color: _msgboxColor(type))
@@ -3195,7 +3195,7 @@ Widget unreadMessageCountBuilder(RxInt? count,
 Widget unreadTopRightBuilder(RxInt? count, {Widget? icon}) {
   return Stack(
     children: [
-      icon ?? Icon(Icons.chat),
+      icon ?? Icon(waldIcon(Icons.chat)),
       Positioned(
           top: 0,
           right: 0,
@@ -3227,7 +3227,7 @@ Widget buildErrorBanner(BuildContext context,
             children: [
               FittedBox(
                 child: Icon(
-                  Icons.info,
+                  waldIcon(Icons.info),
                   color: Color.fromARGB(255, 249, 81, 81),
                 ),
               ).marginAll(4),
@@ -3255,7 +3255,8 @@ Widget buildErrorBanner(BuildContext context,
                   onTap: () {
                     close.call();
                   },
-                  child: Icon(Icons.close).marginSymmetric(horizontal: 5),
+                  child: Icon(waldIcon(Icons.close))
+                      .marginSymmetric(horizontal: 5),
                 ),
               ).marginAll(4)
             ],
@@ -3658,8 +3659,8 @@ class ComboBox extends StatelessWidget {
                 color: enabled
                     ? Theme.of(context).textTheme.titleMedium?.color
                     : disabledTextColor(context, enabled)),
-            icon: const Icon(
-              Icons.expand_more_sharp,
+            icon: Icon(
+              waldIcon(Icons.expand_more_sharp),
               size: 20,
             ).marginOnly(right: 15),
             onChanged: enabled

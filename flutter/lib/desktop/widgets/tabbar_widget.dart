@@ -881,7 +881,7 @@ Future<bool> closeConfirmDialog() async {
 
     return CustomAlertDialog(
       title: Row(children: [
-        const Icon(Icons.warning_amber_sharp,
+        Icon(waldIcon(Icons.warning_amber_sharp),
             color: Colors.redAccent, size: 28),
         const SizedBox(width: 10),
         Text(translate("Warning")),
@@ -1233,7 +1233,7 @@ class _CloseButton extends StatelessWidget {
                   customBorder: const CircleBorder(),
                   onTap: () => onClose(),
                   child: Icon(
-                    Icons.close,
+                    waldIcon(Icons.close),
                     size: _kIconSize,
                     color: tabSelected
                         ? MyTheme.tabbar(context).selectedIconColor
@@ -1354,7 +1354,7 @@ class _TabDropDownButtonState extends State<_TabDropDownButton> {
         final y = details.globalPosition.dy;
         position = RelativeRect.fromLTRB(x, y, x, y);
       },
-      icon: Icons.arrow_drop_down,
+      icon: waldIcon(Icons.arrow_drop_down),
       onTap: () {
         showMenu(
           context: context,
@@ -1408,7 +1408,7 @@ class _TabDropDownButtonState extends State<_TabDropDownButton> {
                                       setState(() => btnHover.value = true),
                                   onExit: (event) =>
                                       setState(() => btnHover.value = false),
-                                  child: Icon(Icons.close,
+                                  child: Icon(waldIcon(Icons.close),
                                       color:
                                           btnHover.value ? Colors.red : null)));
                         } else {

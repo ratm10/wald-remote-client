@@ -290,7 +290,7 @@ class _WidgetOPState extends State<WidgetOP> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.error_outline,
+                            Icon(waldIcon(Icons.error_outline),
                                 color: errorColor, size: 16),
                             const SizedBox(width: 6),
                             Flexible(
@@ -634,7 +634,7 @@ Future<bool?> loginDialog() async {
           onExit: (_) => setState(() => isCloseHovered = false),
           child: InkWell(
             child: Icon(
-              Icons.close,
+              waldIcon(Icons.close),
               size: 25,
               // No need to handle the branch of null.
               // Because we can ensure the color is not null when debug.
@@ -760,7 +760,8 @@ Future<bool?> verificationCodeDialog(
                 offstage: !isEmailVerification || user?.email == null,
                 child: TextField(
                   decoration: InputDecoration(
-                      labelText: "Email", prefixIcon: Icon(Icons.email)),
+                      labelText: "Email",
+                      prefixIcon: Icon(waldIcon(Icons.email))),
                   readOnly: true,
                   controller: TextEditingController(text: user?.email),
                 ).workaroundFreezeLinuxMint()),

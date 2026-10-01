@@ -30,10 +30,10 @@ class PeerTabModel with ChangeNotifier {
     'Address book',
     'Accessible devices',
   ];
-  static const List<IconData> icons = [
-    Icons.access_time_filled,
-    Icons.star,
-    Icons.explore,
+  static final List<IconData> icons = [
+    waldIcon(Icons.access_time_filled),
+    waldIcon(Icons.star),
+    waldIcon(Icons.explore),
     IconFont.addressBook,
     IconFont.deviceGroupFill,
   ];
@@ -135,7 +135,7 @@ class PeerTabModel with ChangeNotifier {
     if (index >= 0 && index < icons.length) {
       return icons[index];
     }
-    return Icons.help;
+    return waldIcon(Icons.help);
   }
 
   setMultiSelectionMode(bool mode) {

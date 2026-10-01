@@ -607,15 +607,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           margin: EdgeInsets.fromLTRB(
               0, marginTop, 0, bind.isIncomingOnly() ? marginTop : 0),
           child: Container(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.fromARGB(255, 226, 66, 188),
-                  Color.fromARGB(255, 244, 114, 124),
-                ],
-              )),
+              // Waldlust(DSK-07): 분홍 그라데이션 대신 어드민 톤의 어두운 단색(글자는 흰색 그대로).
+              decoration: BoxDecoration(color: WaldColors.of(context).headerBg),
               padding: EdgeInsets.all(20),
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -655,8 +648,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                                       text: translate(btnText),
                                       textColor: Colors.white,
                                       borderColor: Colors.white,
-                                      textSize: 20,
-                                      radius: 10,
+                                      textSize: WaldSize.buttonFont,
+                                      radius: WaldSize.radius,
                                       onTap: onPressed,
                                     )
                                   ])

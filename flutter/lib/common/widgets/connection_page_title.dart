@@ -22,7 +22,7 @@ Widget getConnectionPageTitle(BuildContext context, bool isWeb) {
             waitDuration: Duration(milliseconds: 300),
             message: translate(isWeb ? "web_id_input_tip" : "id_input_tip"),
             child: Icon(
-              Icons.help_outline_outlined,
+              waldIcon(Icons.help_outline_outlined),
               size: 16,
               color: Theme.of(context)
                   .textTheme

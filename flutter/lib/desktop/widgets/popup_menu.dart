@@ -245,7 +245,7 @@ class MenuEntryRadios<T> extends MenuEntryBase<T> {
                             focusColor: Colors.transparent,
                             onPressed: () {},
                             icon: Icon(
-                              Icons.check,
+                              waldIcon(Icons.check),
                               color: (opt.enabled ?? true.obs).isTrue
                                   ? conf.commonColor
                                   : WaldPalette.neutral400,
@@ -361,7 +361,7 @@ class MenuEntrySubRadios<T> extends MenuEntryBase<T> {
                                 focusColor: Colors.transparent,
                                 onPressed: () {},
                                 icon: Icon(
-                                  Icons.check,
+                                  waldIcon(Icons.check),
                                   color: conf.commonColor,
                                 ))
                             : const SizedBox.shrink())),
@@ -405,7 +405,7 @@ class MenuEntrySubRadios<T> extends MenuEntryBase<T> {
               child: Align(
             alignment: Alignment.centerRight,
             child: Icon(
-              Icons.keyboard_arrow_right,
+              waldIcon(Icons.keyboard_arrow_right),
               color: conf.commonColor,
             ),
           ))
@@ -679,7 +679,7 @@ class MenuEntrySubMenu<T> extends MenuEntryBase<T> {
               child: Align(
             alignment: Alignment.centerRight,
             child: Obx(() => Icon(
-                  Icons.keyboard_arrow_right,
+                  waldIcon(Icons.keyboard_arrow_right),
                   color: super.enabled!.value
                       ? conf.commonColor
                       : WaldPalette.neutral400,
