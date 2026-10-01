@@ -3,9 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
+import 'package:flutter_hbb/common/widgets/peer_card.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
 import 'package:flutter_hbb/models/ab_model.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
+import 'package:flutter_hbb/models/peer_tab_model.dart';
 import 'package:flutter_hbb/models/wald_peer_names.dart';
 import 'package:get/get.dart';
 
@@ -46,13 +48,34 @@ MenuEntryButton<String> waldRenameMenuEntry(Peer peer, EdgeInsets? padding) {
 
 /// 주소록 카드의 수정 버튼(명세 Q-31 기본값: 버튼 + 다이얼로그).
 Widget waldEditButton(Peer peer) {
+  return _waldCardButton(
+      Icons.edit_outlined, translate('Rename'), () => waldRenameAbPeer(peer));
+}
+
+/// Waldlust(DSK-04): 주소록 카드 오른쪽 버튼 — 연결, 파일 전송, (권한이 있으면) 이름 편집, 그다음 업스트림 더보기 메뉴.
+/// 그리드 카드는 이름과 한 줄을 나눠 쓰므로 버튼을 작게 둔다.
+Widget waldAbCardActions(BuildContext context, Peer peer, Widget more) {
+  return Row(mainAxisSize: MainAxisSize.min, children: [
+    _waldCardButton(Icons.screen_share_outlined, translate('Connect'),
+        () => connectInPeerTab(context, peer, PeerTabIndex.ab)),
+    _waldCardButton(
+        Icons.folder_outlined,
+        translate('Transfer file'),
+        () => connectInPeerTab(context, peer, PeerTabIndex.ab,
+            isFileTransfer: true)),
+    if (waldCanRename(gFFI.abModel.current)) waldEditButton(peer),
+    more,
+  ]);
+}
+
+Widget _waldCardButton(IconData icon, String tooltip, VoidCallback onTap) {
   return Tooltip(
-    message: translate('Rename'),
+    message: tooltip,
     child: InkWell(
-      onTap: () => waldRenameAbPeer(peer),
-      child: const Padding(
-        padding: EdgeInsets.all(8),
-        child: Icon(Icons.edit_outlined, size: 18),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(5),
+        child: Icon(icon, size: 18),
       ),
     ),
   );
