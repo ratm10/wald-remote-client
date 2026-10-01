@@ -5,8 +5,8 @@
 // - 크기: 버튼·메뉴 16, 툴바·파일 목록 18, 탭·연결 관리 창 머리 20(WaldSize).
 // - IconFont(common.dart)의 상수도 Lucide 를 가리키므로, IconFont 를 쓰는 곳은 호출부를 고치지
 //   않아도 Lucide 로 그려진다.
-// - 아이콘 세트는 kWaldLucideIcons 한 곳에서 고른다. 호출부는 waldIcon(Icons.x) 처럼 Material 이름을
-//   그대로 두고, Lucide 대응은 아래 표(kWaldLucideFor) 한 곳에 모은다(Material 과 비교하기 쉽게).
+// - 호출부는 waldIcon(Icons.x) 처럼 Material 이름을 그대로 두고(업스트림 병합 때 원래 아이콘이
+//   보이게), Lucide 대응은 아래 표(kWaldLucideFor) 한 곳에 모은다. 표에 없는 아이콘은 Material 그대로다.
 // - 플랫폼 로고·로그인 제공자 로고·키보드 배열 그림·연결 보안 배지·화면 번호 SVG 는 유지한다.
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common/wald_theme.dart';
@@ -14,10 +14,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 export 'package:lucide_icons_flutter/lucide_icons.dart' show LucideIcons;
-
-/// 아이콘 세트. 기본은 Lucide 이고, `--dart-define=WALD_MATERIAL_ICONS=true` 로 빌드하면
-/// 기존 Material·자체 아이콘 글꼴·SVG 를 그대로 쓴다(비교용).
-const bool kWaldLucideIcons = !bool.fromEnvironment('WALD_MATERIAL_ICONS');
 
 /// Material → Lucide 대응. IconData 는 == 를 재정의해 const Map 키로 쓸 수 없어 final 로 둔다
 /// (키·값은 모두 const 라 릴리스 빌드의 아이콘 글꼴 트리 셰이킹은 그대로 동작한다).
@@ -145,13 +141,12 @@ final Map<IconData, IconData> kWaldLucideFor = {
   Icons.close_rounded: LucideIcons.x,
 };
 
-/// Lucide 모드면 [material] 의 Lucide 대응을, 아니면(또는 대응이 없으면) [material] 을 돌려준다.
-IconData waldIcon(IconData material) =>
-    kWaldLucideIcons ? (kWaldLucideFor[material] ?? material) : material;
+/// [material] 의 Lucide 대응을 돌려준다(대응이 없으면 [material] 그대로).
+IconData waldIcon(IconData material) => kWaldLucideFor[material] ?? material;
 
 /// [widget] 이 대응표에 있는 Material 아이콘이면 같은 크기·색의 Lucide 아이콘으로 바꾼다.
 Widget? waldLucideIconWidget(Widget? widget) {
-  if (kWaldLucideIcons && widget is Icon) {
+  if (widget is Icon) {
     final icon = widget.icon;
     final lucide = icon == null ? null : kWaldLucideFor[icon];
     if (lucide != null) {
@@ -165,7 +160,6 @@ Widget? waldLucideIconWidget(Widget? widget) {
 }
 
 /// SVG 아이콘(원격 툴바·파일 전송·연결 관리 창) → Lucide. 없는 항목은 SVG 를 그대로 쓴다.
-/// Lucide 모드가 아니면 쓰지 않는다(waldAssetIcon).
 const Map<String, IconData> kWaldAssetIcon = {
   // 원격 툴바
   'assets/pinned.svg': LucideIcons.pin,
@@ -196,9 +190,8 @@ const Map<String, IconData> kWaldAssetIcon = {
   'assets/file_transfer.svg': LucideIcons.arrowLeftRight,
 };
 
-/// Lucide 모드면 [asset] SVG 를 대신할 Lucide 아이콘, 아니면 null(SVG 를 그대로 쓴다).
-IconData? waldAssetIcon(String asset) =>
-    kWaldLucideIcons ? kWaldAssetIcon[asset] : null;
+/// [asset] SVG 를 대신할 Lucide 아이콘. 대응이 없으면 null(SVG 를 그대로 쓴다).
+IconData? waldAssetIcon(String asset) => kWaldAssetIcon[asset];
 
 /// 예전 SVG 는 [box] 크기 상자 안에 여백까지 그려져 있었다. 그 자리를 같은 크기 상자 가운데의
 /// Lucide 아이콘([size])으로 대신한다.
@@ -210,7 +203,7 @@ Widget waldIconBox(IconData icon,
   );
 }
 
-/// SvgPicture.asset 대신 쓴다. Lucide 모드이고 대응이 있으면 같은 크기 상자 가운데에 Lucide 를,
+/// SvgPicture.asset 대신 쓴다. 대응이 있으면 같은 크기 상자 가운데에 Lucide 를,
 /// 아니면 SVG 를 그린다. [color] 는 SVG 에 주던 svgColor(color) 와 같다. 크기를 주지 않으면
 /// 예전 SVG 의 기본 크기(32)를 쓰고, 아이콘은 상자의 18/32 크기다(예: 32 → 18).
 Widget waldSvg(String asset,

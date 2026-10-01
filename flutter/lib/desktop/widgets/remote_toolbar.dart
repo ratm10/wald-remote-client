@@ -2829,7 +2829,7 @@ class _IconMenuButtonState extends State<_IconMenuButton> {
   @override
   Widget build(BuildContext context) {
     assert(widget.assetName != null || widget.icon != null);
-    // Waldlust(DSK-07): Lucide 모드면 SVG 대신 같은 크기 상자 가운데의 Lucide 아이콘.
+    // Waldlust(DSK-07): 대응이 있으면 SVG 대신 같은 크기 상자 가운데의 Lucide 아이콘.
     final lucide =
         widget.assetName == null ? null : waldAssetIcon(widget.assetName!);
     final icon = widget.icon ??
@@ -2920,7 +2920,7 @@ class _IconSubmenuButtonState extends State<_IconSubmenuButton> {
   @override
   Widget build(BuildContext context) {
     assert(widget.svg != null || widget.icon != null);
-    // Waldlust(DSK-07): Lucide 모드면 SVG 대신 같은 크기 상자 가운데의 Lucide 아이콘.
+    // Waldlust(DSK-07): 대응이 있으면 SVG 대신 같은 크기 상자 가운데의 Lucide 아이콘.
     final lucide = widget.svg == null ? null : waldAssetIcon(widget.svg!);
     final icon = widget.icon ??
         (lucide != null
