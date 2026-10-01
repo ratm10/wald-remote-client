@@ -7,7 +7,9 @@ import 'package:get/get.dart';
 const int kMaxVirtualDisplayCount = 4;
 const int kAllVirtualDisplay = -1;
 
-const double kDesktopRemoteTabBarHeight = 28.0;
+// Waldlust(DSK-07): 상단 탭 막대(앱바)를 28 → 40 으로 높인다. macOS 신호등 위치는
+// macos/Runner/MainFlutterWindow.swift 의 WaldTitleBar.height 와 같아야 한다.
+const double kDesktopRemoteTabBarHeight = 40.0;
 const int kInvalidWindowId = -1;
 const int kMainWindowId = 0;
 
@@ -334,8 +336,9 @@ extension StringExtension on String {
   String get nonBreaking => replaceAll(' ', String.fromCharCode($nbsp));
 }
 
-const Size kConnectionManagerWindowSizeClosedChat = Size(300, 490);
-const Size kConnectionManagerWindowSizeOpenChat = Size(700, 490);
+// Waldlust(DSK-07): 탭 막대가 12 높아진 만큼 창도 높여 내용 영역을 그대로 둔다(490 → 502).
+const Size kConnectionManagerWindowSizeClosedChat = Size(300, 502);
+const Size kConnectionManagerWindowSizeOpenChat = Size(700, 502);
 // Tabbar transition duration, now we remove the duration
 const Duration kTabTransitionDuration = Duration.zero;
 const double kEmptyMarginTop = 50;

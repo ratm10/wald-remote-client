@@ -103,6 +103,8 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
                   icon: IconFont.menu,
                   onTap: DesktopTabPage.onAddSetting,
                   isClose: false,
+                  // Waldlust(DSK-07): 높인 앱바(40)에 맞춰 아이콘을 12 → 20 으로 키운다.
+                  iconSize: WaldSize.iconLg,
                 ),
               ),
             )));
