@@ -567,6 +567,10 @@ pub fn is_installed_lower_version() -> bool {
     #[cfg(windows)]
     {
         let b = crate::platform::windows::get_reg("BuildDate");
+        // Waldlust(DSK-01): Inno 설치본(res/inno/waldlust.iss)은 이 값을 쓰지 않는다 — 기록이 없으면 비교하지 않는다.
+        if b.is_empty() {
+            return false;
+        }
         return crate::BUILD_DATE.cmp(&b).is_gt();
     }
 }
