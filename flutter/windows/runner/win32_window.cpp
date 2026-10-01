@@ -7,6 +7,7 @@
 
 #include <cstdlib> // for getenv and _putenv
 #include <cstring> // for strcmp
+#include <map>
 #include <string> // for std::wstring
 
 namespace {
@@ -19,21 +20,21 @@ static int g_active_window_count = 0;
 // Static variable to hold the custom icon (needs cleanup on exit)
 static HICON g_custom_icon_ = nullptr;
 
-// Try to load icon from data\flutter_assets\assets\icon.ico if it exists.
-// Returns nullptr if the file doesn't exist or can't be loaded.
-HICON LoadCustomIcon() {
-  if (g_custom_icon_ != nullptr) {
-    return g_custom_icon_;
-  }
+// Waldlust(DSK-10): custom icons by pixel size for WM_SETICON (freed with the class).
+static std::map<int, HICON> g_sized_icons_;
+
+// Path of data\flutter_assets\assets\icon.ico next to the exe.
+// Returns an empty string if the file doesn't exist or can't be used.
+std::wstring CustomIconPath() {
   wchar_t exe_path[MAX_PATH];
   if (!GetModuleFileNameW(nullptr, exe_path, MAX_PATH)) {
-    return nullptr;
+    return L"";
   }
 
   std::wstring icon_path = exe_path;
   size_t last_slash = icon_path.find_last_of(L"\\/");
   if (last_slash == std::wstring::npos) {
-    return nullptr;
+    return L"";
   }
 
   icon_path = icon_path.substr(0, last_slash + 1);
@@ -44,6 +45,19 @@ HICON LoadCustomIcon() {
   if (file_attr == INVALID_FILE_ATTRIBUTES ||
       (file_attr & FILE_ATTRIBUTE_DIRECTORY) ||
       (file_attr & FILE_ATTRIBUTE_REPARSE_POINT)) {
+    return L"";
+  }
+  return icon_path;
+}
+
+// Try to load icon from data\flutter_assets\assets\icon.ico if it exists.
+// Returns nullptr if the file doesn't exist or can't be loaded.
+HICON LoadCustomIcon() {
+  if (g_custom_icon_ != nullptr) {
+    return g_custom_icon_;
+  }
+  std::wstring icon_path = CustomIconPath();
+  if (icon_path.empty()) {
     return nullptr;
   }
 
@@ -51,6 +65,40 @@ HICON LoadCustomIcon() {
       nullptr, icon_path.c_str(), IMAGE_ICON, 0, 0,
       LR_LOADFROMFILE | LR_DEFAULTSIZE);
   return g_custom_icon_;
+}
+
+// Waldlust(DSK-10): loads the custom icon at |size| pixels (cached).
+HICON LoadCustomIconSized(int size) {
+  auto it = g_sized_icons_.find(size);
+  if (it != g_sized_icons_.end()) {
+    return it->second;
+  }
+  std::wstring icon_path = CustomIconPath();
+  if (icon_path.empty()) {
+    return nullptr;
+  }
+  HICON icon = (HICON)LoadImageW(nullptr, icon_path.c_str(), IMAGE_ICON, size,
+                                 size, LR_LOADFROMFILE);
+  if (icon != nullptr) {
+    g_sized_icons_[size] = icon;
+  }
+  return icon;
+}
+
+// Waldlust(DSK-10): the class icon is loaded once at the system-DPI size and
+// the taskbar rescales it, so the 'remote' text of the larger icon.ico entries
+// is lost (or blurred). Give the window icons sized for its own DPI instead.
+void UpdateWindowIcons(HWND hwnd, UINT dpi) {
+  HICON big_icon = LoadCustomIconSized(MulDiv(32, dpi, 96));    // SM_CXICON
+  HICON small_icon = LoadCustomIconSized(MulDiv(16, dpi, 96));  // SM_CXSMICON
+  if (big_icon != nullptr) {
+    SendMessage(hwnd, WM_SETICON, ICON_BIG,
+                reinterpret_cast<LPARAM>(big_icon));
+  }
+  if (small_icon != nullptr) {
+    SendMessage(hwnd, WM_SETICON, ICON_SMALL,
+                reinterpret_cast<LPARAM>(small_icon));
+  }
 }
 
 using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
@@ -147,6 +195,10 @@ void WindowClassRegistrar::UnregisterWindowClass() {
     DestroyIcon(g_custom_icon_);
     g_custom_icon_ = nullptr;
   }
+  for (auto& entry : g_sized_icons_) {
+    DestroyIcon(entry.second);
+  }
+  g_sized_icons_.clear();
 }
 
 Win32Window::Win32Window() {
@@ -181,6 +233,7 @@ bool Win32Window::CreateAndShow(const std::wstring& title,
   if (!window) {
     return false;
   }
+  UpdateWindowIcons(window, FlutterDesktopGetDpiForHWND(window));
 
   if (!showOnTaskBar) {
     // hide from taskbar
@@ -259,6 +312,7 @@ Win32Window::MessageHandler(HWND hwnd,
 
       SetWindowPos(hwnd, nullptr, newRectSize->left, newRectSize->top, newWidth,
                    newHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+      UpdateWindowIcons(hwnd, HIWORD(wparam));
 
       return 0;
     }

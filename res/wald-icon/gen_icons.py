@@ -2,7 +2,8 @@
 """Waldlust 원격지원 앱 아이콘 생성기(DSK-10).
 
 빨간 배경(#D32F2F) 위에 흰 W. 로고를 두고 그 아래에 'remote' 를 쓴다.
-48px 이하 크기는 글자가 읽히지 않아 W. 만 그린다.
+48px 이하 크기는 글자가 읽히지 않아 W. 만 그린다. 단, Windows ico 는 작업 표시줄(24~48px)·바탕화면(48px)
+아이콘에도 'remote' 가 보이게 16px 만 W. 만 그린다.
 
 W. 는 기존 비트맵 아이콘(검정 배경)에서 잰 꼭짓점으로 다시 그린 벡터다(1024 기준 좌표).
 'remote' 글꼴은 Montserrat Bold(SIL OFL 1.1)다. 글꼴 파일은 저장소에 넣지 않는다.
@@ -25,6 +26,7 @@ BG = (0xD3, 0x2F, 0x2F, 255)
 FG = (255, 255, 255, 255)
 TEXT = "remote"
 SMALL_MAX = 48  # 이 크기(px) 이하는 W. 만
+ICO_SMALL_MAX = 16  # Windows ico 에서 W. 만 그리는 크기(px) 상한
 
 # W 다각형과 점(1024 캔버스 기준, 기존 아이콘에서 잰 값)
 W_POLY = [
@@ -171,8 +173,8 @@ def floating_window_xml():
     )
 
 
-def save_ico(path, font_path, sizes=(16, 32, 48, 64, 128, 256)):
-    imgs = [render(s, "square", font_path) for s in sizes]
+def save_ico(path, font_path, sizes=(16, 24, 32, 48, 64, 128, 256)):
+    imgs = [render(s, "square", font_path, with_text=s > ICO_SMALL_MAX) for s in sizes]
     imgs[-1].save(path, format="ICO", sizes=[(s, s) for s in sizes], append_images=imgs[:-1], bitmap_format="bmp")
 
 
