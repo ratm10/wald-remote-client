@@ -181,36 +181,42 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
     for (final tab in DesktopSettingPage.tabKeys) {
       switch (tab) {
         case SettingsTabKey.general:
-          settingTabs.add(_TabInfo(
-              tab, 'General', Icons.settings_outlined, Icons.settings));
+          settingTabs.add(_TabInfo(tab, 'General',
+              waldIcon(Icons.settings_outlined), waldIcon(Icons.settings)));
           break;
         case SettingsTabKey.safety:
-          settingTabs.add(_TabInfo(tab, 'Security',
-              Icons.enhanced_encryption_outlined, Icons.enhanced_encryption));
+          settingTabs.add(_TabInfo(
+              tab,
+              'Security',
+              waldIcon(Icons.enhanced_encryption_outlined),
+              waldIcon(Icons.enhanced_encryption)));
           break;
         case SettingsTabKey.network:
-          settingTabs
-              .add(_TabInfo(tab, 'Network', Icons.link_outlined, Icons.link));
+          settingTabs.add(_TabInfo(tab, 'Network',
+              waldIcon(Icons.link_outlined), waldIcon(Icons.link)));
           break;
         case SettingsTabKey.display:
-          settingTabs.add(_TabInfo(tab, 'Display',
-              Icons.desktop_windows_outlined, Icons.desktop_windows));
+          settingTabs.add(_TabInfo(
+              tab,
+              'Display',
+              waldIcon(Icons.desktop_windows_outlined),
+              waldIcon(Icons.desktop_windows)));
           break;
         case SettingsTabKey.plugin:
-          settingTabs.add(_TabInfo(
-              tab, 'Plugin', Icons.extension_outlined, Icons.extension));
+          settingTabs.add(_TabInfo(tab, 'Plugin',
+              waldIcon(Icons.extension_outlined), waldIcon(Icons.extension)));
           break;
         case SettingsTabKey.account:
-          settingTabs.add(
-              _TabInfo(tab, 'Account', Icons.person_outline, Icons.person));
+          settingTabs.add(_TabInfo(tab, 'Account',
+              waldIcon(Icons.person_outline), waldIcon(Icons.person)));
           break;
         case SettingsTabKey.printer:
-          settingTabs
-              .add(_TabInfo(tab, 'Printer', Icons.print_outlined, Icons.print));
+          settingTabs.add(_TabInfo(tab, 'Printer',
+              waldIcon(Icons.print_outlined), waldIcon(Icons.print)));
           break;
         case SettingsTabKey.about:
-          settingTabs
-              .add(_TabInfo(tab, 'About', Icons.info_outline, Icons.info));
+          settingTabs.add(_TabInfo(tab, 'About', waldIcon(Icons.info_outline),
+              waldIcon(Icons.info)));
           break;
       }
     }
@@ -324,7 +330,7 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
                 Navigator.pop(context);
               }
             },
-            icon: Icon(Icons.arrow_back),
+            icon: Icon(waldIcon(Icons.arrow_back)),
           ).marginOnly(left: 5),
         if (isWeb)
           SizedBox(
@@ -1428,7 +1434,7 @@ class _SafetyState extends State<_Safety> with AutomaticKeepAliveClientMixin {
                   Offstage(
                     offstage: !hasWhitelist.value,
                     child: MouseRegion(
-                      child: const Icon(Icons.warning_amber_rounded,
+                      child: Icon(waldIcon(Icons.warning_amber_rounded),
                               color: Color.fromARGB(255, 255, 204, 0))
                           .marginOnly(right: 5),
                       cursor: SystemMouseCursors.click,
@@ -1655,7 +1661,7 @@ class _NetworkState extends State<_Network> with AutomaticKeepAliveClientMixin {
                       ),
                       SizedBox(width: 5),
                       Icon(
-                        Icons.help_outline,
+                        waldIcon(Icons.help_outline),
                         size: 14,
                         color: Theme.of(context)
                             .textTheme
@@ -1718,21 +1724,21 @@ class _NetworkState extends State<_Network> with AutomaticKeepAliveClientMixin {
             children: [
               if (!hideServer)
                 listTile(
-                  icon: Icons.dns_outlined,
+                  icon: waldIcon(Icons.dns_outlined),
                   title: 'ID/Relay Server',
                   onTap: () => showServerSettings(gFFI.dialogManager, setState),
                 ),
               if (!hideProxy && !hideServer) divider,
               if (!hideProxy)
                 listTile(
-                  icon: Icons.network_ping_outlined,
+                  icon: waldIcon(Icons.network_ping_outlined),
                   title: 'Socks5/Http(s) Proxy',
                   onTap: changeSocks5Proxy,
                 ),
               if (!hideWebSocket && (!hideServer || !hideProxy)) divider,
               if (!hideWebSocket)
                 switchWidget(
-                    Icons.web_asset_outlined,
+                    waldIcon(Icons.web_asset_outlined),
                     'Use WebSocket',
                     '${translate('websocket_tip')}\n\n${translate('server-oss-not-support-tip')}',
                     kOptionAllowWebSocket),
@@ -1748,14 +1754,14 @@ class _NetworkState extends State<_Network> with AutomaticKeepAliveClientMixin {
                           if (!hideServer || !hideProxy || !hideWebSocket)
                             divider,
                           switchWidget(
-                              Icons.no_encryption_outlined,
+                              waldIcon(Icons.no_encryption_outlined),
                               'Allow insecure TLS fallback',
                               'allow-insecure-tls-fallback-tip',
                               kOptionAllowInsecureTLSFallback),
                           if (!outgoingOnly) divider,
                           if (!outgoingOnly)
                             listTile(
-                              icon: Icons.lan_outlined,
+                              icon: waldIcon(Icons.lan_outlined),
                               title: 'Disable UDP',
                               showTooltip: true,
                               tooltipMessage:
@@ -2463,7 +2469,8 @@ class _AboutState extends State<_About> {
                     style: linkStyle,
                   ).marginSymmetric(vertical: 4.0)),
               Container(
-                decoration: const BoxDecoration(color: Color(0xFF2c8cff)),
+                // Waldlust(DSK-07): 어드민 톤(파란 띠 → 무채색).
+                decoration: const BoxDecoration(color: WaldPalette.neutral900),
                 padding:
                     const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
                 child: SelectionArea(
@@ -2749,10 +2756,8 @@ class _WaylandCardState extends State<WaylandCard> {
       'Clear Wayland screen selection',
       showConfirmMsgBox,
       tip: 'clear_Wayland_screen_selection_tip',
-      style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all<Color>(
-            Theme.of(context).colorScheme.error.withOpacity(0.75)),
-      ),
+      // Waldlust(DSK-07): 빨강 바탕 + 흰 글자(다크 모드에서도).
+      style: waldDangerStyle(),
     );
   }
 
@@ -2792,10 +2797,8 @@ class _WaylandCardState extends State<WaylandCard> {
         'Reset keyboard shortcuts permission',
         showConfirmMsgBox,
         tip: 'clear-shortcuts-inhibitor-permission-tip',
-        style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(
-              Theme.of(context).colorScheme.error.withOpacity(0.75)),
-        ),
+        // Waldlust(DSK-07): 빨강 바탕 + 흰 글자(다크 모드에서도).
+        style: waldDangerStyle(),
       ),
     ]);
   }
@@ -2804,11 +2807,13 @@ class _WaylandCardState extends State<WaylandCard> {
 // ignore: non_constant_identifier_names
 Widget _Button(String label, Function() onPressed,
     {bool enabled = true, String? tip, ButtonStyle? style}) {
+  // Waldlust(DSK-07): 좌우 여백은 테마(16)에 맡기고, 한글 라벨 줄 상자를 고정한다.
   var button = ElevatedButton(
     onPressed: enabled ? onPressed : null,
     child: Text(
       translate(label),
-    ).marginSymmetric(horizontal: 15),
+      strutStyle: waldButtonStrut(),
+    ),
     style: style,
   );
   StatefulWidget child;
@@ -2830,7 +2835,8 @@ Widget _SubButton(String label, Function() onPressed, [bool enabled = true]) {
         onPressed: enabled ? onPressed : null,
         child: Text(
           translate(label),
-        ).marginSymmetric(horizontal: 15),
+          strutStyle: waldButtonStrut(),
+        ),
       ),
     ],
   ).marginOnly(left: _kContentHSubMargin);
@@ -2872,11 +2878,13 @@ Widget _lock(
                       child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(
-                              Icons.security_sharp,
+                            Icon(
+                              waldIcon(Icons.security_sharp),
                               size: 20,
                             ),
-                            Text(translate(label)).marginOnly(left: 5),
+                            Text(translate(label),
+                                    strutStyle: waldButtonStrut())
+                                .marginOnly(left: 5),
                           ]).marginSymmetric(vertical: 2)),
                   onPressed: () async {
                     final unlockPin = bind.mainGetUnlockPin();
@@ -3090,7 +3098,7 @@ void changeSocks5Proxy() async {
                               waitDuration: Duration(milliseconds: 0),
                               message: translate("default_proxy_tip"),
                               child: Icon(
-                                Icons.help_outline_outlined,
+                                waldIcon(Icons.help_outline_outlined),
                                 size: 16,
                                 color: Theme.of(context)
                                     .textTheme
@@ -3155,8 +3163,8 @@ void changeSocks5Proxy() async {
                             suffixIcon: IconButton(
                                 onPressed: () => obscure.value = !obscure.value,
                                 icon: Icon(obscure.value
-                                    ? Icons.visibility_off
-                                    : Icons.visibility))),
+                                    ? waldIcon(Icons.visibility_off)
+                                    : waldIcon(Icons.visibility)))),
                         controller: pwdController,
                         enabled: !isOptFixed,
                         maxLength: bind.mainMaxEncryptLen(),

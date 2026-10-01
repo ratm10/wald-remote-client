@@ -881,7 +881,7 @@ Future<bool> closeConfirmDialog() async {
 
     return CustomAlertDialog(
       title: Row(children: [
-        const Icon(Icons.warning_amber_sharp,
+        Icon(waldIcon(Icons.warning_amber_sharp),
             color: Colors.redAccent, size: 28),
         const SizedBox(width: 10),
         Text(translate("Warning")),
@@ -1233,7 +1233,7 @@ class _CloseButton extends StatelessWidget {
                   customBorder: const CircleBorder(),
                   onTap: () => onClose(),
                   child: Icon(
-                    Icons.close,
+                    waldIcon(Icons.close),
                     size: _kIconSize,
                     color: tabSelected
                         ? MyTheme.tabbar(context).selectedIconColor
@@ -1354,7 +1354,7 @@ class _TabDropDownButtonState extends State<_TabDropDownButton> {
         final y = details.globalPosition.dy;
         position = RelativeRect.fromLTRB(x, y, x, y);
       },
-      icon: Icons.arrow_drop_down,
+      icon: waldIcon(Icons.arrow_drop_down),
       onTap: () {
         showMenu(
           context: context,
@@ -1408,7 +1408,7 @@ class _TabDropDownButtonState extends State<_TabDropDownButton> {
                                       setState(() => btnHover.value = true),
                                   onExit: (event) =>
                                       setState(() => btnHover.value = false),
-                                  child: Icon(Icons.close,
+                                  child: Icon(waldIcon(Icons.close),
                                       color:
                                           btnHover.value ? Colors.red : null)));
                         } else {
@@ -1455,26 +1455,27 @@ class TabbarTheme extends ThemeExtension<TabbarTheme> {
       required this.closeHoverColor,
       required this.selectedTabBackgroundColor});
 
+  // Waldlust(DSK-07): 어드민 톤(무채색). 선택된 탭 아이콘만 강조색(파랑)이다.
   static const light = TabbarTheme(
       selectedTabIconColor: MyTheme.accent,
-      unSelectedTabIconColor: Color.fromARGB(255, 162, 203, 241),
-      selectedTextColor: Colors.black,
-      unSelectedTextColor: Color.fromARGB(255, 112, 112, 112),
-      selectedIconColor: Color.fromARGB(255, 26, 26, 26),
-      unSelectedIconColor: Color.fromARGB(255, 96, 96, 96),
-      dividerColor: Color.fromARGB(255, 238, 238, 238),
+      unSelectedTabIconColor: WaldPalette.neutral400,
+      selectedTextColor: WaldPalette.neutral900,
+      unSelectedTextColor: WaldPalette.neutral500,
+      selectedIconColor: WaldPalette.neutral900,
+      unSelectedIconColor: WaldPalette.neutral600,
+      dividerColor: WaldPalette.neutral200,
       hoverColor: Colors.white54,
       closeHoverColor: Colors.white,
       selectedTabBackgroundColor: Colors.white54);
 
   static const dark = TabbarTheme(
       selectedTabIconColor: MyTheme.accent,
-      unSelectedTabIconColor: Color.fromARGB(255, 30, 65, 98),
+      unSelectedTabIconColor: WaldPalette.neutral600,
       selectedTextColor: Colors.white,
-      unSelectedTextColor: Color.fromARGB(255, 192, 192, 192),
-      selectedIconColor: Color.fromARGB(255, 192, 192, 192),
-      unSelectedIconColor: Color.fromARGB(255, 255, 255, 255),
-      dividerColor: Color.fromARGB(255, 64, 64, 64),
+      unSelectedTextColor: WaldPalette.neutral400,
+      selectedIconColor: WaldPalette.neutral300,
+      unSelectedIconColor: WaldPalette.neutral400,
+      dividerColor: WaldPalette.neutral700,
       hoverColor: Colors.black26,
       closeHoverColor: Colors.black,
       selectedTabBackgroundColor: Colors.black26);

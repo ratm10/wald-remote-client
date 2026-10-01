@@ -192,13 +192,21 @@ int _monitorMenuQuarterTurns(_ToolbarEdge edge) {
 IconData _toolbarCollapseIcon(_ToolbarEdge edge, bool isCollapsed) {
   switch (edge) {
     case _ToolbarEdge.top:
-      return isCollapsed ? Icons.expand_more : Icons.expand_less;
+      return isCollapsed
+          ? waldIcon(Icons.expand_more)
+          : waldIcon(Icons.expand_less);
     case _ToolbarEdge.bottom:
-      return isCollapsed ? Icons.expand_less : Icons.expand_more;
+      return isCollapsed
+          ? waldIcon(Icons.expand_less)
+          : waldIcon(Icons.expand_more);
     case _ToolbarEdge.left:
-      return isCollapsed ? Icons.chevron_right : Icons.chevron_left;
+      return isCollapsed
+          ? waldIcon(Icons.chevron_right)
+          : waldIcon(Icons.chevron_left);
     case _ToolbarEdge.right:
-      return isCollapsed ? Icons.chevron_left : Icons.chevron_right;
+      return isCollapsed
+          ? waldIcon(Icons.chevron_left)
+          : waldIcon(Icons.chevron_right);
   }
 }
 
@@ -327,13 +335,17 @@ class ToolbarState {
 }
 
 class _ToolbarTheme {
+  // Waldlust(DSK-07): 어드민 톤. 일반 버튼은 어두운 알약(라이트·다크 모두에서 보인다),
+  // 켜진 상태(핀·현재 화면 등)만 파랑, 닫기·녹화 중은 빨강.
   static const Color blueColor = MyTheme.button;
-  static const Color hoverBlueColor = MyTheme.accent;
-  static Color inactiveColor = Colors.grey[800]!;
-  static Color hoverInactiveColor = Colors.grey[850]!;
+  static const Color hoverBlueColor = WaldPalette.blue700;
+  static const Color pillColor = WaldPalette.neutral800;
+  static const Color hoverPillColor = WaldPalette.neutral700;
+  static Color inactiveColor = WaldPalette.neutral800;
+  static Color hoverInactiveColor = WaldPalette.neutral700;
 
-  static const Color redColor = Colors.redAccent;
-  static const Color hoverRedColor = Colors.red;
+  static const Color redColor = WaldPalette.red600;
+  static const Color hoverRedColor = WaldPalette.red700;
   // kMinInteractiveDimension
   static const double height = 20.0;
   static const double dividerHeight = 12.0;
@@ -1025,8 +1037,8 @@ class _MainMonitorSwitchButton extends StatelessWidget {
 
       return _IconMenuButton(
         tooltip: cycle.tooltip,
-        color: _ToolbarTheme.blueColor,
-        hoverColor: _ToolbarTheme.hoverBlueColor,
+        color: _ToolbarTheme.pillColor,
+        hoverColor: _ToolbarTheme.hoverPillColor,
         onPressed: cycle.next,
         icon: SizedBox(
           width: _ToolbarTheme.buttonSize,
@@ -1100,8 +1112,8 @@ class _MonitorMenu extends StatelessWidget {
         icon: monitorsIcon,
         ffi: ffi,
         width: width.value,
-        color: _ToolbarTheme.blueColor,
-        hoverColor: _ToolbarTheme.hoverBlueColor,
+        color: _ToolbarTheme.pillColor,
+        hoverColor: _ToolbarTheme.hoverPillColor,
         menuStyle: MenuStyle(
             padding:
                 MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 6))),
@@ -1314,8 +1326,8 @@ class _ControlMenu extends StatelessWidget {
     return _IconSubmenuButton(
         tooltip: 'Control Actions',
         svg: "assets/actions.svg",
-        color: _ToolbarTheme.blueColor,
-        hoverColor: _ToolbarTheme.hoverBlueColor,
+        color: _ToolbarTheme.pillColor,
+        hoverColor: _ToolbarTheme.hoverPillColor,
         ffi: ffi,
         menuChildrenGetter: (_) => toolbarControls(context, id, ffi).map((e) {
               if (e.divider) {
@@ -1592,8 +1604,8 @@ class _DisplayMenuState extends State<_DisplayMenu> {
       tooltip: 'Display Settings',
       svg: "assets/display.svg",
       ffi: widget.ffi,
-      color: _ToolbarTheme.blueColor,
-      hoverColor: _ToolbarTheme.hoverBlueColor,
+      color: _ToolbarTheme.pillColor,
+      hoverColor: _ToolbarTheme.hoverPillColor,
       menuChildrenGetter: menuChildrenGetter,
     );
   }
@@ -1885,7 +1897,7 @@ class _CustomScaleMenuControlsState
               iconSize: 16,
               padding: EdgeInsets.all(1),
               constraints: smallBtnConstraints,
-              icon: const Icon(Icons.remove),
+              icon: Icon(waldIcon(Icons.remove)),
               onPressed: () => nudgeScale(-1),
             ),
           ),
@@ -1896,7 +1908,7 @@ class _CustomScaleMenuControlsState
               iconSize: 16,
               padding: EdgeInsets.all(1),
               constraints: smallBtnConstraints,
-              icon: const Icon(Icons.add),
+              icon: Icon(waldIcon(Icons.add)),
               onPressed: () => nudgeScale(1),
             ),
           ),
@@ -2341,8 +2353,8 @@ class _KeyboardMenu extends StatelessWidget {
         tooltip: 'Keyboard Settings',
         svg: "assets/keyboard_mouse.svg",
         ffi: ffi,
-        color: _ToolbarTheme.blueColor,
-        hoverColor: _ToolbarTheme.hoverBlueColor,
+        color: _ToolbarTheme.pillColor,
+        hoverColor: _ToolbarTheme.hoverPillColor,
         menuChildrenGetter: (_) => [
               keyboardMode(),
               localKeyboardType(),
@@ -2450,7 +2462,7 @@ class _KeyboardMenu extends StatelessWidget {
         MenuButton(
           child: Text(
               '${translate('Local keyboard type')}: ${KBLayoutType.value}'),
-          trailingIcon: const Icon(Icons.settings),
+          trailingIcon: Icon(waldIcon(Icons.settings)),
           ffi: ffi,
           onPressed: enabled
               ? () => showKBLayoutTypeChooser(localPlatform, ffi.dialogManager)
@@ -2606,8 +2618,8 @@ class _ChatMenuState extends State<_ChatMenu> {
           key: chatButtonKey,
           svg: 'assets/chat.svg',
           ffi: widget.ffi,
-          color: _ToolbarTheme.blueColor,
-          hoverColor: _ToolbarTheme.hoverBlueColor,
+          color: _ToolbarTheme.pillColor,
+          hoverColor: _ToolbarTheme.hoverPillColor,
           menuChildrenGetter: (_) => [textChat(), voiceCall()]);
     }
   }
@@ -2618,8 +2630,8 @@ class _ChatMenuState extends State<_ChatMenu> {
       tooltip: 'Text chat',
       key: chatButtonKey,
       onPressed: _textChatOnPressed,
-      color: _ToolbarTheme.blueColor,
-      hoverColor: _ToolbarTheme.hoverBlueColor,
+      color: _ToolbarTheme.pillColor,
+      hoverColor: _ToolbarTheme.hoverPillColor,
     );
   }
 
@@ -2710,8 +2722,8 @@ class _VoiceCallMenu extends StatelessWidget {
             return _IconSubmenuButton(
               tooltip: 'Voice call',
               svg: 'assets/voice_call.svg',
-              color: _ToolbarTheme.blueColor,
-              hoverColor: _ToolbarTheme.hoverBlueColor,
+              color: _ToolbarTheme.pillColor,
+              hoverColor: _ToolbarTheme.hoverPillColor,
               menuChildrenGetter: menuChildrenGetter,
               ffi: ffi,
             );
@@ -2751,10 +2763,10 @@ class _RecordMenu extends StatelessWidget {
       onPressed: () => recordingModel.toggle(),
       color: recordingModel.start
           ? _ToolbarTheme.redColor
-          : _ToolbarTheme.blueColor,
+          : _ToolbarTheme.pillColor,
       hoverColor: recordingModel.start
           ? _ToolbarTheme.hoverRedColor
-          : _ToolbarTheme.hoverBlueColor,
+          : _ToolbarTheme.hoverPillColor,
     );
   }
 }
@@ -2817,13 +2829,19 @@ class _IconMenuButtonState extends State<_IconMenuButton> {
   @override
   Widget build(BuildContext context) {
     assert(widget.assetName != null || widget.icon != null);
+    // Waldlust(DSK-07): 대응이 있으면 SVG 대신 같은 크기 상자 가운데의 Lucide 아이콘.
+    final lucide =
+        widget.assetName == null ? null : waldAssetIcon(widget.assetName!);
     final icon = widget.icon ??
-        SvgPicture.asset(
-          widget.assetName!,
-          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-          width: _ToolbarTheme.buttonSize,
-          height: _ToolbarTheme.buttonSize,
-        );
+        (lucide != null
+            ? waldIconBox(lucide,
+                box: _ToolbarTheme.buttonSize, color: Colors.white)
+            : SvgPicture.asset(
+                widget.assetName!,
+                colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                width: _ToolbarTheme.buttonSize,
+                height: _ToolbarTheme.buttonSize,
+              ));
     var button = SizedBox(
       width: widget.width ?? _ToolbarTheme.buttonSize,
       height: _ToolbarTheme.buttonSize,
@@ -2902,13 +2920,18 @@ class _IconSubmenuButtonState extends State<_IconSubmenuButton> {
   @override
   Widget build(BuildContext context) {
     assert(widget.svg != null || widget.icon != null);
+    // Waldlust(DSK-07): 대응이 있으면 SVG 대신 같은 크기 상자 가운데의 Lucide 아이콘.
+    final lucide = widget.svg == null ? null : waldAssetIcon(widget.svg!);
     final icon = widget.icon ??
-        SvgPicture.asset(
-          widget.svg!,
-          colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
-          width: _ToolbarTheme.buttonSize,
-          height: _ToolbarTheme.buttonSize,
-        );
+        (lucide != null
+            ? waldIconBox(lucide,
+                box: _ToolbarTheme.buttonSize, color: Colors.white)
+            : SvgPicture.asset(
+                widget.svg!,
+                colorFilter: ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                width: _ToolbarTheme.buttonSize,
+                height: _ToolbarTheme.buttonSize,
+              ));
     final button = SizedBox(
         width: widget.width ?? _ToolbarTheme.buttonSize,
         height: _ToolbarTheme.buttonSize,
@@ -3289,7 +3312,9 @@ class _DraggableShowHideState extends State<_DraggableShowHide> {
         // unmoored. When multi-edge is on we need 2D drag for snap-to-edge.
         axis: widget.multiEdgeEnabled ? null : Axis.horizontal,
         child: Icon(
-          widget.isHorizontal ? Icons.drag_indicator : Icons.drag_handle,
+          widget.isHorizontal
+              ? waldIcon(Icons.drag_indicator)
+              : waldIcon(Icons.drag_handle),
           size: 20,
           color: MyTheme.color(context).drag_indicator,
         ),
@@ -3358,8 +3383,8 @@ class _DraggableShowHideState extends State<_DraggableShowHide> {
                     isFullscreen.isTrue ? 'Exit Fullscreen' : 'Fullscreen'),
                 child: Icon(
                   isFullscreen.isTrue
-                      ? Icons.fullscreen_exit
-                      : Icons.fullscreen,
+                      ? waldIcon(Icons.fullscreen_exit)
+                      : waldIcon(Icons.fullscreen),
                   size: iconSize,
                 ),
               ),
@@ -3372,7 +3397,7 @@ class _DraggableShowHideState extends State<_DraggableShowHide> {
                   Tooltip(
                     message: translate('Minimize'),
                     child: Icon(
-                      Icons.remove,
+                      waldIcon(Icons.remove),
                       size: iconSize,
                     ),
                   ),
@@ -3401,7 +3426,7 @@ class _DraggableShowHideState extends State<_DraggableShowHide> {
                 Tooltip(
                   message: translate('Close'),
                   child: Icon(
-                    Icons.close,
+                    waldIcon(Icons.close),
                     size: iconSize,
                     color: _ToolbarTheme.redColor,
                   ),

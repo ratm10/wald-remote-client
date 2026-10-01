@@ -9,6 +9,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common/formatter/id_formatter.dart';
+import 'package:flutter_hbb/common/wald_icons.dart';
+import 'package:flutter_hbb/common/wald_theme.dart';
 import 'package:flutter_hbb/desktop/widgets/refresh_wrapper.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
 import 'package:flutter_hbb/main.dart';
@@ -46,6 +48,10 @@ import 'package:flutter_hbb/native/win32.dart'
 import 'package:flutter_hbb/native/common.dart'
     if (dart.library.html) 'package:flutter_hbb/web/common.dart';
 import 'package:flutter_hbb/utils/http_service.dart' as http;
+
+// Waldlust(DSK-07): 어드민 톤 토큰(WaldPalette·WaldColors 등)을 common.dart 를 쓰는 곳에 함께 내보낸다.
+export 'package:flutter_hbb/common/wald_icons.dart';
+export 'package:flutter_hbb/common/wald_theme.dart';
 
 final globalKey = GlobalKey<NavigatorState>();
 final navigationBarKey = GlobalKey();
@@ -117,28 +123,21 @@ bool isDoubleEqual(double a, double b) {
 }
 
 class IconFont {
-  static const _family1 = 'Tabbar';
-  static const _family2 = 'PeerSearchbar';
-  static const _family3 = 'AddressBook';
-  static const _family4 = 'DeviceGroup';
-  static const _family5 = 'More';
-
   IconFont._();
 
-  static const IconData max = IconData(0xe606, fontFamily: _family1);
-  static const IconData restore = IconData(0xe607, fontFamily: _family1);
-  static const IconData close = IconData(0xe668, fontFamily: _family1);
-  static const IconData min = IconData(0xe609, fontFamily: _family1);
-  static const IconData add = IconData(0xe664, fontFamily: _family1);
-  static const IconData menu = IconData(0xe628, fontFamily: _family1);
-  static const IconData search = IconData(0xe6a4, fontFamily: _family2);
-  static const IconData roundClose = IconData(0xe6ed, fontFamily: _family2);
-  static const IconData addressBook = IconData(0xe602, fontFamily: _family3);
-  static const IconData deviceGroupOutline =
-      IconData(0xe623, fontFamily: _family4);
-  static const IconData deviceGroupFill =
-      IconData(0xe748, fontFamily: _family4);
-  static const IconData more = IconData(0xe609, fontFamily: _family5);
+  // Waldlust(DSK-07): 자체 아이콘 글꼴 대신 Lucide 를 가리킨다(호출부는 그대로 둔다).
+  static const IconData max = LucideIcons.square;
+  static const IconData restore = LucideIcons.copy;
+  static const IconData close = LucideIcons.x;
+  static const IconData min = LucideIcons.minus;
+  static const IconData add = LucideIcons.plus;
+  static const IconData menu = LucideIcons.settings;
+  static const IconData search = LucideIcons.search;
+  static const IconData roundClose = LucideIcons.circleX;
+  static const IconData addressBook = LucideIcons.bookUser;
+  static const IconData deviceGroupOutline = LucideIcons.monitorSmartphone;
+  static const IconData deviceGroupFill = LucideIcons.monitorSmartphone;
+  static const IconData more = LucideIcons.chevronDown;
 }
 
 class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
@@ -168,32 +167,33 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
   final Color? toastText;
   final Color? divider;
 
+  // Waldlust(DSK-07): 어드민 톤(무채색) 값.
   static final light = ColorThemeExtension(
-    border: Color(0xFFCCCCCC),
-    border2: Color(0xFFBBBBBB),
-    border3: Colors.black26,
-    highlight: Color(0xFFE5E5E5),
-    drag_indicator: Colors.grey[800],
+    border: WaldPalette.neutral300,
+    border2: WaldPalette.neutral400,
+    border3: WaldPalette.neutral200,
+    highlight: WaldPalette.neutral200,
+    drag_indicator: WaldPalette.neutral700,
     shadow: Colors.black,
-    errorBannerBg: Color(0xFFFDEEEB),
-    me: Colors.green,
+    errorBannerBg: WaldPalette.red50,
+    me: WaldPalette.green600,
     toastBg: Colors.black.withOpacity(0.6),
     toastText: Colors.white,
-    divider: Colors.black38,
+    divider: WaldPalette.neutral300,
   );
 
   static final dark = ColorThemeExtension(
-    border: Color(0xFF555555),
-    border2: Color(0xFFE5E5E5),
-    border3: Colors.white24,
-    highlight: Color(0xFF3F3F3F),
-    drag_indicator: Colors.grey,
+    border: WaldPalette.neutral700,
+    border2: WaldPalette.neutral200,
+    border3: WaldPalette.neutral800,
+    highlight: WaldPalette.neutral700,
+    drag_indicator: WaldPalette.neutral500,
     shadow: Colors.grey,
-    errorBannerBg: Color(0xFF470F2D),
-    me: Colors.greenAccent,
+    errorBannerBg: WaldPalette.red950,
+    me: WaldPalette.green500,
     toastBg: Colors.white.withOpacity(0.6),
     toastText: Colors.black,
-    divider: Colors.white38,
+    divider: WaldPalette.neutral700,
   );
 
   @override
@@ -250,18 +250,19 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
 class MyTheme {
   MyTheme._();
 
-  static const Color grayBg = Color(0xFFEFEFF2);
-  static const Color accent = Color(0xFF0071FF);
-  static const Color accent50 = Color(0x770071FF);
-  static const Color accent80 = Color(0xAA0071FF);
+  // Waldlust(DSK-07): 어드민 톤. 강조(선택·진행·링크·켜진 토글)는 어드민 파랑, 회색은 무채색 단계.
+  static const Color grayBg = WaldPalette.neutral100;
+  static const Color accent = WaldPalette.blue600;
+  static const Color accent50 = WaldPalette.blue600a77;
+  static const Color accent80 = WaldPalette.blue600aAA;
   static const Color canvasColor = Color(0xFF212121);
-  static const Color border = Color(0xFFCCCCCC);
+  static const Color border = WaldPalette.neutral300;
   static const Color idColor = Color(0xFF00B6F0);
-  static const Color darkGray = Color.fromARGB(255, 148, 148, 148);
+  static const Color darkGray = WaldPalette.neutral400;
   static const Color cmIdColor = Color(0xFF21790B);
   static const Color dark = Colors.black87;
-  static const Color button = Color(0xFF2C8CFF);
-  static const Color hoverBorder = Color(0xFF999999);
+  static const Color button = WaldPalette.blue600;
+  static const Color hoverBorder = WaldPalette.neutral400;
 
   // ListTile
   static const ListTileThemeData listTileTheme = ListTileThemeData(
@@ -341,8 +342,9 @@ class MyTheme {
         : EdgeInsets.fromLTRB(p, 0, (p - mobileTextButtonPaddingLR), (p / 2));
   }
 
+  // Waldlust(DSK-07): 어드민처럼 버튼 사이 간격을 8 로(기존 24).
   static EdgeInsets dialogButtonPadding = (isDesktop || isWebDesktop)
-      ? EdgeInsets.only(left: dialogPadding)
+      ? EdgeInsets.only(left: 8)
       : EdgeInsets.only(left: dialogPadding / 3);
 
   static ScrollbarThemeData scrollbarTheme = ScrollbarThemeData(
@@ -375,7 +377,7 @@ class MyTheme {
     // https://stackoverflow.com/questions/77537315/after-upgrading-to-flutter-3-16-the-app-bar-background-color-button-size-and
     useMaterial3: false,
     brightness: Brightness.light,
-    hoverColor: Color.fromARGB(255, 224, 224, 224),
+    hoverColor: WaldPalette.neutral200,
     scaffoldBackgroundColor: Colors.white,
     dialogBackgroundColor: Colors.white,
     appBarTheme: AppBarTheme(
@@ -384,36 +386,28 @@ class MyTheme {
     dialogTheme: DialogTheme(
       elevation: 15,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18.0),
+        borderRadius: BorderRadius.circular(WaldSize.dialogRadius),
         side: BorderSide(
           width: 1,
-          color: grayBg,
+          color: WaldPalette.neutral200,
         ),
       ),
     ),
     scrollbarTheme: scrollbarTheme,
-    inputDecorationTheme: isDesktop
-        ? InputDecorationTheme(
-            fillColor: grayBg,
-            filled: true,
-            isDense: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          )
-        : null,
+    inputDecorationTheme: isDesktop ? waldInputTheme(Brightness.light) : null,
     textTheme: const TextTheme(
-        titleLarge: TextStyle(fontSize: 19, color: Colors.black87),
-        titleSmall: TextStyle(fontSize: 14, color: Colors.black87),
-        bodySmall: TextStyle(fontSize: 12, color: Colors.black87, height: 1.25),
-        bodyMedium:
-            TextStyle(fontSize: 14, color: Colors.black87, height: 1.25),
+        titleLarge: TextStyle(fontSize: 19, color: WaldPalette.neutral900),
+        titleSmall: TextStyle(fontSize: 14, color: WaldPalette.neutral900),
+        bodySmall: TextStyle(
+            fontSize: 12, color: WaldPalette.neutral900, height: 1.25),
+        bodyMedium: TextStyle(
+            fontSize: 14, color: WaldPalette.neutral900, height: 1.25),
         labelLarge: TextStyle(fontSize: 16.0, color: MyTheme.accent80)),
     cardColor: grayBg,
-    hintColor: Color(0xFFAAAAAA),
+    hintColor: WaldPalette.neutral400,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarTheme(
-      labelColor: Colors.black87,
+      labelColor: WaldPalette.neutral900,
     ),
     tooltipTheme: tooltipTheme(),
     splashColor: (isDesktop || isWebDesktop) ? Colors.transparent : null,
@@ -424,27 +418,19 @@ class MyTheme {
             style: TextButton.styleFrom(
               splashFactory: NoSplash.splashFactory,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
+                borderRadius: BorderRadius.circular(WaldSize.radius),
               ),
             ),
           )
         : mobileTextButtonTheme,
+    // Waldlust(DSK-07): 어드민 톤 버튼(주요 = 검정, 보조 = 흰 바탕 + 테두리).
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: MyTheme.accent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldElevatedStyle(Brightness.light,
+          desktop: isDesktop || isWebDesktop),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        backgroundColor: grayBg,
-        foregroundColor: Colors.black87,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldOutlinedStyle(Brightness.light,
+          desktop: isDesktop || isWebDesktop),
     ),
     switchTheme: switchTheme(),
     radioTheme: radioTheme(),
@@ -454,13 +440,16 @@ class MyTheme {
         style:
             MenuStyle(backgroundColor: MaterialStatePropertyAll(Colors.white))),
     colorScheme: ColorScheme.light(
-        primary: Colors.blue, secondary: accent, background: grayBg),
+        primary: accent,
+        secondary: accent,
+        background: grayBg,
+        error: WaldPalette.red600),
     popupMenuTheme: PopupMenuThemeData(
         color: Colors.white,
         shape: RoundedRectangleBorder(
           side: BorderSide(
               color: (isDesktop || isWebDesktop)
-                  ? Color(0xFFECECEC)
+                  ? WaldPalette.neutral200
                   : Colors.transparent),
           borderRadius: BorderRadius.all(Radius.circular(8.0)),
         )),
@@ -468,38 +457,31 @@ class MyTheme {
     extensions: <ThemeExtension<dynamic>>[
       ColorThemeExtension.light,
       TabbarTheme.light,
+      WaldColors.light,
     ],
   );
   static ThemeData darkTheme = ThemeData(
     useMaterial3: false,
     brightness: Brightness.dark,
-    hoverColor: Color.fromARGB(255, 45, 46, 53),
-    scaffoldBackgroundColor: Color(0xFF18191E),
-    dialogBackgroundColor: Color(0xFF18191E),
+    hoverColor: WaldPalette.neutral800,
+    scaffoldBackgroundColor: WaldPalette.neutral950,
+    dialogBackgroundColor: WaldPalette.neutral950,
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
     ),
     dialogTheme: DialogTheme(
       elevation: 15,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(18.0),
+        borderRadius: BorderRadius.circular(WaldSize.dialogRadius),
         side: BorderSide(
           width: 1,
-          color: Color(0xFF24252B),
+          color: WaldPalette.neutral800,
         ),
       ),
     ),
     scrollbarTheme: scrollbarThemeDark,
-    inputDecorationTheme: (isDesktop || isWebDesktop)
-        ? InputDecorationTheme(
-            fillColor: Color(0xFF24252B),
-            filled: true,
-            isDense: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          )
-        : null,
+    inputDecorationTheme:
+        (isDesktop || isWebDesktop) ? waldInputTheme(Brightness.dark) : null,
     textTheme: const TextTheme(
       titleLarge: TextStyle(fontSize: 19),
       titleSmall: TextStyle(fontSize: 14),
@@ -511,10 +493,10 @@ class MyTheme {
         color: accent80,
       ),
     ),
-    cardColor: Color(0xFF24252B),
+    cardColor: WaldPalette.neutral900,
     visualDensity: VisualDensity.adaptivePlatformDensity,
     tabBarTheme: const TabBarTheme(
-      labelColor: Colors.white70,
+      labelColor: WaldPalette.neutral300,
     ),
     tooltipTheme: tooltipTheme(),
     splashColor: (isDesktop || isWebDesktop) ? Colors.transparent : null,
@@ -527,32 +509,18 @@ class MyTheme {
               disabledForegroundColor: Colors.white70,
               foregroundColor: Colors.white70,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18.0),
+                borderRadius: BorderRadius.circular(WaldSize.radius),
               ),
             ),
           )
         : mobileTextButtonTheme,
     elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        backgroundColor: MyTheme.accent,
-        foregroundColor: Colors.white,
-        disabledForegroundColor: Colors.white70,
-        disabledBackgroundColor: Colors.white10,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldElevatedStyle(Brightness.dark,
+          desktop: isDesktop || isWebDesktop),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        backgroundColor: Color(0xFF24252B),
-        side: BorderSide(color: Colors.white12, width: 0.5),
-        disabledForegroundColor: Colors.white70,
-        foregroundColor: Colors.white70,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-      ),
+      style: waldOutlinedStyle(Brightness.dark,
+          desktop: isDesktop || isWebDesktop),
     ),
     switchTheme: switchTheme(),
     radioTheme: radioTheme(),
@@ -560,21 +528,24 @@ class MyTheme {
     listTileTheme: listTileTheme,
     menuBarTheme: MenuBarThemeData(
         style: MenuStyle(
-            backgroundColor: MaterialStatePropertyAll(Color(0xFF121212)))),
+            backgroundColor: MaterialStatePropertyAll(WaldPalette.neutral950))),
     colorScheme: ColorScheme.dark(
-      primary: Colors.blue,
+      primary: accent,
       secondary: accent,
-      background: Color(0xFF24252B),
+      background: WaldPalette.neutral900,
+      error: WaldPalette.red500,
     ),
     popupMenuTheme: PopupMenuThemeData(
+        color: WaldPalette.neutral900,
         shape: RoundedRectangleBorder(
-      side: BorderSide(color: Colors.white24),
-      borderRadius: BorderRadius.all(Radius.circular(8.0)),
-    )),
+          side: BorderSide(color: WaldPalette.neutral800),
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        )),
   ).copyWith(
     extensions: <ThemeExtension<dynamic>>[
       ColorThemeExtension.dark,
       TabbarTheme.dark,
+      WaldColors.dark,
     ],
   );
 
@@ -925,7 +896,8 @@ class OverlayDialogManager {
                       offstage: !showCancel,
                       child: Center(
                           child: (isDesktop || isWebDesktop)
-                              ? dialogButton('Cancel', onPressed: cancel)
+                              ? dialogButton('Cancel',
+                                  onPressed: cancel, isOutline: true)
                               : TextButton(
                                   style: flatButtonStyle,
                                   onPressed: cancel,
@@ -1287,19 +1259,19 @@ Color? _msgboxColor(String type) {
 Widget msgboxIcon(String type) {
   IconData? iconData;
   if (type.contains("error") || type == "re-input-password") {
-    iconData = Icons.cancel;
+    iconData = waldIcon(Icons.cancel);
   }
   if (type.contains("success")) {
-    iconData = Icons.check_circle;
+    iconData = waldIcon(Icons.check_circle);
   }
   if (type == "wait-uac" || type == "wait-remote-accept-nook") {
-    iconData = Icons.hourglass_top;
+    iconData = waldIcon(Icons.hourglass_top);
   }
   if (type == 'on-uac' || type == 'on-foreground-elevated') {
-    iconData = Icons.admin_panel_settings;
+    iconData = waldIcon(Icons.admin_panel_settings);
   }
   if (type.contains('info')) {
-    iconData = Icons.info;
+    iconData = waldIcon(Icons.info);
   }
   if (iconData != null) {
     return Icon(iconData, size: 50, color: _msgboxColor(type))
@@ -2953,29 +2925,31 @@ Widget dialogButton(String text,
     TextStyle? style,
     ButtonStyle? buttonStyle}) {
   if (isDesktop || isWebDesktop) {
+    // Waldlust(DSK-07): 한글 라벨이 위로 뜨지 않게 줄 상자를 고정한다.
+    final strut = waldButtonStrut(style?.fontSize ?? WaldSize.buttonFont);
     if (isOutline) {
       return icon == null
           ? OutlinedButton(
               onPressed: onPressed,
-              child: Text(translate(text), style: style),
+              child: Text(translate(text), style: style, strutStyle: strut),
             )
           : OutlinedButton.icon(
-              icon: icon,
+              icon: waldLucideIconWidget(icon)!,
               onPressed: onPressed,
-              label: Text(translate(text), style: style),
+              label: Text(translate(text), style: style, strutStyle: strut),
             );
     } else {
       return icon == null
           ? ElevatedButton(
               style: ElevatedButton.styleFrom(elevation: 0).merge(buttonStyle),
               onPressed: onPressed,
-              child: Text(translate(text), style: style),
+              child: Text(translate(text), style: style, strutStyle: strut),
             )
           : ElevatedButton.icon(
-              icon: icon,
+              icon: waldLucideIconWidget(icon)!,
               style: ElevatedButton.styleFrom(elevation: 0).merge(buttonStyle),
               onPressed: onPressed,
-              label: Text(translate(text), style: style),
+              label: Text(translate(text), style: style, strutStyle: strut),
             );
     }
   } else {
@@ -3192,7 +3166,7 @@ Widget unreadMessageCountBuilder(RxInt? count,
 Widget unreadTopRightBuilder(RxInt? count, {Widget? icon}) {
   return Stack(
     children: [
-      icon ?? Icon(Icons.chat),
+      icon ?? Icon(waldIcon(Icons.chat)),
       Positioned(
           top: 0,
           right: 0,
@@ -3224,7 +3198,7 @@ Widget buildErrorBanner(BuildContext context,
             children: [
               FittedBox(
                 child: Icon(
-                  Icons.info,
+                  waldIcon(Icons.info),
                   color: Color.fromARGB(255, 249, 81, 81),
                 ),
               ).marginAll(4),
@@ -3252,7 +3226,8 @@ Widget buildErrorBanner(BuildContext context,
                   onTap: () {
                     close.call();
                   },
-                  child: Icon(Icons.close).marginSymmetric(horizontal: 5),
+                  child: Icon(waldIcon(Icons.close))
+                      .marginSymmetric(horizontal: 5),
                 ),
               ).marginAll(4)
             ],
@@ -3655,8 +3630,8 @@ class ComboBox extends StatelessWidget {
                 color: enabled
                     ? Theme.of(context).textTheme.titleMedium?.color
                     : disabledTextColor(context, enabled)),
-            icon: const Icon(
-              Icons.expand_more_sharp,
+            icon: Icon(
+              waldIcon(Icons.expand_more_sharp),
               size: 20,
             ).marginOnly(right: 15),
             onChanged: enabled

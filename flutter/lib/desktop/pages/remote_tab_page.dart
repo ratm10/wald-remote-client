@@ -43,8 +43,9 @@ class _ConnectionTabPageState extends State<ConnectionTabPage> {
   final tabController =
       Get.put(DesktopTabController(tabType: DesktopTabType.remoteScreen));
   final contentKey = UniqueKey();
-  static const IconData selectedIcon = Icons.desktop_windows_sharp;
-  static const IconData unselectedIcon = Icons.desktop_windows_outlined;
+  static final IconData selectedIcon = waldIcon(Icons.desktop_windows_sharp);
+  static final IconData unselectedIcon =
+      waldIcon(Icons.desktop_windows_outlined);
 
   String? peerId;
   bool _isScreenRectSet = false;
@@ -603,7 +604,7 @@ class _RelativeMouseModeHint extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.mouse,
+              waldIcon(Icons.mouse),
               size: 14,
               color: Colors.orange[700],
             ),

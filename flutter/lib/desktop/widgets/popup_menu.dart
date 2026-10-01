@@ -126,7 +126,7 @@ abstract class MenuEntryBase<T> {
       fontSize: MenuConfig.fontSize,
       fontWeight: FontWeight.normal);
   disabledStyle() => TextStyle(
-      color: Colors.grey,
+      color: WaldPalette.neutral400,
       fontSize: MenuConfig.fontSize,
       fontWeight: FontWeight.normal);
 }
@@ -245,10 +245,10 @@ class MenuEntryRadios<T> extends MenuEntryBase<T> {
                             focusColor: Colors.transparent,
                             onPressed: () {},
                             icon: Icon(
-                              Icons.check,
+                              waldIcon(Icons.check),
                               color: (opt.enabled ?? true.obs).isTrue
                                   ? conf.commonColor
-                                  : Colors.grey,
+                                  : WaldPalette.neutral400,
                             ))
                         : const SizedBox.shrink()),
                   ))),
@@ -361,7 +361,7 @@ class MenuEntrySubRadios<T> extends MenuEntryBase<T> {
                                 focusColor: Colors.transparent,
                                 onPressed: () {},
                                 icon: Icon(
-                                  Icons.check,
+                                  waldIcon(Icons.check),
                                   color: conf.commonColor,
                                 ))
                             : const SizedBox.shrink())),
@@ -405,7 +405,7 @@ class MenuEntrySubRadios<T> extends MenuEntryBase<T> {
               child: Align(
             alignment: Alignment.centerRight,
             child: Icon(
-              Icons.keyboard_arrow_right,
+              waldIcon(Icons.keyboard_arrow_right),
               color: conf.commonColor,
             ),
           ))
@@ -679,8 +679,10 @@ class MenuEntrySubMenu<T> extends MenuEntryBase<T> {
               child: Align(
             alignment: Alignment.centerRight,
             child: Obx(() => Icon(
-                  Icons.keyboard_arrow_right,
-                  color: super.enabled!.value ? conf.commonColor : Colors.grey,
+                  waldIcon(Icons.keyboard_arrow_right),
+                  color: super.enabled!.value
+                      ? conf.commonColor
+                      : WaldPalette.neutral400,
                 )),
           ))
         ]),

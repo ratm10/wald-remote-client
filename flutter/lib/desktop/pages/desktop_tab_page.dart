@@ -25,8 +25,8 @@ class DesktopTabPage extends StatefulWidget {
       tabController.add(TabInfo(
           key: kTabLabelSettingPage,
           label: kTabLabelSettingPage,
-          selectedIcon: Icons.build_sharp,
-          unselectedIcon: Icons.build_outlined,
+          selectedIcon: waldIcon(Icons.build_sharp),
+          unselectedIcon: waldIcon(Icons.build_outlined),
           page: DesktopSettingPage(
             key: const ValueKey(kTabLabelSettingPage),
             initialTabkey: initialPage,
@@ -46,8 +46,8 @@ class _DesktopTabPageState extends State<DesktopTabPage> {
     tabController.add(TabInfo(
         key: kTabLabelHomePage,
         label: kTabLabelHomePage,
-        selectedIcon: Icons.home_sharp,
-        unselectedIcon: Icons.home_outlined,
+        selectedIcon: waldIcon(Icons.home_sharp),
+        unselectedIcon: waldIcon(Icons.home_outlined),
         closable: false,
         page: DesktopHomePage(
           key: const ValueKey(kTabLabelHomePage),

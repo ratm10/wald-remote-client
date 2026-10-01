@@ -369,7 +369,8 @@ List<TTextMenu> toolbarControls(BuildContext context, String id, FFI ffi) {
                 handleOsPasswordEditIcon(sessionId, ffi.dialogManager);
               }
             },
-            icon: Icon(Icons.edit, color: isMobile ? MyTheme.accent : null),
+            icon: Icon(waldIcon(Icons.edit),
+                color: isMobile ? MyTheme.accent : null),
           ),
         ),
         onPressed: () => pi.isHeadless
@@ -594,8 +595,8 @@ List<TTextMenu> toolbarControls(BuildContext context, String id, FFI ffi) {
               padding: EdgeInsets.only(left: 12),
               child: Icon(
                   ffi.recordingModel.start
-                      ? Icons.pause_circle_filled
-                      : Icons.videocam_outlined,
+                      ? waldIcon(Icons.pause_circle_filled)
+                      : waldIcon(Icons.videocam_outlined),
                   color: MyTheme.accent),
             )
           ],
@@ -1310,7 +1311,7 @@ List<Widget> getVirtualDisplayMenuChildren(
                             sessionId: ffi.sessionId, index: 0, on: false);
                         clickCallBack?.call();
                       },
-                child: Icon(Icons.remove),
+                child: Icon(waldIcon(Icons.remove)),
               ),
               Text(count.toString()),
               TextButton(
@@ -1321,7 +1322,7 @@ List<Widget> getVirtualDisplayMenuChildren(
                             sessionId: ffi.sessionId, index: 0, on: true);
                         clickCallBack?.call();
                       },
-                child: Icon(Icons.add),
+                child: Icon(waldIcon(Icons.add)),
               ),
             ],
           )),

@@ -155,6 +155,8 @@ class _FixedWidthButtonState extends State<FixedWidthButton> {
                     ),
                     maxLines: widget.maxLines ?? 1,
                     textAlign: TextAlign.center,
+                    // Waldlust(DSK-07): 한글 라벨이 위로 뜨지 않게 줄 상자를 고정한다.
+                    strutStyle: waldButtonStrut(widget.textSize ?? 12.0),
                     style: TextStyle(
                         fontSize: widget.textSize ?? 12.0,
                         color: widget.isOutline

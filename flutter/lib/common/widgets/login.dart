@@ -116,20 +116,27 @@ class ButtonOP extends StatelessWidget {
                   : Colors.grey,
             ).copyWith(elevation: ButtonStyleButton.allOrNull(0.0)),
             onPressed: curOP.value.isEmpty || curOP.value == op ? onTap : null,
-            child: Row(
+            // Waldlust(DSK-07): 로고는 왼쪽에 두고 라벨은 버튼 전체 폭의 가운데에 둔다
+            // (기존에는 로고 오른쪽 남은 폭의 가운데라 치우쳤다).
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                SizedBox(
-                  width: 30,
-                  child: _IconOP(
-                    op: branding.iconKey,
-                    icon: icon,
-                    margin: EdgeInsets.only(right: 5),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    width: 30,
+                    child: _IconOP(
+                      op: branding.iconKey,
+                      icon: icon,
+                      margin: EdgeInsets.only(right: 5),
+                    ),
                   ),
                 ),
-                Expanded(
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Center(child: Text(buttonLabel)),
+                    child: Text(buttonLabel, strutStyle: waldButtonStrut()),
                   ),
                 ),
               ],
@@ -283,7 +290,7 @@ class _WidgetOPState extends State<WidgetOP> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.error_outline,
+                            Icon(waldIcon(Icons.error_outline),
                                 color: errorColor, size: 16),
                             const SizedBox(width: 6),
                             Flexible(
@@ -317,19 +324,17 @@ class _WidgetOPState extends State<WidgetOP> {
         Obx(
           () => Offstage(
             offstage: widget.curOP.value != widget.config.op,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: 20),
-              child: ElevatedButton(
-                onPressed: () {
-                  widget.curOP.value = '';
-                  _updateTimer?.cancel();
-                  _resetState();
-                  bind.mainAccountAuthCancel();
-                },
-                child: Text(
-                  translate('Cancel'),
-                  style: TextStyle(fontSize: 15),
-                ),
+            // Waldlust(DSK-07): 높이 20 으로 눌린 버튼을 테마 크기의 보조 버튼으로.
+            child: OutlinedButton(
+              onPressed: () {
+                widget.curOP.value = '';
+                _updateTimer?.cancel();
+                _resetState();
+                bind.mainAccountAuthCancel();
+              },
+              child: Text(
+                translate('Cancel'),
+                strutStyle: waldButtonStrut(),
               ),
             ),
           ),
@@ -428,13 +433,14 @@ class LoginWidgetUserPass extends StatelessWidget {
             FittedBox(
                 child:
                     Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              // Waldlust(DSK-07): 테마 버튼 크기·글자, 라벨 줄 상자 고정.
               Container(
-                height: 38,
+                height: WaldSize.buttonHeight,
                 width: 200,
                 child: Obx(() => ElevatedButton(
                       child: Text(
                         translate('Login'),
-                        style: TextStyle(fontSize: 16),
+                        strutStyle: waldButtonStrut(),
                       ),
                       onPressed:
                           curOP.value.isEmpty || curOP.value == 'rustdesk'
@@ -628,7 +634,7 @@ Future<bool?> loginDialog() async {
           onExit: (_) => setState(() => isCloseHovered = false),
           child: InkWell(
             child: Icon(
-              Icons.close,
+              waldIcon(Icons.close),
               size: 25,
               // No need to handle the branch of null.
               // Because we can ensure the color is not null when debug.
@@ -754,7 +760,8 @@ Future<bool?> verificationCodeDialog(
                 offstage: !isEmailVerification || user?.email == null,
                 child: TextField(
                   decoration: InputDecoration(
-                      labelText: "Email", prefixIcon: Icon(Icons.email)),
+                      labelText: "Email",
+                      prefixIcon: Icon(waldIcon(Icons.email))),
                   readOnly: true,
                   controller: TextEditingController(text: user?.email),
                 ).workaroundFreezeLinuxMint()),
