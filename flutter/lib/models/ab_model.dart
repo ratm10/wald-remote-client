@@ -8,6 +8,7 @@ import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/models/model.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
+import 'package:flutter_hbb/models/wald_peer_names.dart';
 import 'package:get/get.dart';
 import 'package:bot_toast/bot_toast.dart';
 
@@ -134,6 +135,10 @@ class AbModel {
     try {
       await _pullAb(force: force, quiet: quiet);
       _refreshTab();
+      // Waldlust(DSK-05): 최근접속목록·즐겨찾기에도 같은 이름을 보이도록 권한 범위 전체 기기 이름을 받는다.
+      if (force == ForcePullAb.listAndCurrent && !legacyMode.value) {
+        await WaldPeerNames.instance.refresh();
+      }
     } catch (_) {}
     _pulling = false;
     _pulledOnce = true;
@@ -158,8 +163,8 @@ class AbModel {
         if (_personalAbGuid != null) {
           debugPrint("pull ab list");
           List<AbProfile> abProfiles = List.empty(growable: true);
-          abProfiles.add(AbProfile(_personalAbGuid!, _personalAddressBookName,
-              gFFI.userModel.userName.value, null, ShareRule.read.value, null));
+          // Waldlust(DSK-04): 개인 주소록(My address book)은 목록에 넣지 않는다 — 브랜드 = 공유 주소록만 보인다.
+          // _personalAbGuid 는 신형(공유) 주소록 모드 판별에만 쓴다.
           // get all address book name
           await _getSharedAbProfiles(abProfiles, quiet: quiet);
           addressbooks.removeWhere((key, value) =>
@@ -759,6 +764,15 @@ class AbModel {
         _currentName.value = _personalAddressBookName;
       } else if (addressbooks.containsKey(_legacyAddressBookName)) {
         _currentName.value = _legacyAddressBookName;
+      } else if (addressbooks.isNotEmpty) {
+        // Waldlust(DSK-04): 개인 주소록이 없으므로 '전체'(guid all)를, 없으면 이름순 첫 브랜드를 고른다.
+        final all = addressbooks.entries
+            .where((e) => e.value.sharedProfile()?.guid == 'all');
+        _currentName.value = all.isNotEmpty
+            ? all.first.key
+            : (addressbooks.keys.toList()
+                  ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase())))
+                .first;
       } else {
         _currentName.value = '';
       }

@@ -5,6 +5,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common/hbbs/hbbs.dart';
 import 'package:flutter_hbb/models/ab_model.dart';
+import 'package:flutter_hbb/models/wald_peer_names.dart';
 import 'package:get/get.dart';
 
 import '../common.dart';
@@ -123,6 +124,7 @@ class UserModel {
   Future<void> reset({bool resetOther = false}) async {
     await bind.mainSetLocalOption(key: 'access_token', value: '');
     await bind.mainSetLocalOption(key: 'user_info', value: '');
+    WaldPeerNames.instance.clear(); // Waldlust(DSK-05): 로그아웃·토큰 폐기 때 어드민 이름도 지운다.
     if (resetOther) {
       await gFFI.abModel.reset();
       await gFFI.groupModel.reset();

@@ -8,6 +8,7 @@ import 'package:flutter_hbb/common/formatter/id_formatter.dart';
 import 'package:flutter_hbb/common/hbbs/hbbs.dart';
 import 'package:flutter_hbb/common/widgets/peer_card.dart';
 import 'package:flutter_hbb/common/widgets/peers_view.dart';
+import 'package:flutter_hbb/common/widgets/wald_ab.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
 import 'package:flutter_hbb/models/ab_model.dart';
@@ -86,7 +87,10 @@ class _AddressBookState extends State<AddressBook> {
                 width: 200,
                 height: double.infinity,
                 child: Column(
-                  children: [
+                  // Waldlust(DSK-04): 드롭다운·태그 대신 브랜드 목록(맨 위 '전체').
+                  children: waldAbBrandPanel
+                      ? [Expanded(child: WaldAbBrandList(isPortrait: false))]
+                      : [
                     _buildAbDropdown(),
                     _buildTagHeader().marginOnly(
                         left: 8.0,
@@ -125,7 +129,10 @@ class _AddressBookState extends State<AddressBook> {
                     const EdgeInsets.fromLTRB(padding, 0, padding, padding),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
+                  // Waldlust(DSK-04): 드롭다운·태그 대신 브랜드 목록(맨 위 '전체').
+                  children: waldAbBrandPanel
+                      ? [WaldAbBrandList(isPortrait: true)]
+                      : [
                     _buildAbDropdown(),
                     _buildTagHeader().marginOnly(left: 8.0, right: 0),
                     Container(

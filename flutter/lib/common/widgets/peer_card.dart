@@ -2,9 +2,11 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
+import 'package:flutter_hbb/common/widgets/wald_ab.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/models/peer_tab_model.dart';
 import 'package:flutter_hbb/models/state_model.dart';
+import 'package:flutter_hbb/models/wald_peer_names.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +23,8 @@ typedef PopupMenuEntryBuilder = Future<List<mod_menu.PopupMenuEntry<String>>>
 
 enum PeerUiType { grid, tile, list }
 
-final peerCardUiType = PeerUiType.grid.obs;
+// Waldlust(DSK-04): 기본 보기 = 목록형(세 번째). 사용자가 고른 값(peer-card-ui-type)이 있으면 그 값이 우선한다.
+final peerCardUiType = PeerUiType.list.obs;
 
 bool? hideUsernameOnCard;
 
@@ -468,6 +471,9 @@ class _PeerCardState extends State<_PeerCard>
       } else {
         return icon.marginOnly(right: right);
       }
+    } else if (widget.tab == PeerTabIndex.ab) {
+      // Waldlust(DSK-04·DSK-06): 주소록 카드에 연결·파일 전송·(권한이 있으면) 이름 편집 버튼.
+      return waldAbCardActions(context, peer, _actionMore(peer));
     } else {
       return _actionMore(peer);
     }
@@ -993,7 +999,9 @@ class RecentPeerCard extends BasePeerCard {
       menuItems.add(_createShortCutAction(peer.id));
     }
     menuItems.add(MenuEntryDivider());
-    if (isMobile || isDesktop || isWebDesktop) {
+    // Waldlust(DSK-05): 어드민 이름이 있는 기기는 로컬 이름 변경을 숨긴다(카드에는 어드민 이름이 보인다).
+    if ((isMobile || isDesktop || isWebDesktop) &&
+        !WaldPeerNames.instance.contains(peer.id)) {
       menuItems.add(_renameAction(peer.id));
     }
     if (await bind.mainPeerHasPassword(id: peer.id)) {
@@ -1006,7 +1014,8 @@ class RecentPeerCard extends BasePeerCard {
       menuItems.add(_rmFavAction(peer.id, () async {}));
     }
 
-    if (gFFI.userModel.userName.isNotEmpty) {
+    if (gFFI.userModel.userName.isNotEmpty &&
+        gFFI.abModel.addressBooksCanWrite().isNotEmpty) {
       menuItems.add(_addToAb(peer));
     }
 
@@ -1056,7 +1065,9 @@ class FavoritePeerCard extends BasePeerCard {
       menuItems.add(_createShortCutAction(peer.id));
     }
     menuItems.add(MenuEntryDivider());
-    if (isMobile || isDesktop || isWebDesktop) {
+    // Waldlust(DSK-05): 어드민 이름이 있는 기기는 로컬 이름 변경을 숨긴다(카드에는 어드민 이름이 보인다).
+    if ((isMobile || isDesktop || isWebDesktop) &&
+        !WaldPeerNames.instance.contains(peer.id)) {
       menuItems.add(_renameAction(peer.id));
     }
     if (await bind.mainPeerHasPassword(id: peer.id)) {
@@ -1066,7 +1077,8 @@ class FavoritePeerCard extends BasePeerCard {
       await bind.mainLoadFavPeers();
     }));
 
-    if (gFFI.userModel.userName.isNotEmpty) {
+    if (gFFI.userModel.userName.isNotEmpty &&
+        gFFI.abModel.addressBooksCanWrite().isNotEmpty) {
       menuItems.add(_addToAb(peer));
     }
 
@@ -1125,7 +1137,8 @@ class DiscoveredPeerCard extends BasePeerCard {
       menuItems.add(_rmFavAction(peer.id, () async {}));
     }
 
-    if (gFFI.userModel.userName.isNotEmpty) {
+    if (gFFI.userModel.userName.isNotEmpty &&
+        gFFI.abModel.addressBooksCanWrite().isNotEmpty) {
       menuItems.add(_addToAb(peer));
     }
 
@@ -1189,6 +1202,12 @@ class AddressBookPeerCard extends BasePeerCard {
         menuItems.add(_editTagAction(peer.id));
       }
       menuItems.add(_editNoteAction(peer.id));
+    }
+    // Waldlust(DSK-06): 브랜드 주소록은 읽기 전용이고 기기 이름 변경만 허용한다(wald_ab.dart).
+    if (!gFFI.abModel.current.canWrite() &&
+        waldCanRename(gFFI.abModel.current)) {
+      menuItems.add(MenuEntryDivider());
+      menuItems.add(waldRenameMenuEntry(peer, menuPadding));
     }
     final addressbooks = gFFI.abModel.addressBooksCanWrite();
     if (gFFI.peerTabModel.currentTab == PeerTabIndex.ab.index) {
@@ -1336,7 +1355,8 @@ class MyGroupPeerCard extends BasePeerCard {
     // if (await bind.mainPeerHasPassword(id: peer.id)) {
     //   menuItems.add(_unrememberPasswordAction(peer.id));
     // }
-    if (gFFI.userModel.userName.isNotEmpty) {
+    if (gFFI.userModel.userName.isNotEmpty &&
+        gFFI.abModel.addressBooksCanWrite().isNotEmpty) {
       menuItems.add(_addToAb(peer));
     }
     return menuItems;

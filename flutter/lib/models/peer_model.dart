@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'platform_model.dart';
+import 'wald_peer_names.dart';
 // ignore: depend_on_referenced_packages
 import 'package:collection/collection.dart';
 
@@ -280,7 +281,9 @@ class Peers extends ChangeNotifier {
       if (peersStr == "") return [];
       List<dynamic> peers = json.decode(peersStr);
       return peers.map((peer) {
-        return Peer.fromJson(peer as Map<String, dynamic>);
+        // Waldlust(DSK-05): 최근접속목록·즐겨찾기·LAN 카드에도 어드민 기기 이름을 보인다.
+        return WaldPeerNames.instance
+            .apply(Peer.fromJson(peer as Map<String, dynamic>));
       }).toList();
     } catch (e) {
       debugPrint('peers(): $e');

@@ -119,8 +119,9 @@ class _PeerTabPageState extends State<PeerTabPage>
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                        child: visibleContextMenuListener(
-                            _createSwitchBar(context))),
+                        child: visibleContextMenuListener(LayoutBuilder(
+                            builder: (context, constraints) => _createSwitchBar(
+                                context, constraints.maxWidth)))),
                     if (stateGlobal.isPortrait.isTrue)
                       ..._portraitRightActions(context)
                     else
@@ -134,8 +135,41 @@ class _PeerTabPageState extends State<PeerTabPage>
     );
   }
 
-  Widget _createSwitchBar(BuildContext context) {
+  // Waldlust(DSK-07): 아이콘만으로는 탭을 알아보기 어려워 탭 이름을 아이콘 옆에 적는다.
+  // 모든 이름이 들어가면 모두, 아니면 선택된 탭만, 그것도 안 되면 아이콘만 보인다(툴팁은 그대로).
+  bool Function(int) _tabLabelVisible(
+      BuildContext context, PeerTabModel model, double maxWidth) {
+    final tabs = model.visibleEnabledOrderedIndexs;
+    final style = DefaultTextStyle.of(context).style;
+    double labelWidth(int t) {
+      final painter = TextPainter(
+          text: TextSpan(text: model.tabTooltip(t), style: style),
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+          maxLines: 1)
+        ..layout();
+      final width = painter.width;
+      painter.dispose();
+      return width + 4;
+    }
+
+    // 탭 하나의 아이콘 몫: 아이콘 + 안팎 좌우 여백 4씩(_createSwitchBar).
+    final iconsWidth = tabs.length * ((IconTheme.of(context).size ?? 24) + 16);
+    final labels = {for (final t in tabs) t: labelWidth(t)};
+    if (iconsWidth + labels.values.fold(0.0, (a, b) => a + b) <= maxWidth) {
+      return (_) => true;
+    }
+    final selected = model.currentTab;
+    final selectedLabel = labels[selected];
+    if (selectedLabel != null && iconsWidth + selectedLabel <= maxWidth) {
+      return (t) => t == selected;
+    }
+    return (_) => false;
+  }
+
+  Widget _createSwitchBar(BuildContext context, double maxWidth) {
     final model = Provider.of<PeerTabModel>(context);
+    final showLabel = _tabLabelVisible(context, model, maxWidth);
     var counter = -1;
     return ReorderableListView(
         buildDefaultDragHandles: false,
@@ -169,8 +203,13 @@ class _PeerTabPageState extends State<PeerTabPage>
                         decoration: (hover.value
                             ? (selected ? decoBorder : deco)
                             : (selected ? decoBorder : null)),
-                        child: Icon(model.tabIcon(t), color: color)
-                            .paddingSymmetric(horizontal: 4),
+                        child: Row(mainAxisSize: MainAxisSize.min, children: [
+                          Icon(model.tabIcon(t), color: color),
+                          if (showLabel(t))
+                            Text(model.tabTooltip(t),
+                                    maxLines: 1, style: TextStyle(color: color))
+                                .paddingOnly(left: 4),
+                        ]).paddingSymmetric(horizontal: 4),
                       ).paddingSymmetric(horizontal: 4),
                       onTap: isOptionFixed(kOptionPeerTabIndex)
                           ? null
