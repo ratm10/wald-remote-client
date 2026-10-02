@@ -295,11 +295,13 @@ class _FileManagerPageState extends State<FileManagerPage>
                                   progressColor: MyTheme.accent,
                                   backgroundColor: Theme.of(context).hoverColor,
                                   lineHeight: kDesktopFileTransferRowHeight,
-                                ).paddingSymmetric(vertical: 8),
+                                ).paddingOnly(top: 8),
                               ),
                               _waldReceivedActions(item),
                             ],
-                          ),
+                            // Waldlust(DSK-07): 진행 막대·열기 버튼으로 카드가 높아져도 파일명 위 여백이
+                            // 짧은 카드(오른쪽 버튼 높이 68 의 가운데)와 같게 위아래 15 를 둔다.
+                          ).paddingSymmetric(vertical: 15),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -417,7 +419,7 @@ class _FileManagerPageState extends State<FileManagerPage>
         button(Icons.folder_open, 'Open folder',
             () => waldRevealLocalPath(job.to)),
       ],
-    ).marginOnly(top: 8, bottom: 12);
+    ).marginOnly(top: 8);
   }
 
   void handleDragDone(DropDoneDetails details, bool isLocal) {
@@ -920,9 +922,9 @@ class _FileManagerViewState extends State<FileManagerView> {
                         ),
                       ).marginOnly(left: 8),
                     )).marginOnly(left: 16),
-              // Waldlust(DSK-07): 테마 주요 버튼(색·비활성은 테마). 화살표는 버튼 글자색을 따르고,
-              // 보내기는 라벨 뒤(→), 받기는 라벨 앞(←)에 둔다. 두 버튼 너비는 같게(최소 120,
-              // 'Receive'·'보내기'가 들어가는 너비).
+              // Waldlust(DSK-07): 테마 주요 버튼(색·비활성은 테마). 아이콘은 방향 화살표(→·←) 대신
+              // 전송 목록과 같은 업로드(보내기)·다운로드(받기) 아이콘을 라벨 앞에 둔다.
+              // 두 버튼 너비는 같게(최소 120, 'Receive'·'보내기'가 들어가는 너비).
               Obx(() => ElevatedButton.icon(
                     style: const ButtonStyle(
                         minimumSize: WidgetStatePropertyAll(
@@ -935,18 +937,10 @@ class _FileManagerViewState extends State<FileManagerView> {
                             selectedItems.clear();
                           }
                         : null,
-                    iconAlignment:
-                        isLocal ? IconAlignment.end : IconAlignment.start,
                     icon: !isLocal && isWeb
                         ? Offstage()
-                        : Builder(
-                            builder: (context) => RotatedBox(
-                                  quarterTurns: isLocal ? 0 : 2,
-                                  child: waldSvg("assets/arrow.svg",
-                                      color: IconTheme.of(context).color,
-                                      width: WaldSize.iconLg,
-                                      iconSize: WaldSize.iconSm),
-                                )),
+                        : Icon(
+                            waldIcon(isLocal ? Icons.upload : Icons.download)),
                     label: Text(
                       translate(isLocal
                           ? 'Send'
