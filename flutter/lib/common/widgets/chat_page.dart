@@ -58,7 +58,7 @@ class ChatPage extends StatelessWidget implements PageShape {
                       height: 10,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color.fromARGB(255, 46, 205, 139)),
+                          color: WaldPalette.green500),
                     ).marginSymmetric(horizontal: 2),
                   if (client != null)
                     unreadMessageCountBuilder(client.unreadChatMessageCount)
@@ -109,19 +109,11 @@ class ChatPage extends StatelessWidget implements PageShape {
                       inputTextStyle: TextStyle(
                           fontSize: 14,
                           color: Theme.of(context).textTheme.titleLarge?.color),
+                      // Waldlust(DSK-07): 채움색·테두리는 테마 입력 칸(어드민 톤)을 따른다.
                       inputDecoration: InputDecoration(
                         isDense: true,
                         hintText: translate('Write a message'),
-                        filled: true,
-                        fillColor: Theme.of(context).colorScheme.background,
                         contentPadding: EdgeInsets.all(10),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: const BorderSide(
-                            width: 1,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
                       ),
                       sendButtonBuilder: defaultSendButton(
                         padding:
@@ -158,8 +150,10 @@ class ChatPage extends StatelessWidget implements PageShape {
                           (message, previousMessage, nextMessage) {
                         final isOwnMessage = message.user.id.isBlank!;
                         return defaultMessageDecoration(
-                          color:
-                              isOwnMessage ? MyTheme.accent : Colors.blueGrey,
+                          // Waldlust(DSK-07): 상대 말풍선은 무채색(흰 글자가 읽히는 n600).
+                          color: isOwnMessage
+                              ? MyTheme.accent
+                              : WaldPalette.neutral600,
                           borderTopLeft: 8,
                           borderTopRight: 8,
                           borderBottomRight: isOwnMessage ? 2 : 8,

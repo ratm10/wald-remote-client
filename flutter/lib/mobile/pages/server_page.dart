@@ -20,7 +20,7 @@ class ServerPage extends StatefulWidget implements PageShape {
   final title = translate("Share screen");
 
   @override
-  final icon = const Icon(Icons.mobile_screen_share);
+  final icon = Icon(waldIcon(Icons.mobile_screen_share));
 
   @override
   final appBarActions = (!bind.isDisableSettings() &&
@@ -41,13 +41,13 @@ class _DropDownAction extends StatelessWidget {
   final actions = [
     PopupMenuButton<String>(
         tooltip: "",
-        icon: const Icon(Icons.more_vert),
+        icon: Icon(waldIcon(Icons.more_vert)),
         itemBuilder: (context) {
           listTile(String text, bool checked) {
             return ListTile(
                 title: Text(translate(text)),
                 trailing: Icon(
-                  Icons.check,
+                  waldIcon(Icons.check),
                   color: checked ? null : Colors.transparent,
                 ));
           }
@@ -242,8 +242,9 @@ class ServiceNotRunningNotification extends StatelessWidget {
 
     return PaddingCard(
         title: translate("Service is not running"),
-        titleIcon:
-            const Icon(Icons.warning_amber_sharp, color: Colors.redAccent),
+        // Waldlust(DSK-07): 어드민 톤 — 미시작은 경고(주황), 아이콘은 Lucide.
+        titleIcon: Icon(waldIcon(Icons.warning_amber_sharp),
+            color: WaldPalette.amber600),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -252,7 +253,7 @@ class ServiceNotRunningNotification extends StatelessWidget {
                         const TextStyle(fontSize: 12, color: MyTheme.darkGray))
                 .marginOnly(bottom: 8),
             ElevatedButton.icon(
-                icon: const Icon(Icons.play_arrow),
+                icon: Icon(waldIcon(Icons.play_arrow)),
                 onPressed: () {
                   if (gFFI.userModel.userName.value.isEmpty &&
                       bind.mainGetLocalOption(key: "show-scam-warning") !=
@@ -262,7 +263,8 @@ class ServiceNotRunningNotification extends StatelessWidget {
                     serverModel.toggleService();
                   }
                 },
-                label: Text(translate("Start service")))
+                label: Text(translate("Start service"),
+                    strutStyle: waldButtonStrut()))
           ],
         ));
   }
@@ -470,12 +472,15 @@ class ServerInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     final serverModel = Provider.of<ServerModel>(context);
 
-    const Color colorPositive = Colors.green;
-    const Color colorNegative = Colors.red;
+    // Waldlust(DSK-07): 어드민 톤 상태색·회색, 아이콘은 Lucide.
+    const Color colorPositive = WaldPalette.green600;
+    const Color colorNegative = WaldPalette.red600;
     const double iconMarginRight = 15;
     const double iconSize = 24;
     const TextStyle textStyleHeading = TextStyle(
-        fontSize: 16.0, fontWeight: FontWeight.bold, color: Colors.grey);
+        fontSize: 16.0,
+        fontWeight: FontWeight.bold,
+        color: WaldPalette.neutral500);
     const TextStyle textStyleValue =
         TextStyle(fontSize: 25.0, fontWeight: FontWeight.bold);
 
@@ -487,7 +492,7 @@ class ServerInfo extends StatelessWidget {
     Widget ConnectionStateNotification() {
       if (serverModel.connectStatus == -1) {
         return Row(children: [
-          const Icon(Icons.warning_amber_sharp,
+          Icon(waldIcon(Icons.warning_amber_sharp),
                   color: colorNegative, size: iconSize)
               .marginOnly(right: iconMarginRight),
           Expanded(child: Text(translate('not_ready_status')))
@@ -500,7 +505,7 @@ class ServerInfo extends StatelessWidget {
         ]);
       } else {
         return Row(children: [
-          const Icon(Icons.check, color: colorPositive, size: iconSize)
+          Icon(waldIcon(Icons.check), color: colorPositive, size: iconSize)
               .marginOnly(right: iconMarginRight),
           Expanded(child: Text(translate('Ready')))
         ]);
@@ -515,8 +520,8 @@ class ServerInfo extends StatelessWidget {
           // ID
           children: [
             Row(children: [
-              const Icon(Icons.perm_identity,
-                      color: Colors.grey, size: iconSize)
+              Icon(waldIcon(Icons.perm_identity),
+                      color: WaldPalette.neutral500, size: iconSize)
                   .marginOnly(right: iconMarginRight),
               Text(
                 translate('ID'),
@@ -530,14 +535,15 @@ class ServerInfo extends StatelessWidget {
               ),
               IconButton(
                   visualDensity: VisualDensity.compact,
-                  icon: Icon(Icons.copy_outlined),
+                  icon: Icon(waldIcon(Icons.copy_outlined)),
                   onPressed: () {
                     copyToClipboard(model.serverId.value.text.trim());
                   })
             ]).marginOnly(left: 39, bottom: 10),
             // Password
             Row(children: [
-              const Icon(Icons.lock_outline, color: Colors.grey, size: iconSize)
+              Icon(waldIcon(Icons.lock_outline),
+                      color: WaldPalette.neutral500, size: iconSize)
                   .marginOnly(right: iconMarginRight),
               Text(
                 translate('One-time Password'),
@@ -554,11 +560,11 @@ class ServerInfo extends StatelessWidget {
                   : Row(children: [
                       IconButton(
                           visualDensity: VisualDensity.compact,
-                          icon: const Icon(Icons.refresh),
+                          icon: Icon(waldIcon(Icons.refresh)),
                           onPressed: () => bind.mainUpdateTemporaryPassword()),
                       IconButton(
                           visualDensity: VisualDensity.compact,
-                          icon: Icon(Icons.copy_outlined),
+                          icon: Icon(waldIcon(Icons.copy_outlined)),
                           onPressed: () {
                             copyToClipboard(
                                 model.serverPasswd.value.text.trim());
@@ -598,12 +604,12 @@ class _PermissionCheckerState extends State<PermissionChecker> {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           serverModel.mediaOk && !hideStopService
               ? ElevatedButton.icon(
-                      style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all(Colors.red)),
-                      icon: const Icon(Icons.stop),
+                      // Waldlust(DSK-07): 위험 동작 버튼은 어드민 톤 빨강, 아이콘은 Lucide.
+                      style: waldDangerStyle(),
+                      icon: Icon(waldIcon(Icons.stop)),
                       onPressed: serverModel.toggleService,
-                      label: Text(translate("Stop service")))
+                      label: Text(translate("Stop service"),
+                          strutStyle: waldButtonStrut()))
                   .marginOnly(bottom: 8)
               : SizedBox.shrink(),
           if (!hideStopService || !serverModel.mediaOk)
@@ -631,7 +637,7 @@ class _PermissionCheckerState extends State<PermissionChecker> {
                   serverModel.toggleAudio,
                   enabled: !permissionChangeLocked)
               : Row(children: [
-                  Icon(Icons.info_outline).marginOnly(right: 15),
+                  Icon(waldIcon(Icons.info_outline)).marginOnly(right: 15),
                   Expanded(
                       child: Text(
                     translate("android_version_audio_tip"),
@@ -685,8 +691,8 @@ class ConnectionManager extends StatelessWidget {
                 title: translate(
                     client.isFileTransfer ? "Transfer file" : "Share screen"),
                 titleIcon: client.isFileTransfer
-                    ? Icon(Icons.folder_outlined)
-                    : Icon(Icons.mobile_screen_share),
+                    ? Icon(waldIcon(Icons.folder_outlined))
+                    : Icon(waldIcon(Icons.mobile_screen_share)),
                 child: Column(children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -726,24 +732,24 @@ class ConnectionManager extends StatelessWidget {
   }
 
   Widget _buildDisconnectButton(Client client) {
+    // Waldlust(DSK-07): 위험 동작 버튼은 어드민 톤 빨강, 아이콘은 Lucide.
     final disconnectButton = ElevatedButton.icon(
-      style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Colors.red)),
-      icon: const Icon(Icons.close),
+      style: waldDangerStyle(),
+      icon: Icon(waldIcon(Icons.close)),
       onPressed: () {
         bind.cmCloseConnection(connId: client.id);
         gFFI.invokeMethod("cancel_notification", client.id);
       },
-      label: Text(translate("Disconnect")),
+      label: Text(translate("Disconnect"), strutStyle: waldButtonStrut()),
     );
     final buttons = [disconnectButton];
     if (client.inVoiceCall) {
       buttons.insert(
         0,
         ElevatedButton.icon(
-          style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(Colors.red)),
-          icon: const Icon(Icons.phone),
-          label: Text(translate("Stop")),
+          style: waldDangerStyle(),
+          icon: Icon(waldIcon(Icons.phone)),
+          label: Text(translate("Stop"), strutStyle: waldButtonStrut()),
           onPressed: () {
             bind.cmCloseVoiceCall(id: client.id);
             gFFI.invokeMethod("cancel_notification", client.id);
@@ -766,16 +772,17 @@ class ConnectionManager extends StatelessWidget {
   }
 
   Widget _buildNewConnectionHint(ServerModel serverModel, Client client) {
+    // Waldlust(DSK-07): 거절 = 보조(테두리), 수락 = 주요(검정) 버튼.
     return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-      TextButton(
-          child: Text(translate("Dismiss")),
+      OutlinedButton(
+          child: Text(translate("Dismiss"), strutStyle: waldButtonStrut()),
           onPressed: () {
             serverModel.sendLoginResponse(client, false);
           }).marginOnly(right: 15),
       if (serverModel.approveMode != 'password')
         ElevatedButton.icon(
-            icon: const Icon(Icons.check),
-            label: Text(translate("Accept")),
+            icon: Icon(waldIcon(Icons.check)),
+            label: Text(translate("Accept"), strutStyle: waldButtonStrut()),
             onPressed: () {
               serverModel.sendLoginResponse(client, true);
             }),
@@ -790,15 +797,15 @@ class ConnectionManager extends StatelessWidget {
         style: Theme.of(context).textTheme.bodyMedium,
       ).marginOnly(bottom: 5),
       Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-        TextButton(
-            child: Text(translate("Dismiss")),
+        OutlinedButton(
+            child: Text(translate("Dismiss"), strutStyle: waldButtonStrut()),
             onPressed: () {
               serverModel.handleVoiceCall(client, false);
             }).marginOnly(right: 15),
         if (serverModel.approveMode != 'password')
           ElevatedButton.icon(
-              icon: const Icon(Icons.check),
-              label: Text(translate("Accept")),
+              icon: Icon(waldIcon(Icons.check)),
+              label: Text(translate("Accept"), strutStyle: waldButtonStrut()),
               onPressed: () {
                 serverModel.handleVoiceCall(client, true);
               }),
@@ -839,14 +846,21 @@ class PaddingCard extends StatelessWidget {
     return SizedBox(
         width: double.maxFinite,
         child: Card(
+          // Waldlust(DSK-07): 어드민 톤 카드 — 회색 바탕 위 흰 카드, 그림자 대신 테두리.
+          color: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(13),
+            borderRadius: BorderRadius.circular(WaldSize.radius),
+            side: BorderSide(color: MyTheme.color(context).border3!),
           ),
           margin: const EdgeInsets.fromLTRB(12.0, 10.0, 12.0, 0),
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            // Waldlust(DSK-07): 내용을 왼쪽에 맞춘다(가로 화면 기기에서 안내 문구·버튼이 가운데로
+            // 몰리지 않게).
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: children,
             ),
           ),

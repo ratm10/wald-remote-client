@@ -23,7 +23,7 @@ class ConnectionPage extends StatefulWidget implements PageShape {
   ConnectionPage({Key? key, required this.appBarActions}) : super(key: key);
 
   @override
-  final icon = const Icon(Icons.connected_tv);
+  final icon = Icon(waldIcon(Icons.connected_tv));
 
   @override
   final title = translate("Connection");
@@ -90,7 +90,18 @@ class _ConnectionPageState extends State<ConnectionPage> {
         ])),
         SliverFillRemaining(
           hasScrollBody: true,
-          child: PeerTabPage(),
+          // Waldlust(DSK-07): 회색 바탕 위 흰 패널(피어 탭의 n100 검색칸·카드가 묻히지 않게).
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            padding: const EdgeInsets.all(8),
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(WaldSize.radius),
+              border: Border.all(color: MyTheme.color(context).border3!),
+            ),
+            child: PeerTabPage(),
+          ),
         )
       ],
     ).marginOnly(top: 2, left: 10, right: 10);
@@ -153,9 +164,11 @@ class _ConnectionPageState extends State<ConnectionPage> {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 2),
         child: Ink(
+          // Waldlust(DSK-07): 어드민 톤 카드 — 흰 바탕·모서리 8·테두리.
           decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.all(Radius.circular(13)),
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.all(Radius.circular(WaldSize.radius)),
+            border: Border.all(color: MyTheme.color(context).border3!),
           ),
           child: Row(
             children: <Widget>[
@@ -234,12 +247,13 @@ class _ConnectionPageState extends State<ConnectionPage> {
                           fontFamily: 'WorkSans',
                           fontWeight: FontWeight.bold,
                           fontSize: 30,
-                          color: MyTheme.idColor,
                         ),
                         decoration: InputDecoration(
                           labelText: translate('Remote ID'),
                           // hintText: 'Enter your remote ID',
                           border: InputBorder.none,
+                          // Waldlust(DSK-07): 테마 입력 칸의 채움색을 쓰지 않는다(카드 안 큰 ID 칸).
+                          filled: false,
                           helperStyle: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -332,17 +346,21 @@ class _ConnectionPageState extends State<ConnectionPage> {
                             _idController.clear();
                           });
                         },
-                        icon: Icon(Icons.clear, color: MyTheme.darkGray)),
+                        icon: Icon(waldIcon(Icons.clear),
+                            color: MyTheme.darkGray)),
                   )),
-              SizedBox(
-                width: 60,
-                height: 60,
-                child: IconButton(
-                  icon: const Icon(Icons.arrow_forward,
-                      color: MyTheme.darkGray, size: 45),
+              // Waldlust(DSK-07): 데스크탑 [연결] 과 같은 주요(검정) 버튼.
+              SizedBox.square(
+                dimension: 44,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size.square(44)),
                   onPressed: onConnect,
+                  child: Icon(waldIcon(Icons.arrow_forward),
+                      size: WaldSize.iconLg),
                 ),
-              ),
+              ).marginOnly(right: 12),
             ],
           ),
         ),

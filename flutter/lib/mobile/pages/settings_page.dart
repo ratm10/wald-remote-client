@@ -22,12 +22,34 @@ import '../widgets/dialog.dart';
 import 'home_page.dart';
 import 'scan_page.dart';
 
+// Waldlust(DSK-07): settings_ui 기본색(회색 240 바탕·구글 파랑 제목) 대신 어드민 톤.
+// 스위치는 테마(파랑)를 그대로 쓴다.
+SettingsThemeData _waldSettingsTheme(Brightness brightness) {
+  final dark = brightness == Brightness.dark;
+  return SettingsThemeData(
+    settingsListBackground:
+        dark ? WaldPalette.neutral900 : WaldPalette.neutral100,
+    settingsSectionBackground:
+        dark ? WaldPalette.neutral950 : WaldPalette.white,
+    titleTextColor: dark ? WaldPalette.neutral400 : WaldPalette.neutral500,
+    settingsTileTextColor:
+        dark ? WaldPalette.neutral100 : WaldPalette.neutral900,
+    tileDescriptionTextColor:
+        dark ? WaldPalette.neutral400 : WaldPalette.neutral500,
+    leadingIconsColor: dark ? WaldPalette.neutral400 : WaldPalette.neutral600,
+    tileHighlightColor: dark ? WaldPalette.neutral800 : WaldPalette.neutral200,
+    inactiveTitleColor: dark ? WaldPalette.neutral600 : WaldPalette.neutral400,
+    inactiveSubtitleColor:
+        dark ? WaldPalette.neutral700 : WaldPalette.neutral300,
+  );
+}
+
 class SettingsPage extends StatefulWidget implements PageShape {
   @override
   final title = translate("Settings");
 
   @override
-  final icon = Icon(Icons.settings);
+  final icon = Icon(waldIcon(Icons.settings));
 
   @override
   final appBarActions = bind.isDisableSettings() ? [] : [ScanButton()];
@@ -353,7 +375,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
       if (enable2fa && _enableTrustedDevices)
         SettingsTile(
             title: Text(translate('Manage trusted devices')),
-            trailing: Icon(Icons.arrow_forward_ios),
+            trailing: Icon(waldIcon(Icons.arrow_forward_ios)),
             onPressed: (context) {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return _ManageTrustedDevices();
@@ -382,8 +404,8 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
           Expanded(child: Text(translate('Use IP Whitelisting'))),
           Offstage(
                   offstage: !_onlyWhiteList,
-                  child: const Icon(Icons.warning_amber_rounded,
-                      color: Color.fromARGB(255, 255, 204, 0)))
+                  child: Icon(waldIcon(Icons.warning_amber_rounded),
+                      color: WaldPalette.amber500))
               .marginOnly(left: 5)
         ]),
         initialValue: _onlyWhiteList,
@@ -449,7 +471,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                   child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
-                        Icons.edit,
+                        waldIcon(Icons.edit),
                         size: 20,
                       ),
                       onPressed: isOptionFixed(kOptionDirectAccessPort)
@@ -496,7 +518,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                   child: IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
-                        Icons.edit,
+                        waldIcon(Icons.edit),
                         size: 20,
                       ),
                       onPressed: isOptionFixed(kOptionAutoDisconnectTimeout)
@@ -680,6 +702,8 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
     final hideSecuritySettings =
         bind.mainGetBuildinOption(key: kOptionHideSecuritySetting) == 'Y';
     final settings = SettingsList(
+      lightTheme: _waldSettingsTheme(Brightness.light),
+      darkTheme: _waldSettingsTheme(Brightness.dark),
       sections: [
         customClientSection,
         if (!bind.isDisableAccount())
@@ -697,9 +721,9 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                         avatar: avatar,
                         size: 28,
                         borderRadius: null,
-                        fallback: Icon(Icons.person),
+                        fallback: Icon(waldIcon(Icons.person)),
                       ) ??
-                      Icon(Icons.person);
+                      Icon(waldIcon(Icons.person));
                 }),
                 onPressed: (context) {
                   if (gFFI.userModel.userName.value.isEmpty) {
@@ -715,7 +739,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
           if (!disabledSettings && !_hideNetwork && !_hideServer)
             SettingsTile(
                 title: Text(translate('ID/Relay Server')),
-                leading: Icon(Icons.cloud),
+                leading: Icon(waldIcon(Icons.cloud)),
                 onPressed: (context) {
                   showServerSettings(gFFI.dialogManager, (callback) async {
                     _isUsingPublicServer = await bind.mainIsUsingPublicServer();
@@ -725,14 +749,14 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
           if (!_hideNetwork && !_hideProxy)
             SettingsTile(
                 title: Text(translate('Socks5/Http(s) Proxy')),
-                leading: Icon(Icons.network_ping),
+                leading: Icon(waldIcon(Icons.network_ping)),
                 onPressed: (context) {
                   changeSocks5Proxy();
                 }),
           if (isAndroid && !bind.isOutgoingOnly())
             SettingsTile(
                 title: Text(translate('Deploy')),
-                leading: Icon(Icons.cloud_upload),
+                leading: Icon(waldIcon(Icons.cloud_upload)),
                 onPressed: (context) {
                   showDeployDialog();
                 }),
@@ -811,7 +835,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
             ),
           SettingsTile(
               title: Text(translate('Language')),
-              leading: Icon(Icons.translate),
+              leading: Icon(waldIcon(Icons.translate)),
               onPressed: (context) {
                 showLanguageSettings(gFFI.dialogManager);
               }),
@@ -820,9 +844,10 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                 Theme.of(context).brightness == Brightness.light
                     ? 'Light Theme'
                     : 'Dark Theme')),
-            leading: Icon(Theme.of(context).brightness == Brightness.light
-                ? Icons.dark_mode
-                : Icons.light_mode),
+            leading: Icon(waldIcon(
+                Theme.of(context).brightness == Brightness.light
+                    ? Icons.dark_mode
+                    : Icons.light_mode)),
             onPressed: (context) {
               showThemeSettings(gFFI.dialogManager);
             },
@@ -965,14 +990,14 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                         decoration: TextDecoration.underline,
                       )),
                 ),
-                leading: Icon(Icons.info)),
+                leading: Icon(waldIcon(Icons.info))),
             SettingsTile(
                 title: Text(translate("Build Date")),
                 value: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: Text(_buildDate),
                 ),
-                leading: Icon(Icons.query_builder)),
+                leading: Icon(waldIcon(Icons.query_builder))),
             if (isAndroid)
               SettingsTile(
                   onPressed: (context) => onCopyFingerprint(_fingerprint),
@@ -981,12 +1006,12 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                     padding: EdgeInsets.symmetric(vertical: 8),
                     child: Text(_fingerprint),
                   ),
-                  leading: Icon(Icons.fingerprint)),
+                  leading: Icon(waldIcon(Icons.fingerprint))),
             SettingsTile(
               title: Text(translate("Privacy Statement")),
               onPressed: (context) =>
                   launchUrlString('https://rustdesk.com/privacy.html'),
-              leading: Icon(Icons.privacy_tip),
+              leading: Icon(waldIcon(Icons.privacy_tip)),
             )
           ],
         ),
@@ -1012,8 +1037,8 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
       tiles: [
         SettingsTile(
             title: Text(translate('Display Settings')),
-            leading: Icon(Icons.desktop_windows_outlined),
-            trailing: Icon(Icons.arrow_forward_ios),
+            leading: Icon(waldIcon(Icons.desktop_windows_outlined)),
+            trailing: Icon(waldIcon(Icons.arrow_forward_ios)),
             onPressed: (context) {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return _DisplayPage();
@@ -1118,7 +1143,7 @@ class ScanButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      icon: Icon(Icons.qr_code_scanner),
+      icon: Icon(waldIcon(Icons.qr_code_scanner)),
       onPressed: () {
         Navigator.push(
           context,
@@ -1157,11 +1182,14 @@ class __DisplayPageState extends State<_DisplayPage> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_ios)),
+            icon: Icon(waldIcon(Icons.arrow_back_ios))),
         title: Text(translate('Display Settings')),
         centerTitle: true,
       ),
-      body: SettingsList(sections: [
+      body: SettingsList(
+          lightTheme: _waldSettingsTheme(Brightness.light),
+          darkTheme: _waldSettingsTheme(Brightness.dark),
+          sections: [
         SettingsSection(
           tiles: [
             _getPopupDialogRadioEntry(
@@ -1264,7 +1292,7 @@ class __ManageTrustedDevicesState extends State<_ManageTrustedDevices> {
         centerTitle: true,
         actions: [
           Obx(() => IconButton(
-              icon: Icon(Icons.delete, color: Colors.white),
+              icon: Icon(waldIcon(waldIcon(Icons.delete))),
               onPressed: selectedDevices.isEmpty
                   ? null
                   : () {

@@ -1293,7 +1293,8 @@ class _ActionIconState extends State<ActionIcon> {
           child: widget.onTap == null
               ? Icon(
                   widget.icon,
-                  color: Colors.grey,
+                  // Waldlust(DSK-07): 비활성 색은 테마 값(다크에서도 맞는 명도).
+                  color: Theme.of(context).disabledColor,
                   size: widget.iconSize,
                 )
               : Obx(

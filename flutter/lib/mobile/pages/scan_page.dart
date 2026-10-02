@@ -110,8 +110,7 @@ class _ScanPageState extends State<ScanPage> {
 
   Widget _buildImagePickerButton() {
     return IconButton(
-      color: Colors.white,
-      icon: Icon(Icons.image_search),
+      icon: Icon(waldIcon(Icons.image_search)),
       iconSize: 32.0,
       onPressed: _pickImage,
     );
@@ -119,8 +118,8 @@ class _ScanPageState extends State<ScanPage> {
 
   Widget _buildFlashToggleButton() {
     return IconButton(
-      color: Colors.yellow,
-      icon: Icon(Icons.flash_on),
+      color: WaldPalette.amber600,
+      icon: Icon(waldIcon(Icons.flash_on)),
       iconSize: 32.0,
       onPressed: () async {
         await controller?.toggleFlash();
@@ -130,8 +129,7 @@ class _ScanPageState extends State<ScanPage> {
 
   Widget _buildCameraSwitchButton() {
     return IconButton(
-      color: Colors.white,
-      icon: Icon(Icons.switch_camera),
+      icon: Icon(waldIcon(Icons.switch_camera)),
       iconSize: 32.0,
       onPressed: () async {
         await controller?.flipCamera();

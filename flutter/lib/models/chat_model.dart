@@ -13,7 +13,6 @@ import 'package:flutter_hbb/models/state_model.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
 import 'package:window_manager/window_manager.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../consts.dart';
 import '../common.dart';
@@ -178,8 +177,13 @@ class ChatModel with ChangeNotifier {
               hideChatWindowOverlay();
             }
           },
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: SvgPicture.asset('assets/chat2.svg'),
+          // Waldlust(DSK-07): 어드민 톤 주요 버튼 색(검정, 다크는 밝은 회색), 아이콘은 Lucide.
+          backgroundColor: WaldColors.of(context).primaryBg,
+          child: waldSvg('assets/chat2.svg',
+              color: WaldColors.of(context).primaryFg,
+              width: 24,
+              height: 24,
+              iconSize: 24),
         ),
       );
     });

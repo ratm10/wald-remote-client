@@ -271,7 +271,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                 ? Theme.of(context).scaffoldBackgroundColor
                 : Theme.of(context).colorScheme.background,
             child: Icon(
-              Icons.more_vert_outlined,
+              waldIcon(Icons.more_vert_outlined),
               size: 20,
               color: hover.value ? textColor : textColor?.withOpacity(0.5),
             ),
@@ -351,11 +351,12 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                             message: translate('Refresh Password'),
                             child: Obx(() => RotatedBox(
                                 quarterTurns: 2,
+                                // Waldlust(DSK-07): Lucide, 대기 색은 어드민 톤 회색(n400).
                                 child: Icon(
-                                  Icons.refresh,
+                                  waldIcon(Icons.refresh),
                                   color: refreshHover.value
                                       ? textColor
-                                      : Color(0xFFDDDDDD),
+                                      : MyTheme.darkGray,
                                   size: 22,
                                 ))),
                           ),
@@ -367,10 +368,10 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                             message: translate('Change Password'),
                             child: Obx(
                               () => Icon(
-                                Icons.edit,
+                                waldIcon(Icons.edit),
                                 color: editHover.value
                                     ? textColor
-                                    : Color(0xFFDDDDDD),
+                                    : MyTheme.darkGray,
                                 size: 22,
                               ).marginOnly(right: 8, top: 4),
                             ),
@@ -568,7 +569,8 @@ class _DesktopHomePageState extends State<DesktopHomePage>
               exit(0);
             }
           },
-          child: Text(translate('Quit')),
+          // Waldlust(DSK-07): 다른 버튼처럼 한글 라벨이 위로 뜨지 않게 줄 상자를 고정한다.
+          child: Text(translate('Quit'), strutStyle: waldButtonStrut()),
         ),
       ).marginAll(14);
     }

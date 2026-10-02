@@ -338,9 +338,11 @@ class MyTheme {
   static EdgeInsets dialogActionsPadding() {
     final double p = dialogPadding;
 
+    // Waldlust(DSK-07): Android 도 채운·테두리 버튼이라 TextButton 안쪽 여백(20)을 빼지 않는다.
     return (isDesktop || isWebDesktop)
         ? EdgeInsets.fromLTRB(p, 0, p, (p - 4))
-        : EdgeInsets.fromLTRB(p, 0, (p - mobileTextButtonPaddingLR), (p / 2));
+        : EdgeInsets.fromLTRB(
+            p, 0, isMobile ? p : (p - mobileTextButtonPaddingLR), (p / 2));
   }
 
   // Waldlust(DSK-07): 어드민처럼 버튼 사이 간격을 8 로(기존 24).
@@ -381,8 +383,15 @@ class MyTheme {
     hoverColor: WaldPalette.neutral200,
     scaffoldBackgroundColor: Colors.white,
     dialogBackgroundColor: Colors.white,
+    // Waldlust(DSK-07): Android 앱바도 어드민 톤 — 흰 바탕·진한 글자·아래 경계선, 상태 표시줄도
+    // 같은 색(데스크탑은 AppBar 를 쓰지 않는다).
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
+      backgroundColor: WaldPalette.white,
+      foregroundColor: WaldPalette.neutral900,
+      shape: const Border(bottom: BorderSide(color: WaldPalette.neutral200)),
+      systemOverlayStyle:
+          SystemUiOverlayStyle.dark.copyWith(statusBarColor: WaldPalette.white),
     ),
     dialogTheme: DialogTheme(
       elevation: 15,
@@ -395,7 +404,9 @@ class MyTheme {
       ),
     ),
     scrollbarTheme: scrollbarTheme,
-    inputDecorationTheme: isDesktop ? waldInputTheme(Brightness.light) : null,
+    // Waldlust(DSK-07): Android 입력 칸도 데스크탑과 같은 테두리 칸.
+    inputDecorationTheme:
+        (isDesktop || isMobile) ? waldInputTheme(Brightness.light) : null,
     textTheme: const TextTheme(
         titleLarge: TextStyle(fontSize: 19, color: WaldPalette.neutral900),
         titleSmall: TextStyle(fontSize: 14, color: WaldPalette.neutral900),
@@ -469,6 +480,11 @@ class MyTheme {
     dialogBackgroundColor: WaldPalette.neutral950,
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
+      backgroundColor: WaldPalette.neutral950,
+      foregroundColor: WaldPalette.neutral100,
+      shape: const Border(bottom: BorderSide(color: WaldPalette.neutral800)),
+      systemOverlayStyle: SystemUiOverlayStyle.light
+          .copyWith(statusBarColor: WaldPalette.neutral950),
     ),
     dialogTheme: DialogTheme(
       elevation: 15,
@@ -481,8 +497,9 @@ class MyTheme {
       ),
     ),
     scrollbarTheme: scrollbarThemeDark,
-    inputDecorationTheme:
-        (isDesktop || isWebDesktop) ? waldInputTheme(Brightness.dark) : null,
+    inputDecorationTheme: (isDesktop || isWebDesktop || isMobile)
+        ? waldInputTheme(Brightness.dark)
+        : null,
     textTheme: const TextTheme(
       titleLarge: TextStyle(fontSize: 19),
       titleSmall: TextStyle(fontSize: 14),
@@ -896,7 +913,7 @@ class OverlayDialogManager {
                   Offstage(
                       offstage: !showCancel,
                       child: Center(
-                          child: (isDesktop || isWebDesktop)
+                          child: (isDesktop || isWebDesktop || isMobile)
                               ? dialogButton('Cancel',
                                   onPressed: cancel, isOutline: true)
                               : TextButton(
@@ -1136,8 +1153,9 @@ Widget createDialogContent(String text) {
     }
     spans.add(TextSpan(
       text: match.group(0) ?? '',
+      // Waldlust(DSK-07): 링크는 어드민 파랑.
       style: const TextStyle(
-        color: Colors.blue,
+        color: MyTheme.accent,
         decoration: TextDecoration.underline,
       ),
       recognizer: TapGestureRecognizer()
@@ -1256,17 +1274,18 @@ void msgBox(SessionID sessionId, String type, String title, String text,
   );
 }
 
+// Waldlust(DSK-07): 어드민 톤 상태색(입력·안내 파랑, 성공 초록, 오류 빨강).
 Color? _msgboxColor(String type) {
   if (type == "input-password" || type == "custom-os-password") {
-    return Color(0xFFAD448E);
+    return WaldPalette.blue600;
   }
   if (type.contains("success")) {
-    return Color(0xFF32bea6);
+    return WaldPalette.green600;
   }
   if (type.contains("error") || type == "re-input-password") {
-    return Color(0xFFE04F5F);
+    return WaldPalette.red600;
   }
-  return Color(0xFF2C8CFF);
+  return WaldPalette.blue600;
 }
 
 Widget msgboxIcon(String type) {
@@ -2937,7 +2956,8 @@ Widget dialogButton(String text,
     Widget? icon,
     TextStyle? style,
     ButtonStyle? buttonStyle}) {
-  if (isDesktop || isWebDesktop) {
+  // Waldlust(DSK-07): Android 대화상자도 데스크탑과 같은 버튼(주요 검정·보조 테두리·높이 32).
+  if (isDesktop || isWebDesktop || isMobile) {
     // Waldlust(DSK-07): 한글 라벨이 위로 뜨지 않게 줄 상자를 고정한다.
     final strut = waldButtonStrut(style?.fontSize ?? WaldSize.buttonFont);
     if (isOutline) {
@@ -3165,7 +3185,8 @@ Widget unreadMessageCountBuilder(RxInt? count,
         width: size ?? 16,
         height: size ?? 16,
         decoration: BoxDecoration(
-          color: Colors.red,
+          // Waldlust(DSK-07): 어드민 톤 빨강.
+          color: WaldPalette.red500,
           shape: BoxShape.circle,
         ),
         child: Center(
