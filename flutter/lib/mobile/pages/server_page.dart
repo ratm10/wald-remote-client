@@ -857,7 +857,10 @@ class PaddingCard extends StatelessWidget {
           child: Padding(
             padding:
                 const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+            // Waldlust(DSK-07): 내용을 왼쪽에 맞춘다(가로 화면 기기에서 안내 문구·버튼이 가운데로
+            // 몰리지 않게).
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: children,
             ),
           ),
