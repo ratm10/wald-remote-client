@@ -396,15 +396,17 @@ class ServerModel with ChangeNotifier {
         submit() => close(true);
         return CustomAlertDialog(
           title: Row(children: [
-            const Icon(Icons.warning_amber_sharp,
-                color: Colors.redAccent, size: 28),
+            Icon(waldIcon(Icons.warning_amber_sharp),
+                color: Theme.of(context).colorScheme.error, size: 28),
             const SizedBox(width: 10),
             Text(translate("Warning")),
           ]),
           content: Text(translate("android_stop_service_tip")),
+          // Waldlust(DSK-07): 데스크탑과 같은 대화상자 버튼(중지는 위험 동작 빨강).
           actions: [
-            TextButton(onPressed: close, child: Text(translate("Cancel"))),
-            TextButton(onPressed: submit, child: Text(translate("OK"))),
+            dialogButton("Cancel", onPressed: close, isOutline: true),
+            dialogButton("OK",
+                onPressed: submit, buttonStyle: waldDangerStyle()),
           ],
           onSubmit: submit,
           onCancel: close,
@@ -653,7 +655,7 @@ class ServerModel with ChangeNotifier {
         title:
             Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
           Text(translate(title)),
-          IconButton(onPressed: close, icon: const Icon(Icons.close))
+          IconButton(onPressed: close, icon: Icon(waldIcon(Icons.close)))
         ]),
         content: Column(
           mainAxisSize: MainAxisSize.min,

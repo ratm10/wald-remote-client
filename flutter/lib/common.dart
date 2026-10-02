@@ -338,9 +338,11 @@ class MyTheme {
   static EdgeInsets dialogActionsPadding() {
     final double p = dialogPadding;
 
+    // Waldlust(DSK-07): Android 도 채운·테두리 버튼이라 TextButton 안쪽 여백(20)을 빼지 않는다.
     return (isDesktop || isWebDesktop)
         ? EdgeInsets.fromLTRB(p, 0, p, (p - 4))
-        : EdgeInsets.fromLTRB(p, 0, (p - mobileTextButtonPaddingLR), (p / 2));
+        : EdgeInsets.fromLTRB(
+            p, 0, isMobile ? p : (p - mobileTextButtonPaddingLR), (p / 2));
   }
 
   // Waldlust(DSK-07): 어드민처럼 버튼 사이 간격을 8 로(기존 24).
@@ -911,7 +913,7 @@ class OverlayDialogManager {
                   Offstage(
                       offstage: !showCancel,
                       child: Center(
-                          child: (isDesktop || isWebDesktop)
+                          child: (isDesktop || isWebDesktop || isMobile)
                               ? dialogButton('Cancel',
                                   onPressed: cancel, isOutline: true)
                               : TextButton(
@@ -2952,7 +2954,8 @@ Widget dialogButton(String text,
     Widget? icon,
     TextStyle? style,
     ButtonStyle? buttonStyle}) {
-  if (isDesktop || isWebDesktop) {
+  // Waldlust(DSK-07): Android 대화상자도 데스크탑과 같은 버튼(주요 검정·보조 테두리·높이 32).
+  if (isDesktop || isWebDesktop || isMobile) {
     // Waldlust(DSK-07): 한글 라벨이 위로 뜨지 않게 줄 상자를 고정한다.
     final strut = waldButtonStrut(style?.fontSize ?? WaldSize.buttonFont);
     if (isOutline) {
