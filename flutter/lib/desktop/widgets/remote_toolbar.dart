@@ -860,6 +860,10 @@ class _RemoteToolbarState extends State<RemoteToolbar> {
     if (widget.ffi.connType == ConnType.defaultConn) {
       toolbarItems.add(_KeyboardMenu(id: widget.id, ffi: widget.ffi));
     }
+    // Waldlust(DSK-07): 제어 메뉴 안의 '파일 전송'을 툴바 버튼으로도 둔다(부록 A-10).
+    if (widget.ffi.connType == ConnType.defaultConn && isDesktop) {
+      toolbarItems.add(_WaldFileTransferButton(id: widget.id, ffi: widget.ffi));
+    }
     toolbarItems.add(_ChatMenu(id: widget.id, ffi: widget.ffi));
     if (!isWeb) {
       toolbarItems.add(_VoiceCallMenu(id: widget.id, ffi: widget.ffi));
@@ -3697,4 +3701,28 @@ Widget _waldWithLabel(Size? size, String? label, Widget pill) {
       ],
     ),
   );
+}
+
+// Waldlust(DSK-07): 제어 메뉴 안 '파일 전송'(common/widgets/toolbar.dart `toolbarControls`)과
+// 같은 동작의 툴바 버튼. 아이콘은 주소록 카드의 파일 전송 버튼과 같다.
+class _WaldFileTransferButton extends StatelessWidget {
+  final String id;
+  final FFI ffi;
+  const _WaldFileTransferButton({Key? key, required this.id, required this.ffi})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _IconMenuButton(
+      icon: waldIconBox(waldIcon(Icons.folder_outlined),
+          box: _ToolbarTheme.buttonSize, color: Colors.white),
+      tooltip: 'Transfer file',
+      label: 'Transfer file',
+      onPressed: () => connect(context, id,
+          isFileTransfer: true,
+          connToken: bind.sessionGetConnToken(sessionId: ffi.sessionId)),
+      color: _ToolbarTheme.pillColor,
+      hoverColor: _ToolbarTheme.hoverPillColor,
+    );
+  }
 }
