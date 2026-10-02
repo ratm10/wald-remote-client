@@ -105,7 +105,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Are you sure you want to delete this file?", "이 파일을 삭제하시겠습니까?"),
         ("Are you sure you want to delete this empty directory?", "이 빈 디렉터리를 삭제하시겠습니까?"),
         ("Are you sure you want to delete the file of this directory?", "이 디렉터리의 파일을 삭제하시겠습니까?"),
-        ("Do this for all conflicts", "모든 충돌에 대해 이렇게 하세요"),
+        ("Do this for all conflicts", "나머지 항목에도 모두 적용"),
         ("This is irreversible!", "이것은 되돌릴 수 없습니다!"),
         ("Deleting", "삭제 중"),
         ("files", "파일"),
@@ -286,7 +286,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("android_permission_may_not_change_tip", "설정된 연결에 대한 권한은 다시 연결할 때까지 즉시 변경되지 않을 수 있습니다."),
         ("Account", "계정"),
         ("Overwrite", "덮어쓰기"),
-        ("This file exists, skip or overwrite this file?", "이 파일이 이미 존재합니다, 건너뛰거나 덮어쓰시겠습니까?"),
+        ("This file exists, skip or overwrite this file?", "같은 이름의 파일이 이미 있습니다. 덮어쓰시겠습니까?"),
         ("Quit", "종료"),
         ("Help", "도움말"),
         ("Failed", "실패"),
@@ -462,7 +462,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Empty Username", "사용자 이름이 비어있습니다"),
         ("Empty Password", "비밀번호가 비어있습니다"),
         ("Me", "나"),
-        ("identical_file_tip", "이 파일은 상대방의 파일과 일치합니다."),
+        ("identical_file_tip", "두 파일의 내용이 같습니다."),
         ("show_monitors_tip", "도구 모음에 모니터 표시"),
         ("View Mode", "보기 모드"),
         ("login_linux_tip", "X 데스크탑을 활성화하려면 제어되는 터미널의 Linux 계정에 로그인하세요"),
@@ -763,5 +763,10 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Show on the minimized toolbar", "최소화된 도구 모음에 표시"),
         ("All monitors", "모든 모니터"),
         ("#{} monitor", "#{} 모니터"),
+        // Waldlust(DSK-08): 파일 전송 목록의 받은 파일 열기.
+        ("Open file", "파일 열기"),
+        ("Open folder", "폴더 열기"),
+        ("File not found", "파일을 찾을 수 없습니다"),
+        ("Failed to open", "열지 못했습니다"),
     ].iter().cloned().collect();
 }

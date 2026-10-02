@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:extended_text/extended_text.dart';
+import 'package:flutter_hbb/common/wald_local_open.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
 import 'package:flutter_hbb/desktop/widgets/dragable_divider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -226,17 +227,19 @@ class _FileManagerPageState extends State<FileManagerPage>
         case JobType.deleteFile:
           return Icon(waldIcon(Icons.delete_outline), color: color);
         default:
-          return Transform.rotate(
-            angle: isWeb
-                ? job.isRemoteToLocal
-                    ? pi / 2
-                    : pi / 2 * 3
-                : job.isRemoteToLocal
-                    ? pi
-                    : 0,
-            child: Icon(waldIcon(Icons.arrow_forward_ios), color: color),
-          );
+          // Waldlust(DSK-07): '<'·'>' 화살표 대신 받기·보내기 아이콘.
+          return Icon(
+              waldIcon(job.isRemoteToLocal ? Icons.download : Icons.upload),
+              color: color);
       }
+    }
+
+    // Waldlust(DSK-07): 전체 경로 대신 마지막 이름만 보인다(툴팁은 전체 경로).
+    // 원격이 Windows 면 '\' 로 나뉘어 path.basename 으로는 못 자른다.
+    String displayName(JobProgress job) {
+      final parts = job.jobName.split(RegExp(r'[\\/]'))
+        ..removeWhere((e) => e.isEmpty);
+      return parts.isEmpty ? job.jobName : parts.last;
     }
 
     statusListView(List<JobProgress> jobs) => ListView.builder(
@@ -264,7 +267,7 @@ class _FileManagerPageState extends State<FileManagerPage>
                                 waitDuration: Duration(milliseconds: 500),
                                 message: item.jobName,
                                 child: ExtendedText(
-                                  item.jobName,
+                                  displayName(item),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   overflowWidget: TextOverflowWidget(
@@ -292,10 +295,13 @@ class _FileManagerPageState extends State<FileManagerPage>
                                   progressColor: MyTheme.accent,
                                   backgroundColor: Theme.of(context).hoverColor,
                                   lineHeight: kDesktopFileTransferRowHeight,
-                                ).paddingSymmetric(vertical: 8),
+                                ).paddingOnly(top: 8),
                               ),
+                              _waldReceivedActions(item),
                             ],
-                          ),
+                            // Waldlust(DSK-07): 진행 막대·열기 버튼으로 카드가 높아져도 파일명 위 여백이
+                            // 짧은 카드(오른쪽 버튼 높이 68 의 가운데)와 같게 위아래 15 를 둔다.
+                          ).paddingSymmetric(vertical: 15),
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
@@ -369,6 +375,51 @@ class _FileManagerPageState extends State<FileManagerPage>
                 : statusListView(jobController.jobTable),
           )),
     );
+  }
+
+  /// Waldlust(DSK-08): 받기가 끝난 항목의 [파일 열기]·[폴더 열기].
+  /// 실행 파일과 폴더는 [폴더 열기]만 둔다(명세 Q-16 (c)).
+  Widget _waldReceivedActions(JobProgress job) {
+    if (isWeb ||
+        job.type != JobType.transfer ||
+        !job.isRemoteToLocal ||
+        job.state != JobState.done ||
+        job.err == 'cancel' ||
+        job.to.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final type = FileSystemEntity.typeSync(job.to);
+    if (type == FileSystemEntityType.notFound) {
+      return const SizedBox.shrink();
+    }
+    final canOpen =
+        type == FileSystemEntityType.file && !waldIsExecutable(job.to);
+    Widget button(IconData icon, String label, VoidCallback onPressed) =>
+        OutlinedButton.icon(
+          onPressed: onPressed,
+          style: const ButtonStyle(
+            padding:
+                WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10)),
+            minimumSize: WidgetStatePropertyAll(Size(0, 28)),
+            iconSize: WidgetStatePropertyAll(14),
+            textStyle: WidgetStatePropertyAll(TextStyle(
+                fontSize: WaldSize.smallFont, fontWeight: FontWeight.w500)),
+          ),
+          icon: Icon(waldIcon(icon)),
+          label: Text(translate(label),
+              strutStyle: waldButtonStrut(WaldSize.smallFont)),
+        );
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        if (canOpen)
+          button(Icons.launch_outlined, 'Open file',
+              () => waldOpenLocalFile(job.to)),
+        button(Icons.folder_open, 'Open folder',
+            () => waldRevealLocalPath(job.to)),
+      ],
+    ).marginOnly(top: 8);
   }
 
   void handleDragDone(DropDoneDetails details, bool isLocal) {
@@ -871,9 +922,13 @@ class _FileManagerViewState extends State<FileManagerView> {
                         ),
                       ).marginOnly(left: 8),
                     )).marginOnly(left: 16),
-              // Waldlust(DSK-07): 테마 주요 버튼(색·비활성은 테마). 화살표는 버튼 글자색을 따르고,
-              // 보내기는 라벨 뒤(→), 받기는 라벨 앞(←)에 둔다.
+              // Waldlust(DSK-07): 테마 주요 버튼(색·비활성은 테마). 아이콘은 방향 화살표(→·←) 대신
+              // 전송 목록과 같은 업로드(보내기)·다운로드(받기) 아이콘을 라벨 앞에 둔다.
+              // 두 버튼 너비는 같게(최소 120, 'Receive'·'보내기'가 들어가는 너비).
               Obx(() => ElevatedButton.icon(
+                    style: const ButtonStyle(
+                        minimumSize: WidgetStatePropertyAll(
+                            Size(120, WaldSize.buttonHeight))),
                     onPressed: SelectedItems.valid(selectedItems.items)
                         ? () {
                             final otherSideData =
@@ -882,18 +937,10 @@ class _FileManagerViewState extends State<FileManagerView> {
                             selectedItems.clear();
                           }
                         : null,
-                    iconAlignment:
-                        isLocal ? IconAlignment.end : IconAlignment.start,
                     icon: !isLocal && isWeb
                         ? Offstage()
-                        : Builder(
-                            builder: (context) => RotatedBox(
-                                  quarterTurns: isLocal ? 0 : 2,
-                                  child: waldSvg("assets/arrow.svg",
-                                      color: IconTheme.of(context).color,
-                                      width: WaldSize.iconLg,
-                                      iconSize: WaldSize.iconSm),
-                                )),
+                        : Icon(
+                            waldIcon(isLocal ? Icons.upload : Icons.download)),
                     label: Text(
                       translate(isLocal
                           ? 'Send'

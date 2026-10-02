@@ -7,6 +7,8 @@
 // - 라이트/다크 버튼은 이 창만 바꾼다(Get.changeThemeMode). 공용 설정(theme)은 건드리지 않는다.
 //   MyTheme.currentThemeMode() 로 색을 고르는 곳은 앱 설정·시스템 모드를 따르므로,
 //   다크를 정확히 보려면 시스템 화면 모드도 다크로 둔다.
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/shared_state.dart';
@@ -229,29 +231,61 @@ class _FileTransferPreviewState extends State<_FileTransferPreview> {
       ]
       ..format(true);
 
+    // 작업 이름은 실제처럼 원본 전체 경로다(목록에는 마지막 이름만 보여야 한다).
     JobProgress job(int id, JobState state, String name, int total, int done,
-            {bool toLocal = true, String err = ''}) =>
+            {bool toLocal = true, String err = '', String to = ''}) =>
         JobProgress()
           ..id = id
           ..type = JobType.transfer
           ..state = state
           ..fileName = name
           ..jobName = name
+          ..to = to
           ..totalSize = total
           ..finishedSize = done
           ..speed = state == JobState.inProgress ? 1536000 : 0
           ..isRemoteToLocal = toLocal
           ..err = err;
+    // 받기가 끝난 파일([파일 열기]·[폴더 열기] 확인용)은 임시 폴더에 실제로 만든다.
+    final inbox = Directory('${Directory.systemTemp.path}/wald-preview 받은 파일')
+      ..createSync(recursive: true);
+    final memo = File('${inbox.path}/받은 메모.txt')
+      ..writeAsStringSync('Waldlust 미리보기\n');
+    final exe = File('${inbox.path}/설치.exe')..writeAsStringSync('');
     model.jobController.jobTable.addAll([
-      job(1, JobState.inProgress, 'sales_0930.csv', 98765000, 45000000),
-      job(2, JobState.paused, '주문 백업.zip', 52428800, 10485760),
-      job(3, JobState.done, '메뉴판_2026.pdf', 2345678, 2345678, toLocal: false),
-      job(4, JobState.error, '설정.ini', 2048, 0, err: 'Permission denied'),
+      job(1, JobState.inProgress, r'C:\Users\POS\Desktop\sales_0930.csv',
+          98765000, 45000000),
+      job(2, JobState.paused, r'C:\Users\POS\Desktop\주문 백업.zip', 52428800,
+          10485760),
+      job(3, JobState.done, '/Users/wald/Documents/메뉴판_2026.pdf', 2345678,
+          2345678,
+          toLocal: false),
+      job(4, JobState.error, r'C:\Users\POS\Desktop\설정.ini', 2048, 0,
+          err: 'Permission denied'),
+      job(5, JobState.done, r'C:\Users\POS\Desktop\받은 메모.txt', 4096, 4096,
+          to: memo.path),
+      job(6, JobState.done, r'C:\Users\POS\Downloads\설치.exe', 1048576, 1048576,
+          to: exe.path),
     ]);
   }
 
+  // 덮어쓰기 대화상자(같은 내용 문구·모두 적용 체크박스 포함)를 띄운다.
+  void _showOverwriteDialog() => _page.ffi.fileModel.showFileConfirmDialog(
+      translate('Overwrite'),
+      r'C:\Users\POS\Desktop\sales_0930.csv',
+      true,
+      true);
+
   @override
-  Widget build(BuildContext context) => _page;
+  Widget build(BuildContext context) => Stack(children: [
+        _page,
+        Positioned(
+          left: 16,
+          bottom: 16,
+          child: OutlinedButton(
+              onPressed: _showOverwriteDialog, child: const Text('덮어쓰기 대화상자')),
+        ),
+      ]);
 }
 
 /// 버튼(가운데 기준선 표시)·입력·토글·대화상자·메뉴 견본.
