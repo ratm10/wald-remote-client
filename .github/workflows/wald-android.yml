@@ -183,6 +183,13 @@ jobs:
             echo "$line" >> "$GITHUB_ENV"
           done <<< "$out"
 
+      - name: Apply incoming-only icons
+        if: ${{ inputs.variant == 'incoming' }}
+        shell: bash
+        run: |
+          # 오른쪽 위 ↓ 배지 아이콘(DSK-10). build.rs 가 덮어썼는지 확인한다.
+          python3 res/wald-variant/apply_icons.py
+
       - name: Build rustdesk lib
         env:
           ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
