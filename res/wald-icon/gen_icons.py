@@ -9,8 +9,14 @@ W. 는 기존 비트맵 아이콘(검정 배경)에서 잰 꼭짓점으로 다�
 'remote' 글꼴은 Montserrat Bold(SIL OFL 1.1)다. 글꼴 파일은 저장소에 넣지 않는다.
   https://github.com/google/fonts/raw/main/ofl/montserrat/Montserrat%5Bwght%5D.ttf
 
+수신 전용 빌드(DSK-01)는 오른쪽 위에 흰 원 + ↓(받기) 배지를 더한다(32px 이상). --variant incoming 은 배지가
+들어가는 파일(Windows ico, Android 런처)만 res/wald-variant/incoming-icons/ 에 같은 상대 경로로 쓰고,
+수신 전용 빌드가 빌드 전에 res/wald-variant/apply_icons.py 로 덮어쓴다. 트레이·알림·플로팅 창은 양방향과 같다.
+PNG 는 루트 .gitignore 의 *png 에 걸리므로 새로 만든 파일은 git add -f 로 넣는다.
+
 사용(저장소 루트에서, macOS):
   python3 res/wald-icon/gen_icons.py --font <Montserrat[wght].ttf>
+  python3 res/wald-icon/gen_icons.py --font <Montserrat[wght].ttf> --variant incoming
 필요: Pillow, iconutil(macOS 기본 도구, .icns 생성)
 """
 
@@ -53,6 +59,17 @@ MAC_BODY = 824 / 1024  # macOS 아이콘 격자: 1024 캔버스 안 824 몸체
 MAC_CORNER = 185.4 / 824
 
 SS = 2048  # 그릴 때의 해상도. 원하는 크기로 줄여 안티앨리어싱한다.
+
+# 수신 전용 배지(1024 기준). 배지 둘레 고리와 ↓ 는 바탕으로 뚫는다.
+INCOMING_DIR = os.path.join("res", "wald-variant", "incoming-icons")
+BADGE_MIN = 32  # 이 크기(px) 이상에만 배지
+BADGE = (866, 158, 120, 20)  # 꽉 찬 둥근 사각형: 중심 x·y, 반지름, 고리 폭
+BADGE_SHIFT = (-15, 20)  # 배지 자리를 비우려고 W.+'remote' 를 왼쪽 아래로 옮기는 양
+# Android 적응형 foreground: 보이는 원(72dp) 안에 배지가 들어가도록 내용을 줄여 내리고, 배지는 W 오른쪽 위에 둔다
+# (108dp 캔버스 기준 좌표)
+GLYPH_BADGE = (633, 302, 80, 14)
+GLYPH_BADGE_SCALE = 0.88
+GLYPH_BADGE_SHIFT = (-5, 50)
 
 
 def _font(path, size):
@@ -105,20 +122,40 @@ def _draw_content(img, font_path, with_text, color, scale=1.0, offset=(0.0, 0.0)
         d.text((tx - (x0 + x1) / 2, ty - y0), TEXT, font=font, fill=color)
 
 
+def _draw_badge(img, cx, cy, r, ring, hole):
+    """수신 전용 배지: 흰 원 + ↓. 둘레 고리와 화살표는 hole(바탕색, 적응형 foreground 는 투명)로 칠한다."""
+    k = img.size[0] / 1024
+    d = ImageDraw.Draw(img)
+    for rr, color in ((r + ring, hole), (r, FG)):
+        d.ellipse([(cx - rr) * k, (cy - rr) * k, (cx + rr) * k, (cy + rr) * k], fill=color)
+
+    def p(x, y):  # 배지 반지름 단위
+        return (cx + x * r) * k, (cy + y * r) * k
+
+    d.rectangle([p(-0.17, -0.58), p(0.17, 0.02)], fill=hole)
+    d.polygon([p(-0.50, -0.06), p(0.50, -0.06), p(0, 0.56)], fill=hole)
+
+
 def _rounded(size, box, radius, color):
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     ImageDraw.Draw(img).rounded_rectangle(box, radius=radius, fill=color)
     return img
 
 
-def render(px, kind, font_path, with_text=None):
-    """kind: 'square'(꽉 찬 둥근 사각형) | 'mac'(macOS 격자, 그림자 포함) | 'glyph'(투명 배경, 흰 글자)"""
+def render(px, kind, font_path, with_text=None, badge=False):
+    """kind: 'square'(꽉 찬 둥근 사각형) | 'mac'(macOS 격자, 그림자 포함) | 'glyph'(투명 배경, 흰 글자)
+    badge: 수신 전용 배지(square·glyph 만, BADGE_MIN 이상)"""
     if with_text is None:
         with_text = px > SMALL_MAX
+    if badge and kind == "mac":
+        raise ValueError("macOS 수신 전용 빌드는 없다")
+    badge = badge and px >= BADGE_MIN
     n = SS
     if kind == "square":
         img = _rounded(n, (0, 0, n - 1, n - 1), CORNER * n, BG)
-        _draw_content(img, font_path, with_text, FG)
+        _draw_content(img, font_path, with_text, FG, offset=BADGE_SHIFT if badge else (0.0, 0.0))
+        if badge:
+            _draw_badge(img, *BADGE, BG)
     elif kind == "mac":
         body = MAC_BODY * n
         m = (n - body) / 2
@@ -130,8 +167,11 @@ def render(px, kind, font_path, with_text=None):
     elif kind == "glyph":
         # Android 적응형 foreground: 108dp 중 가운데 72dp 가 보이므로 2/3 로 줄인다.
         img = Image.new("RGBA", (n, n), (0, 0, 0, 0))
-        f = 72 / 108
-        _draw_content(img, font_path, with_text, FG, scale=f, offset=(512 * (1 - f),) * 2)
+        f = 72 / 108 * (GLYPH_BADGE_SCALE if badge else 1)
+        sx, sy = GLYPH_BADGE_SHIFT if badge else (0.0, 0.0)
+        _draw_content(img, font_path, with_text, FG, scale=f, offset=(512 * (1 - f) + sx, 512 * (1 - f) + sy))
+        if badge:
+            _draw_badge(img, *GLYPH_BADGE, (0, 0, 0, 0))
     else:
         raise ValueError(kind)
     return img.resize((px, px), Image.LANCZOS)
@@ -173,8 +213,8 @@ def floating_window_xml():
     )
 
 
-def save_ico(path, font_path, sizes=(16, 24, 32, 48, 64, 128, 256)):
-    imgs = [render(s, "square", font_path, with_text=s > ICO_SMALL_MAX) for s in sizes]
+def save_ico(path, font_path, sizes=(16, 24, 32, 48, 64, 128, 256), badge=False):
+    imgs = [render(s, "square", font_path, with_text=s > ICO_SMALL_MAX, badge=badge) for s in sizes]
     imgs[-1].save(path, format="ICO", sizes=[(s, s) for s in sizes], append_images=imgs[:-1], bitmap_format="bmp")
 
 
@@ -198,12 +238,36 @@ def save_icns(path, font_path, kind="mac"):
 ANDROID_DENSITIES = {"mdpi": 1, "hdpi": 1.5, "xhdpi": 2, "xxhdpi": 3, "xxxhdpi": 4}
 
 
+def save_incoming(root, font_path):
+    """수신 전용 빌드가 덮어쓸 파일만 INCOMING_DIR 아래 같은 상대 경로로 쓴다."""
+    def r(*p):
+        path = os.path.join(root, INCOMING_DIR, *p)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        return path
+
+    ico = r("flutter/windows/runner/resources/app_icon.ico")
+    save_ico(ico, font_path, badge=True)
+    shutil.copyfile(ico, r("res/icon.ico"))
+    shutil.copyfile(ico, r("flutter/assets/icon.ico"))
+    res = "flutter/android/app/src/main/res"
+    for dpi, f in ANDROID_DENSITIES.items():
+        legacy = render(round(48 * f), "square", font_path, with_text=True, badge=True)
+        legacy.save(r(res, f"mipmap-{dpi}", "ic_launcher.png"))
+        legacy.save(r(res, f"mipmap-{dpi}", "ic_launcher_round.png"))
+        fg = render(round(108 * f), "glyph", font_path, with_text=True, badge=True)
+        fg.save(r(res, f"mipmap-{dpi}", "ic_launcher_foreground.png"))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--font", required=True, help="Montserrat[wght].ttf 경로")
     ap.add_argument("--root", default=".", help="저장소 루트")
     ap.add_argument("--mac-kind", default="mac", choices=["mac", "square"])
+    ap.add_argument("--variant", default="bidirectional", choices=["bidirectional", "incoming"])
     a = ap.parse_args()
+    if a.variant == "incoming":
+        save_incoming(a.root, a.font)
+        return
     r = lambda *p: os.path.join(a.root, *p)
 
     save_icns(r("flutter/macos/Runner/AppIcon.icns"), a.font, a.mac_kind)

@@ -127,6 +127,15 @@ jobs:
             Add-Content -Path $env:GITHUB_ENV -Value $line
           }
 
+      - name: Apply incoming-only icons
+        if: ${{ inputs.variant == 'incoming' }}
+        env:
+          PYTHONUTF8: "1"
+        run: |
+          # 오른쪽 위 ↓ 배지 아이콘(DSK-10, exe·설치 파일·창 아이콘). build.rs 가 덮어썼는지 확인한다.
+          python3 res/wald-variant/apply_icons.py
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
       - name: Build rustdesk
         env:
           WALDLUST_PRESET_PASSWORD: ${{ secrets.WALDLUST_PRESET_PASSWORD }}

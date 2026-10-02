@@ -111,6 +111,50 @@ fn check_waldlust_variant() {
              res/wald-variant/preset_hash.py 로 WALDLUST_INCOMING_PW_STORAGE·WALDLUST_INCOMING_PW_SALT 를 만든다"
         );
     }
+    check_incoming_icons();
+}
+
+// Waldlust(DSK-10): 수신 전용 빌드는 res/wald-variant/apply_icons.py 로 ↓ 배지 아이콘을 덮어쓴 뒤 빌드한다.
+// 빠뜨리면 양방향 아이콘이 들어가므로 멈춘다(cargo 빌드가 Flutter 빌드보다 먼저 돈다).
+fn check_incoming_icons() {
+    let src = std::path::Path::new("res/wald-variant/incoming-icons");
+    let mut dirs = vec![src.to_path_buf()];
+    let mut count = 0;
+    while let Some(dir) = dirs.pop() {
+        let entries = std::fs::read_dir(&dir)
+            .unwrap_or_else(|e| panic!("{} 를 읽지 못했다: {}", dir.display(), e));
+        for entry in entries {
+            let path = entry
+                .unwrap_or_else(|e| panic!("{} 를 읽지 못했다: {}", dir.display(), e))
+                .path();
+            if path.is_dir() {
+                dirs.push(path);
+                continue;
+            }
+            if path
+                .file_name()
+                .map_or(true, |n| n.to_string_lossy().starts_with('.'))
+            {
+                continue;
+            }
+            let Ok(dst) = path.strip_prefix(src) else {
+                continue;
+            };
+            println!("cargo:rerun-if-changed={}", path.display());
+            println!("cargo:rerun-if-changed={}", dst.display());
+            if std::fs::read(&path).ok() != std::fs::read(dst).ok() {
+                panic!(
+                    "수신 전용 빌드인데 {} 가 수신 전용 아이콘이 아니다: \
+                     빌드 전에 python3 res/wald-variant/apply_icons.py 를 실행한다",
+                    dst.display()
+                );
+            }
+            count += 1;
+        }
+    }
+    if count == 0 {
+        panic!("수신 전용 아이콘(res/wald-variant/incoming-icons)이 없다");
+    }
 }
 
 fn main() {
