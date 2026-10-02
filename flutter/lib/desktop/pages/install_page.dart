@@ -69,11 +69,8 @@ class _InstallPageBodyState extends State<_InstallPageBody>
   final RxBool showProgress = false.obs;
   final RxBool btnEnabled = true.obs;
 
-  // todo move to theme.
-  final buttonStyle = OutlinedButton.styleFrom(
-    textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
-    padding: EdgeInsets.symmetric(vertical: 15, horizontal: 12),
-  );
+  // Waldlust(DSK-07): 버튼은 테마(어드민 톤 32px·글자 500)를 따른다. 예전 로컬 buttonStyle
+  // (세로 여백 15·보통 굵기)은 지웠고, 라벨은 줄 상자를 고정한다(waldButtonStrut).
 
   _InstallPageBodyState() {
     controller = TextEditingController(text: bind.installInstallPath());
@@ -129,15 +126,18 @@ class _InstallPageBodyState extends State<_InstallPageBody>
   @override
   Widget build(BuildContext context) {
     final double em = 13;
-    final isDarkTheme = MyTheme.currentThemeMode() == ThemeMode.dark;
     return Scaffold(
         backgroundColor: null,
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Waldlust(DSK-07): 제목은 어드민 톤(24·600, Material 기본 34 대신).
               Text(translate('Installation'),
-                  style: Theme.of(context).textTheme.headlineMedium),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontSize: 24, fontWeight: FontWeight.w600)),
               Row(
                 children: [
                   Text('${translate('Installation Path')}:')
@@ -155,8 +155,8 @@ class _InstallPageBodyState extends State<_InstallPageBody>
                     () => OutlinedButton.icon(
                       icon: Icon(waldIcon(Icons.folder_outlined), size: 16),
                       onPressed: btnEnabled.value ? selectInstallPath : null,
-                      style: buttonStyle,
-                      label: Text(translate('Change Path')),
+                      label: Text(translate('Change Path'),
+                          strutStyle: waldButtonStrut()),
                     ),
                   )
                 ],
@@ -168,12 +168,11 @@ class _InstallPageBodyState extends State<_InstallPageBody>
               Option(printer, label: 'Install {$appName} Printer'),
               Container(
                   padding: EdgeInsets.all(12),
+                  // Waldlust(DSK-07): 어드민 톤 안내 상자(흰 바탕·연한 테두리).
                   decoration: BoxDecoration(
-                    color: isDarkTheme
-                        ? Color.fromARGB(135, 87, 87, 90)
-                        : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey),
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    borderRadius: BorderRadius.circular(WaldSize.radius),
+                    border: Border.all(color: MyTheme.color(context).border3!),
                   ),
                   child: Row(
                     children: [
@@ -196,6 +195,7 @@ class _InstallPageBodyState extends State<_InstallPageBody>
                                 Text(
                                   translate('End-user license agreement'),
                                   style: const TextStyle(
+                                      color: MyTheme.accent,
                                       decoration: TextDecoration.underline),
                                 )
                               ]),
@@ -216,18 +216,18 @@ class _InstallPageBodyState extends State<_InstallPageBody>
                   Obx(
                     () => OutlinedButton.icon(
                       icon: Icon(waldIcon(Icons.close_rounded), size: 16),
-                      label: Text(translate('Cancel')),
+                      label: Text(translate('Cancel'),
+                          strutStyle: waldButtonStrut()),
                       onPressed:
                           btnEnabled.value ? () => windowManager.close() : null,
-                      style: buttonStyle,
                     ).marginOnly(right: 10),
                   ),
                   Obx(
                     () => ElevatedButton.icon(
                       icon: Icon(waldIcon(Icons.done_rounded), size: 16),
-                      label: Text(translate('Accept and Install')),
+                      label: Text(translate('Accept and Install'),
+                          strutStyle: waldButtonStrut()),
                       onPressed: btnEnabled.value ? install : null,
-                      style: buttonStyle,
                     ),
                   ),
                   Offstage(
@@ -236,11 +236,11 @@ class _InstallPageBodyState extends State<_InstallPageBody>
                       () => OutlinedButton.icon(
                         icon: Icon(waldIcon(Icons.screen_share_outlined),
                             size: 16),
-                        label: Text(translate('Run without install')),
+                        label: Text(translate('Run without install'),
+                            strutStyle: waldButtonStrut()),
                         onPressed: btnEnabled.value
                             ? () => bind.installRunWithoutInstall()
                             : null,
-                        style: buttonStyle,
                       ).marginOnly(left: 10),
                     ),
                   ),
