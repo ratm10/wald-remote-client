@@ -226,17 +226,19 @@ class _FileManagerPageState extends State<FileManagerPage>
         case JobType.deleteFile:
           return Icon(waldIcon(Icons.delete_outline), color: color);
         default:
-          return Transform.rotate(
-            angle: isWeb
-                ? job.isRemoteToLocal
-                    ? pi / 2
-                    : pi / 2 * 3
-                : job.isRemoteToLocal
-                    ? pi
-                    : 0,
-            child: Icon(waldIcon(Icons.arrow_forward_ios), color: color),
-          );
+          // Waldlust(DSK-07): '<'·'>' 화살표 대신 받기·보내기 아이콘.
+          return Icon(
+              waldIcon(job.isRemoteToLocal ? Icons.download : Icons.upload),
+              color: color);
       }
+    }
+
+    // Waldlust(DSK-07): 전체 경로 대신 마지막 이름만 보인다(툴팁은 전체 경로).
+    // 원격이 Windows 면 '\' 로 나뉘어 path.basename 으로는 못 자른다.
+    String displayName(JobProgress job) {
+      final parts = job.jobName.split(RegExp(r'[\\/]'))
+        ..removeWhere((e) => e.isEmpty);
+      return parts.isEmpty ? job.jobName : parts.last;
     }
 
     statusListView(List<JobProgress> jobs) => ListView.builder(
@@ -264,7 +266,7 @@ class _FileManagerPageState extends State<FileManagerPage>
                                 waitDuration: Duration(milliseconds: 500),
                                 message: item.jobName,
                                 child: ExtendedText(
-                                  item.jobName,
+                                  displayName(item),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                   overflowWidget: TextOverflowWidget(
@@ -872,8 +874,12 @@ class _FileManagerViewState extends State<FileManagerView> {
                       ).marginOnly(left: 8),
                     )).marginOnly(left: 16),
               // Waldlust(DSK-07): 테마 주요 버튼(색·비활성은 테마). 화살표는 버튼 글자색을 따르고,
-              // 보내기는 라벨 뒤(→), 받기는 라벨 앞(←)에 둔다.
+              // 보내기는 라벨 뒤(→), 받기는 라벨 앞(←)에 둔다. 두 버튼 너비는 같게(최소 120,
+              // 'Receive'·'보내기'가 들어가는 너비).
               Obx(() => ElevatedButton.icon(
+                    style: const ButtonStyle(
+                        minimumSize: WidgetStatePropertyAll(
+                            Size(120, WaldSize.buttonHeight))),
                     onPressed: SelectedItems.valid(selectedItems.items)
                         ? () {
                             final otherSideData =

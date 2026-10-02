@@ -269,7 +269,7 @@ class FileModel {
             isOutline: true,
           ),
           dialogButton(
-            "OK",
+            "Overwrite",
             icon: Icon(Icons.done_rounded),
             onPressed: submit,
           ),
