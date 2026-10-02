@@ -1153,8 +1153,9 @@ Widget createDialogContent(String text) {
     }
     spans.add(TextSpan(
       text: match.group(0) ?? '',
+      // Waldlust(DSK-07): 링크는 어드민 파랑.
       style: const TextStyle(
-        color: Colors.blue,
+        color: MyTheme.accent,
         decoration: TextDecoration.underline,
       ),
       recognizer: TapGestureRecognizer()
@@ -1273,17 +1274,18 @@ void msgBox(SessionID sessionId, String type, String title, String text,
   );
 }
 
+// Waldlust(DSK-07): 어드민 톤 상태색(입력·안내 파랑, 성공 초록, 오류 빨강).
 Color? _msgboxColor(String type) {
   if (type == "input-password" || type == "custom-os-password") {
-    return Color(0xFFAD448E);
+    return WaldPalette.blue600;
   }
   if (type.contains("success")) {
-    return Color(0xFF32bea6);
+    return WaldPalette.green600;
   }
   if (type.contains("error") || type == "re-input-password") {
-    return Color(0xFFE04F5F);
+    return WaldPalette.red600;
   }
-  return Color(0xFF2C8CFF);
+  return WaldPalette.blue600;
 }
 
 Widget msgboxIcon(String type) {
@@ -3183,7 +3185,8 @@ Widget unreadMessageCountBuilder(RxInt? count,
         width: size ?? 16,
         height: size ?? 16,
         decoration: BoxDecoration(
-          color: Colors.red,
+          // Waldlust(DSK-07): 어드민 톤 빨강.
+          color: WaldPalette.red500,
           shape: BoxShape.circle,
         ),
         child: Center(
