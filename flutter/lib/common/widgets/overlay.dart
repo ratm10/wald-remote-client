@@ -74,8 +74,12 @@ class DraggableChatWindow extends StatelessWidget {
   }
 
   Widget _buildMobileAppBar(BuildContext context) {
+    // Waldlust(DSK-07): 앱바와 같은 어드민 톤(흰 바탕·아래 경계선·테마 글자색), 아이콘은 Lucide.
     return Container(
-      color: Theme.of(context).colorScheme.primary,
+      decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          border: Border(
+              bottom: BorderSide(color: MyTheme.color(context).border3!))),
       height: 50,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -85,7 +89,6 @@ class DraggableChatWindow extends StatelessWidget {
               child: Text(
                 translate("Chat"),
                 style: const TextStyle(
-                    color: Colors.white,
                     fontFamily: 'WorkSans',
                     fontWeight: FontWeight.bold,
                     fontSize: 20),
@@ -97,18 +100,16 @@ class DraggableChatWindow extends StatelessWidget {
                   onPressed: () {
                     chatModel.hideChatWindowOverlay();
                   },
-                  icon: const Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Colors.white,
+                  icon: Icon(
+                    waldIcon(Icons.keyboard_arrow_down),
                   )),
               IconButton(
                   onPressed: () {
                     chatModel.hideChatWindowOverlay();
                     chatModel.hideChatIconOverlay();
                   },
-                  icon: const Icon(
-                    Icons.close,
-                    color: Colors.white,
+                  icon: Icon(
+                    waldIcon(Icons.close),
                   ))
             ],
           )
