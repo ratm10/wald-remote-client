@@ -72,9 +72,12 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                   onTap: () async {
                     await start_service(true);
                   },
+                  // Waldlust(DSK-07): 링크는 어드민 파랑.
                   child: Text(translate("Start service"),
                       style: TextStyle(
-                          decoration: TextDecoration.underline, fontSize: em)))
+                          color: MyTheme.accent,
+                          decoration: TextDecoration.underline,
+                          fontSize: em)))
               .marginOnly(left: em),
         );
 
@@ -96,6 +99,7 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
                           child: Text(
                             translate('setup_server_tip'),
                             style: TextStyle(
+                                color: MyTheme.accent,
                                 decoration: TextDecoration.underline,
                                 fontSize: em),
                           ),
@@ -117,12 +121,13 @@ class _OnlineStatusWidgetState extends State<OnlineStatusWidget> {
               width: 8,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
+                // Waldlust(DSK-07): 어드민 톤 상태색(중지·연결 중 주황, 준비 초록, 오류 빨강).
                 color: _svcStopped.value ||
                         stateGlobal.svcStatus.value == SvcStatus.connecting
-                    ? kColorWarn
+                    ? WaldPalette.amber500
                     : (stateGlobal.svcStatus.value == SvcStatus.ready
-                        ? Color.fromARGB(255, 50, 190, 166)
-                        : Color.fromARGB(255, 224, 79, 95)),
+                        ? WaldPalette.green500
+                        : WaldPalette.red500),
               ),
             ).marginSymmetric(horizontal: em),
             Container(
