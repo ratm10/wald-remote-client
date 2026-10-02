@@ -82,34 +82,44 @@ class HomePageState extends State<HomePage> {
           return false;
         },
         child: Scaffold(
-          // backgroundColor: MyTheme.grayBg,
+          // Waldlust(DSK-07): 어드민 톤 — 회색 바탕 위 흰 카드(데스크탑 홈 왼쪽 패널과 같은 색).
+          backgroundColor: Theme.of(context).colorScheme.background,
           appBar: AppBar(
             centerTitle: true,
             title: appTitle(),
             actions: _pages.elementAt(_selectedIndex).appBarActions,
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            key: navigationBarKey,
-            items: _pages
-                .map((page) =>
-                    BottomNavigationBarItem(icon: page.icon, label: page.title))
-                .toList(),
-            currentIndex: _selectedIndex,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: MyTheme.accent, //
-            unselectedItemColor: MyTheme.darkGray,
-            onTap: (index) => setState(() {
-              // close chat overlay when go chat page
-              if (_selectedIndex != index) {
-                _selectedIndex = index;
-                if (isChatPageCurrentTab) {
-                  gFFI.chatModel.hideChatIconOverlay();
-                  gFFI.chatModel.hideChatWindowOverlay();
-                  gFFI.chatModel.mobileClearClientUnread(
-                      gFFI.chatModel.currentKey.connId);
+          // Waldlust(DSK-07): 하단 탭은 흰 바탕 + 위 경계선(그림자 없음), 선택된 탭만 파랑.
+          // navigationBarKey 는 안쪽 BottomNavigationBar 에 둔다(다른 곳에서 캐스팅한다).
+          bottomNavigationBar: Container(
+            decoration: BoxDecoration(
+                border: Border(
+                    top: BorderSide(color: MyTheme.color(context).border3!))),
+            child: BottomNavigationBar(
+              key: navigationBarKey,
+              items: _pages
+                  .map((page) => BottomNavigationBarItem(
+                      icon: page.icon, label: page.title))
+                  .toList(),
+              currentIndex: _selectedIndex,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+              elevation: 0,
+              selectedItemColor: MyTheme.accent, //
+              unselectedItemColor: WaldPalette.neutral500,
+              onTap: (index) => setState(() {
+                // close chat overlay when go chat page
+                if (_selectedIndex != index) {
+                  _selectedIndex = index;
+                  if (isChatPageCurrentTab) {
+                    gFFI.chatModel.hideChatIconOverlay();
+                    gFFI.chatModel.hideChatWindowOverlay();
+                    gFFI.chatModel.mobileClearClientUnread(
+                        gFFI.chatModel.currentKey.connId);
+                  }
                 }
-              }
-            }),
+              }),
+            ),
           ),
           body: _pages.elementAt(_selectedIndex),
         ));
@@ -131,9 +141,9 @@ class HomePageState extends State<HomePage> {
                 ? translate('Outgoing connection')
                 : translate('Incoming connection'),
             child: Icon(
-              currentKey.isOut
+              waldIcon(currentKey.isOut
                   ? Icons.call_made_rounded
-                  : Icons.call_received_rounded,
+                  : Icons.call_received_rounded),
             ),
           ),
           Expanded(
@@ -150,7 +160,7 @@ class HomePageState extends State<HomePage> {
                       height: 10,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: Color.fromARGB(255, 133, 246, 199)),
+                          color: WaldPalette.green500),
                     ).marginSymmetric(horizontal: 2),
                 ],
               ),
