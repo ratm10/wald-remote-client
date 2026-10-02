@@ -381,8 +381,15 @@ class MyTheme {
     hoverColor: WaldPalette.neutral200,
     scaffoldBackgroundColor: Colors.white,
     dialogBackgroundColor: Colors.white,
+    // Waldlust(DSK-07): Android 앱바도 어드민 톤 — 흰 바탕·진한 글자·아래 경계선, 상태 표시줄도
+    // 같은 색(데스크탑은 AppBar 를 쓰지 않는다).
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
+      backgroundColor: WaldPalette.white,
+      foregroundColor: WaldPalette.neutral900,
+      shape: const Border(bottom: BorderSide(color: WaldPalette.neutral200)),
+      systemOverlayStyle:
+          SystemUiOverlayStyle.dark.copyWith(statusBarColor: WaldPalette.white),
     ),
     dialogTheme: DialogTheme(
       elevation: 15,
@@ -395,7 +402,9 @@ class MyTheme {
       ),
     ),
     scrollbarTheme: scrollbarTheme,
-    inputDecorationTheme: isDesktop ? waldInputTheme(Brightness.light) : null,
+    // Waldlust(DSK-07): Android 입력 칸도 데스크탑과 같은 테두리 칸.
+    inputDecorationTheme:
+        (isDesktop || isMobile) ? waldInputTheme(Brightness.light) : null,
     textTheme: const TextTheme(
         titleLarge: TextStyle(fontSize: 19, color: WaldPalette.neutral900),
         titleSmall: TextStyle(fontSize: 14, color: WaldPalette.neutral900),
@@ -469,6 +478,11 @@ class MyTheme {
     dialogBackgroundColor: WaldPalette.neutral950,
     appBarTheme: AppBarTheme(
       shadowColor: Colors.transparent,
+      backgroundColor: WaldPalette.neutral950,
+      foregroundColor: WaldPalette.neutral100,
+      shape: const Border(bottom: BorderSide(color: WaldPalette.neutral800)),
+      systemOverlayStyle: SystemUiOverlayStyle.light
+          .copyWith(statusBarColor: WaldPalette.neutral950),
     ),
     dialogTheme: DialogTheme(
       elevation: 15,
@@ -481,8 +495,9 @@ class MyTheme {
       ),
     ),
     scrollbarTheme: scrollbarThemeDark,
-    inputDecorationTheme:
-        (isDesktop || isWebDesktop) ? waldInputTheme(Brightness.dark) : null,
+    inputDecorationTheme: (isDesktop || isWebDesktop || isMobile)
+        ? waldInputTheme(Brightness.dark)
+        : null,
     textTheme: const TextTheme(
       titleLarge: TextStyle(fontSize: 19),
       titleSmall: TextStyle(fontSize: 14),

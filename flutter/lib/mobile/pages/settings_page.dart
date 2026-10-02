@@ -1264,7 +1264,7 @@ class __ManageTrustedDevicesState extends State<_ManageTrustedDevices> {
         centerTitle: true,
         actions: [
           Obx(() => IconButton(
-              icon: Icon(Icons.delete, color: Colors.white),
+              icon: Icon(waldIcon(Icons.delete)),
               onPressed: selectedDevices.isEmpty
                   ? null
                   : () {
