@@ -120,6 +120,7 @@ final Map<IconData, IconData> kWaldLucideFor = {
   Icons.enhanced_encryption_outlined: LucideIcons.shieldCheck,
   Icons.security_rounded: LucideIcons.shieldCheck,
   Icons.security_sharp: LucideIcons.shieldCheck,
+  Icons.crop_square: LucideIcons.square,
   Icons.star: LucideIcons.star,
   Icons.delete: LucideIcons.trash2,
   Icons.delete_forever: LucideIcons.trash2,

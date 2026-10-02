@@ -25,6 +25,7 @@ import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
 
 const _kToolbarPeerId = 'wald-preview';
+const _kAndroidToolbarPeerId = 'wald-preview-android';
 const _kFilePeerId = 'wald-preview-ft';
 
 void main() async {
@@ -42,6 +43,13 @@ void main() async {
       unselectedIcon: Icons.desktop_windows_outlined,
       closable: false,
       page: const _ToolbarPreview()));
+  controller.add(TabInfo(
+      key: 'toolbar-android',
+      label: '원격 툴바(Android)',
+      selectedIcon: Icons.phone_android,
+      unselectedIcon: Icons.phone_android_outlined,
+      closable: false,
+      page: const _ToolbarPreview(android: true)));
   controller.add(TabInfo(
       key: 'files',
       label: '파일 전송',
@@ -103,8 +111,12 @@ class _ThemeToggle extends StatelessWidget {
 }
 
 /// 연결된 Windows 기기(디스플레이 2개, 권한 모두 허용)를 가정한 원격 툴바.
+/// [android] 면 Android 기기(화면 1개)를 가정하고 모바일 제어 막대를 함께 띄운다
+/// (막대 버튼은 가짜 세션으로 보내므로 눌러도 아무 일도 없다).
 class _ToolbarPreview extends StatefulWidget {
-  const _ToolbarPreview();
+  const _ToolbarPreview({this.android = false});
+
+  final bool android;
 
   @override
   State<_ToolbarPreview> createState() => _ToolbarPreviewState();
@@ -118,22 +130,26 @@ class _ToolbarPreviewState extends State<_ToolbarPreview>
   @override
   bool get wantKeepAlive => true;
 
+  String get _peerId =>
+      widget.android ? _kAndroidToolbarPeerId : _kToolbarPeerId;
+
   @override
   void initState() {
     super.initState();
-    _ffi.id = _kToolbarPeerId;
-    initSharedStates(_kToolbarPeerId);
-    ConnectionTypeState.init(_kToolbarPeerId);
+    _ffi.id = _peerId;
+    initSharedStates(_peerId);
+    ConnectionTypeState.init(_peerId);
     final pi = _ffi.ffiModel.pi;
-    pi.platform = kPeerPlatformWindows;
+    pi.platform = widget.android ? kPeerPlatformAndroid : kPeerPlatformWindows;
     pi.version = '1.4.8';
     pi.username = 'wald';
-    pi.hostname = 'PREVIEW-PC';
+    pi.hostname = widget.android ? 'PREVIEW-PHONE' : 'PREVIEW-PC';
     pi.displays.value = [
       Display(),
-      Display()..x = kDesktopDefaultDisplayWidth.toDouble(),
+      if (!widget.android)
+        Display()..x = kDesktopDefaultDisplayWidth.toDouble(),
     ];
-    pi.displaysCount.value = 2;
+    pi.displaysCount.value = widget.android ? 1 : 2;
     _ffi.ffiModel.setPermissions({
       'keyboard': true,
       'clipboard': true,
@@ -159,10 +175,22 @@ class _ToolbarPreviewState extends State<_ToolbarPreview>
       ],
       child: Stack(children: [
         Container(color: kColorCanvas),
+        // remote_page.dart 와 같은 방식으로 모바일 제어 막대를 얹는다.
+        if (widget.android)
+          Obx(() => Offstage(
+                offstage:
+                    _ffi.dialogManager.mobileActionsOverlayVisible.isFalse,
+                child: Overlay(initialEntries: [
+                  makeMobileActionsOverlayEntry(
+                      () => _ffi.dialogManager
+                          .setMobileActionsOverlayVisible(false),
+                      ffi: _ffi)
+                ]),
+              )),
         Overlay(initialEntries: [
           OverlayEntry(
               builder: (_) => RemoteToolbar(
-                    id: _kToolbarPeerId,
+                    id: _peerId,
                     ffi: _ffi,
                     state: _toolbarState,
                     onEnterOrLeaveImageSetter: (_, __) {},

@@ -13,6 +13,7 @@ import 'package:flutter_hbb/common/wald_icons.dart';
 import 'package:flutter_hbb/common/wald_theme.dart';
 import 'package:flutter_hbb/desktop/widgets/refresh_wrapper.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
+import 'package:flutter_hbb/desktop/widgets/wald_mobile_actions.dart';
 import 'package:flutter_hbb/main.dart';
 import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/peer_tab_model.dart';
@@ -957,8 +958,9 @@ makeMobileActionsOverlayEntry(VoidCallback? onHide, {FFI? ffi}) {
   makeMobileActions(BuildContext context, double s) {
     final scale = s < 0.85 ? 0.85 : s;
     final session = ffi ?? gFFI;
-    const double overlayW = 200;
-    const double overlayH = 45;
+    // Waldlust(DSK-07): 데스크탑은 고정 크기 막대(desktop/widgets/wald_mobile_actions.dart).
+    final double overlayW = isDesktop ? kWaldMobileActionsWidth : 200;
+    final double overlayH = isDesktop ? kWaldMobileActionsHeight : 45;
     computeOverlayPosition() {
       final screenW = MediaQuery.of(context).size.width;
       final screenH = MediaQuery.of(context).size.height;
@@ -971,6 +973,15 @@ makeMobileActionsOverlayEntry(VoidCallback? onHide, {FFI? ffi}) {
       draggablePositions.mobileActions.update(computeOverlayPosition());
     } else {
       draggablePositions.mobileActions.tryAdjust(overlayW, overlayH, scale);
+    }
+    if (isDesktop) {
+      return WaldMobileActionsBar(
+        position: draggablePositions.mobileActions,
+        onBackPressed: session.inputModel.onMobileBack,
+        onHomePressed: session.inputModel.onMobileHome,
+        onRecentPressed: session.inputModel.onMobileApps,
+        onHidePressed: onHide,
+      );
     }
     return DraggableMobileActions(
       scale: scale,
@@ -986,8 +997,10 @@ makeMobileActionsOverlayEntry(VoidCallback? onHide, {FFI? ffi}) {
 
   return OverlayEntry(builder: (context) {
     if (isDesktop) {
-      final c = Provider.of<CanvasModel>(context);
-      return makeMobileActions(context, c.scale * 2.0);
+      // Waldlust(DSK-07): 원격 화면 배율을 따르지 않는다(예전: 배율 × 2). 구독은 남겨 창 크기가
+      // 바뀌면 다시 그려 위치를 창 안으로 맞춘다.
+      Provider.of<CanvasModel>(context);
+      return makeMobileActions(context, 1.0);
     } else {
       return makeMobileActions(globalKey.currentContext!, 1.0);
     }

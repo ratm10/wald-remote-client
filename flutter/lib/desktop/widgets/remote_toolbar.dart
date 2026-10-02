@@ -860,6 +860,10 @@ class _RemoteToolbarState extends State<RemoteToolbar> {
     if (widget.ffi.connType == ConnType.defaultConn) {
       toolbarItems.add(_KeyboardMenu(id: widget.id, ffi: widget.ffi));
     }
+    // Waldlust(DSK-07): 제어 메뉴 안의 '파일 전송'을 툴바 버튼으로도 둔다(부록 A-10).
+    if (widget.ffi.connType == ConnType.defaultConn && isDesktop) {
+      toolbarItems.add(_WaldFileTransferButton(id: widget.id, ffi: widget.ffi));
+    }
     toolbarItems.add(_ChatMenu(id: widget.id, ffi: widget.ffi));
     if (!isWeb) {
       toolbarItems.add(_VoiceCallMenu(id: widget.id, ffi: widget.ffi));
@@ -890,14 +894,22 @@ class _RemoteToolbarState extends State<RemoteToolbar> {
           data: themeData(),
           child: _ToolbarTheme.borderWrapper(
               context,
-              Flex(
-                direction: innerAxis,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  spacer,
-                  ...toolbarItems,
-                  spacer,
-                ],
+              // Waldlust(DSK-07): 가로 툴바에서만 버튼 아래 이름을 보이고, 이름 없는 버튼도
+              // 알약 윗선이 맞게 위로 붙인다(부록 A-10).
+              _WaldToolbarLabels(
+                show: isHorizontal,
+                child: Flex(
+                  direction: innerAxis,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: isHorizontal
+                      ? CrossAxisAlignment.start
+                      : CrossAxisAlignment.center,
+                  children: [
+                    spacer,
+                    ...toolbarItems,
+                    spacer,
+                  ],
+                ),
               ),
               toolbarBorderRadius),
         ),
@@ -956,6 +968,7 @@ class _PinMenu extends StatelessWidget {
       () => _IconMenuButton(
         assetName: state.pin ? "assets/pinned.svg" : "assets/unpinned.svg",
         tooltip: state.pin ? 'Unpin Toolbar' : 'Pin Toolbar',
+        label: 'Pin',
         onPressed: state.switchPin,
         color:
             state.pin ? _ToolbarTheme.blueColor : _ToolbarTheme.inactiveColor,
@@ -977,6 +990,7 @@ class _MobileActionMenu extends StatelessWidget {
     return Obx(() => _IconMenuButton(
           assetName: 'assets/actions_mobile.svg',
           tooltip: 'Mobile Actions',
+          label: 'Mobile',
           onPressed: () => ffi.dialogManager.setMobileActionsOverlayVisible(
               !ffi.dialogManager.mobileActionsOverlayVisible.value),
           color: ffi.dialogManager.mobileActionsOverlayVisible.isTrue
@@ -1037,6 +1051,7 @@ class _MainMonitorSwitchButton extends StatelessWidget {
 
       return _IconMenuButton(
         tooltip: cycle.tooltip,
+        label: 'Switch screen',
         color: _ToolbarTheme.pillColor,
         hoverColor: _ToolbarTheme.hoverPillColor,
         onPressed: cycle.next,
@@ -1109,6 +1124,7 @@ class _MonitorMenu extends StatelessWidget {
         globalMonitorsWidget(width, Colors.white, Colors.black38);
     return _IconSubmenuButton(
         tooltip: 'Select Monitor',
+        label: 'Monitor',
         icon: monitorsIcon,
         ffi: ffi,
         width: width.value,
@@ -1325,6 +1341,7 @@ class _ControlMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return _IconSubmenuButton(
         tooltip: 'Control Actions',
+        label: 'Control',
         svg: "assets/actions.svg",
         color: _ToolbarTheme.pillColor,
         hoverColor: _ToolbarTheme.hoverPillColor,
@@ -1602,6 +1619,7 @@ class _DisplayMenuState extends State<_DisplayMenu> {
 
     return _IconSubmenuButton(
       tooltip: 'Display Settings',
+      label: 'Screen',
       svg: "assets/display.svg",
       ffi: widget.ffi,
       color: _ToolbarTheme.pillColor,
@@ -2351,6 +2369,7 @@ class _KeyboardMenu extends StatelessWidget {
 
     return _IconSubmenuButton(
         tooltip: 'Keyboard Settings',
+        label: 'Keyboard',
         svg: "assets/keyboard_mouse.svg",
         ffi: ffi,
         color: _ToolbarTheme.pillColor,
@@ -2615,6 +2634,7 @@ class _ChatMenuState extends State<_ChatMenu> {
     } else {
       return _IconSubmenuButton(
           tooltip: 'Chat',
+          label: 'Chat',
           key: chatButtonKey,
           svg: 'assets/chat.svg',
           ffi: widget.ffi,
@@ -2628,6 +2648,7 @@ class _ChatMenuState extends State<_ChatMenu> {
     return _IconMenuButton(
       assetName: 'assets/message_24dp_5F6368.svg',
       tooltip: 'Text chat',
+      label: 'Chat',
       key: chatButtonKey,
       onPressed: _textChatOnPressed,
       color: _ToolbarTheme.pillColor,
@@ -2721,6 +2742,7 @@ class _VoiceCallMenu extends StatelessWidget {
           case VoiceCallStatus.connected:
             return _IconSubmenuButton(
               tooltip: 'Voice call',
+              label: 'Call',
               svg: 'assets/voice_call.svg',
               color: _ToolbarTheme.pillColor,
               hoverColor: _ToolbarTheme.hoverPillColor,
@@ -2738,6 +2760,7 @@ class _VoiceCallMenu extends StatelessWidget {
     return _IconMenuButton(
       assetName: "assets/call_wait.svg",
       tooltip: "Waiting",
+      label: 'Waiting',
       onPressed: () => bind.sessionCloseVoiceCall(sessionId: ffi.sessionId),
       color: _ToolbarTheme.redColor,
       hoverColor: _ToolbarTheme.hoverRedColor,
@@ -2757,6 +2780,7 @@ class _RecordMenu extends StatelessWidget {
     if (!visible) return Offstage();
     return _IconMenuButton(
       assetName: 'assets/rec.svg',
+      label: 'Record',
       tooltip: recordingModel.start
           ? 'Stop session recording'
           : 'Start session recording',
@@ -2782,6 +2806,7 @@ class _CloseMenu extends StatelessWidget {
     return _IconMenuButton(
       assetName: 'assets/close.svg',
       tooltip: 'Close',
+      label: 'Close',
       onPressed: () async {
         if (await showConnEndAuditDialogCloseCanceled(ffi: ffi)) {
           return;
@@ -2805,11 +2830,13 @@ class _IconMenuButton extends StatefulWidget {
   final double? vMargin;
   final bool topLevel;
   final double? width;
+  final String? label;
   const _IconMenuButton({
     Key? key,
     this.assetName,
     this.icon,
     required this.tooltip,
+    this.label,
     required this.color,
     required this.hoverColor,
     required this.onPressed,
@@ -2842,9 +2869,10 @@ class _IconMenuButtonState extends State<_IconMenuButton> {
                 width: _ToolbarTheme.buttonSize,
                 height: _ToolbarTheme.buttonSize,
               ));
+    final labeled = _waldLabelSize(context, widget.label, widget.width);
     var button = SizedBox(
-      width: widget.width ?? _ToolbarTheme.buttonSize,
-      height: _ToolbarTheme.buttonSize,
+      width: labeled?.width ?? widget.width ?? _ToolbarTheme.buttonSize,
+      height: labeled?.height ?? _ToolbarTheme.buttonSize,
       child: MenuItemButton(
           style: ButtonStyle(
               backgroundColor: MaterialStatePropertyAll(Colors.transparent),
@@ -2856,15 +2884,18 @@ class _IconMenuButtonState extends State<_IconMenuButton> {
           onPressed: widget.onPressed,
           child: Tooltip(
             message: translate(widget.tooltip),
-            child: Material(
-                type: MaterialType.transparency,
-                child: Ink(
-                    decoration: BoxDecoration(
-                      borderRadius:
-                          BorderRadius.circular(_ToolbarTheme.iconRadius),
-                      color: hover ? widget.hoverColor : widget.color,
-                    ),
-                    child: icon)),
+            child: _waldWithLabel(
+                labeled,
+                widget.label,
+                Material(
+                    type: MaterialType.transparency,
+                    child: Ink(
+                        decoration: BoxDecoration(
+                          borderRadius:
+                              BorderRadius.circular(_ToolbarTheme.iconRadius),
+                          color: hover ? widget.hoverColor : widget.color,
+                        ),
+                        child: icon))),
           )),
     ).marginSymmetric(
         horizontal: widget.hMargin ?? _ToolbarTheme.buttonHMargin,
@@ -2891,12 +2922,14 @@ class _IconSubmenuButton extends StatefulWidget {
   final MenuStyle? menuStyle;
   final FFI? ffi;
   final double? width;
+  final String? label;
 
   _IconSubmenuButton({
     Key? key,
     this.svg,
     this.icon,
     required this.tooltip,
+    this.label,
     required this.color,
     required this.hoverColor,
     required this.menuChildrenGetter,
@@ -2932,9 +2965,10 @@ class _IconSubmenuButtonState extends State<_IconSubmenuButton> {
                 width: _ToolbarTheme.buttonSize,
                 height: _ToolbarTheme.buttonSize,
               ));
+    final labeled = _waldLabelSize(context, widget.label, widget.width);
     final button = SizedBox(
-        width: widget.width ?? _ToolbarTheme.buttonSize,
-        height: _ToolbarTheme.buttonSize,
+        width: labeled?.width ?? widget.width ?? _ToolbarTheme.buttonSize,
+        height: labeled?.height ?? _ToolbarTheme.buttonSize,
         child: SubmenuButton(
             menuStyle:
                 widget.menuStyle ?? _ToolbarTheme.defaultMenuStyle(context),
@@ -2944,15 +2978,18 @@ class _IconSubmenuButtonState extends State<_IconSubmenuButton> {
                 }),
             child: Tooltip(
                 message: translate(widget.tooltip),
-                child: Material(
-                    type: MaterialType.transparency,
-                    child: Ink(
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(_ToolbarTheme.iconRadius),
-                          color: hover ? widget.hoverColor : widget.color,
-                        ),
-                        child: icon))),
+                child: _waldWithLabel(
+                    labeled,
+                    widget.label,
+                    Material(
+                        type: MaterialType.transparency,
+                        child: Ink(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                  _ToolbarTheme.iconRadius),
+                              color: hover ? widget.hoverColor : widget.color,
+                            ),
+                            child: icon)))),
             menuChildren: widget
                 .menuChildrenGetter(this)
                 .map((e) => _buildPointerTrackWidget(e, widget.ffi))
@@ -3602,5 +3639,90 @@ class _MinimizedMonitorSwitchButton extends StatelessWidget {
         ),
       );
     });
+  }
+}
+
+// Waldlust(DSK-07): 툴바 버튼 아래 이름(부록 A-10). 위·아래에 붙은 가로 툴바에서만 보인다
+// (세로 툴바는 길이가 너무 길어지고 모니터 메뉴가 돌아가 있어 지금처럼 아이콘만).
+class _WaldToolbarLabels extends InheritedWidget {
+  const _WaldToolbarLabels({required this.show, required super.child});
+
+  final bool show;
+
+  static bool of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_WaldToolbarLabels>()?.show ??
+      false;
+
+  @override
+  bool updateShouldNotify(_WaldToolbarLabels oldWidget) =>
+      oldWidget.show != show;
+}
+
+const double _kWaldLabelGap = 2;
+const double _kWaldLabelLineHeight = 14;
+const double _kWaldLabeledMinWidth = 44;
+const TextStyle _kWaldLabelStyle = TextStyle(
+  fontSize: 11,
+  height: _kWaldLabelLineHeight / 11,
+  leadingDistribution: TextLeadingDistribution.even,
+);
+
+/// 이름을 그릴 때의 버튼 크기(알약 32 + 간격 + 이름 한 줄). 이름이 없거나 세로 툴바면 null.
+Size? _waldLabelSize(BuildContext context, String? label, double? pillWidth) {
+  if (label == null || !_WaldToolbarLabels.of(context)) return null;
+  final painter = TextPainter(
+    text: TextSpan(
+        text: translate(label),
+        style: DefaultTextStyle.of(context).style.merge(_kWaldLabelStyle)),
+    textDirection: TextDirection.ltr,
+    textScaler: MediaQuery.textScalerOf(context),
+    maxLines: 1,
+  )..layout();
+  var width = pillWidth ?? _ToolbarTheme.buttonSize;
+  if (width < _kWaldLabeledMinWidth) width = _kWaldLabeledMinWidth;
+  final textWidth = painter.width.ceilToDouble() + 8;
+  if (width < textWidth) width = textWidth;
+  return Size(
+      width, _ToolbarTheme.buttonSize + _kWaldLabelGap + _kWaldLabelLineHeight);
+}
+
+/// [pill] 아래에 이름을 붙인다. 누르는 영역·하위 메뉴 위치가 이름까지 포함된다.
+Widget _waldWithLabel(Size? size, String? label, Widget pill) {
+  if (size == null || label == null) return pill;
+  return SizedBox(
+    width: size.width,
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        pill,
+        const SizedBox(height: _kWaldLabelGap),
+        Text(translate(label),
+            maxLines: 1, softWrap: false, style: _kWaldLabelStyle),
+      ],
+    ),
+  );
+}
+
+// Waldlust(DSK-07): 제어 메뉴 안 '파일 전송'(common/widgets/toolbar.dart `toolbarControls`)과
+// 같은 동작의 툴바 버튼. 아이콘은 주소록 카드의 파일 전송 버튼과 같다.
+class _WaldFileTransferButton extends StatelessWidget {
+  final String id;
+  final FFI ffi;
+  const _WaldFileTransferButton({Key? key, required this.id, required this.ffi})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return _IconMenuButton(
+      icon: waldIconBox(waldIcon(Icons.folder_outlined),
+          box: _ToolbarTheme.buttonSize, color: Colors.white),
+      tooltip: 'Transfer file',
+      label: 'Transfer file',
+      onPressed: () => connect(context, id,
+          isFileTransfer: true,
+          connToken: bind.sessionGetConnToken(sessionId: ffi.sessionId)),
+      color: _ToolbarTheme.pillColor,
+      hoverColor: _ToolbarTheme.hoverPillColor,
+    );
   }
 }
