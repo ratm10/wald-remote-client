@@ -768,7 +768,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Open folder", "폴더 열기"),
         ("File not found", "파일을 찾을 수 없습니다"),
         ("Failed to open", "열지 못했습니다"),
-        // Waldlust(DSK-07): 원격 툴바 버튼 이름.
+        // Waldlust(DSK-07): 원격 툴바 버튼 이름·모바일 제어 막대.
         ("Pin", "고정"),
         ("Switch screen", "화면 전환"),
         ("Mobile", "모바일"),
@@ -778,5 +778,7 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Keyboard", "키보드"),
         ("Call", "통화"),
         ("Record", "녹화"),
+        ("Recent apps", "최근 앱"),
+        ("Hide", "숨기기"),
     ].iter().cloned().collect();
 }
