@@ -59,6 +59,7 @@ final Map<IconData, IconData> kWaldLucideFor = {
   Icons.file_copy_sharp: LucideIcons.files,
   Icons.folder_outlined: LucideIcons.folder,
   Icons.drive_file_move_outlined: LucideIcons.folderInput,
+  Icons.folder_open: LucideIcons.folderOpen,
   Icons.create_new_folder: LucideIcons.folderPlus,
   Icons.drag_handle: LucideIcons.gripHorizontal,
   Icons.drag_indicator: LucideIcons.gripVertical,

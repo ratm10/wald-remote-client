@@ -763,5 +763,10 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Show on the minimized toolbar", "최소화된 도구 모음에 표시"),
         ("All monitors", "모든 모니터"),
         ("#{} monitor", "#{} 모니터"),
+        // Waldlust(DSK-08): 파일 전송 목록의 받은 파일 열기.
+        ("Open file", "파일 열기"),
+        ("Open folder", "폴더 열기"),
+        ("File not found", "파일을 찾을 수 없습니다"),
+        ("Failed to open", "열지 못했습니다"),
     ].iter().cloned().collect();
 }

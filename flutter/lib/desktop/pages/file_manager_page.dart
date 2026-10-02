@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:extended_text/extended_text.dart';
+import 'package:flutter_hbb/common/wald_local_open.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
 import 'package:flutter_hbb/desktop/widgets/dragable_divider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -296,6 +297,7 @@ class _FileManagerPageState extends State<FileManagerPage>
                                   lineHeight: kDesktopFileTransferRowHeight,
                                 ).paddingSymmetric(vertical: 8),
                               ),
+                              _waldReceivedActions(item),
                             ],
                           ),
                         ),
@@ -371,6 +373,51 @@ class _FileManagerPageState extends State<FileManagerPage>
                 : statusListView(jobController.jobTable),
           )),
     );
+  }
+
+  /// Waldlust(DSK-08): 받기가 끝난 항목의 [파일 열기]·[폴더 열기].
+  /// 실행 파일과 폴더는 [폴더 열기]만 둔다(명세 Q-16 (c)).
+  Widget _waldReceivedActions(JobProgress job) {
+    if (isWeb ||
+        job.type != JobType.transfer ||
+        !job.isRemoteToLocal ||
+        job.state != JobState.done ||
+        job.err == 'cancel' ||
+        job.to.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final type = FileSystemEntity.typeSync(job.to);
+    if (type == FileSystemEntityType.notFound) {
+      return const SizedBox.shrink();
+    }
+    final canOpen =
+        type == FileSystemEntityType.file && !waldIsExecutable(job.to);
+    Widget button(IconData icon, String label, VoidCallback onPressed) =>
+        OutlinedButton.icon(
+          onPressed: onPressed,
+          style: const ButtonStyle(
+            padding:
+                WidgetStatePropertyAll(EdgeInsets.symmetric(horizontal: 10)),
+            minimumSize: WidgetStatePropertyAll(Size(0, 28)),
+            iconSize: WidgetStatePropertyAll(14),
+            textStyle: WidgetStatePropertyAll(TextStyle(
+                fontSize: WaldSize.smallFont, fontWeight: FontWeight.w500)),
+          ),
+          icon: Icon(waldIcon(icon)),
+          label: Text(translate(label),
+              strutStyle: waldButtonStrut(WaldSize.smallFont)),
+        );
+    return Wrap(
+      spacing: 6,
+      runSpacing: 6,
+      children: [
+        if (canOpen)
+          button(Icons.launch_outlined, 'Open file',
+              () => waldOpenLocalFile(job.to)),
+        button(Icons.folder_open, 'Open folder',
+            () => waldRevealLocalPath(job.to)),
+      ],
+    ).marginOnly(top: 8, bottom: 12);
   }
 
   void handleDragDone(DropDoneDetails details, bool isLocal) {

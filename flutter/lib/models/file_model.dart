@@ -583,7 +583,8 @@ class FileController {
     final transferJobs = <(Entry, int)>[];
     final transferJobIds = <int>[];
     for (var from in items.items) {
-      final jobID = jobController.addTransferJob(from, isRemoteToLocal);
+      final jobID = jobController.addTransferJob(from, isRemoteToLocal,
+          to: PathUtil.join(toPath, from.name, isWindows));
       transferJobs.add((from, jobID));
       transferJobIds.add(jobID);
     }
@@ -1002,12 +1003,14 @@ class JobController {
   }
 
   // return jobID
-  int addTransferJob(Entry from, bool isRemoteToLocal) {
+  // Waldlust(DSK-08): [to] = 받는 쪽 경로(받은 파일 열기에 쓴다).
+  int addTransferJob(Entry from, bool isRemoteToLocal, {String to = ''}) {
     final jobID = JobController.jobID.next();
     jobTable.add(JobProgress()
       ..type = JobType.transfer
       ..fileName = path.basename(from.path)
       ..jobName = from.path
+      ..to = to
       ..totalSize = from.size
       ..state = JobState.inProgress
       ..id = jobID
