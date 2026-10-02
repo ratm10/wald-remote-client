@@ -424,13 +424,9 @@ class ServerModel with ChangeNotifier {
       final res = await parent.target?.dialogManager
           .show<bool>((setState, close, context) {
         submit() => close(true);
+        // Waldlust(DSK-11): 시작 안내는 경고가 아닌 일반 대화상자로 보인다(제목 '서비스 시작').
         return CustomAlertDialog(
-          title: Row(children: [
-            const Icon(Icons.warning_amber_sharp,
-                color: Colors.redAccent, size: 28),
-            const SizedBox(width: 10),
-            Text(translate("Warning")),
-          ]),
+          title: Text(translate("Start service")),
           content: Text(translate("android_service_will_start_tip")),
           actions: [
             dialogButton("Cancel", onPressed: close, isOutline: true),

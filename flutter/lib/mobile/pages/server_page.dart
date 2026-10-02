@@ -955,11 +955,8 @@ void androidChannelInit() {
   });
 }
 
+// Waldlust(DSK-11): 사기 경고(ScamWarningDialog)를 띄우지 않고 서비스 시작 흐름으로 바로 간다.
+// toggleService() 의 '서비스 시작' 확인 대화상자가 그 자리를 맡는다.
 void showScamWarning(BuildContext context, ServerModel serverModel) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return ScamWarningDialog(serverModel: serverModel);
-    },
-  );
+  serverModel.toggleService();
 }

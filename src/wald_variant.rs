@@ -5,7 +5,8 @@
 //! 빌드 때 넣은 공통 영구 비밀번호 해시(`WALDLUST_INCOMING_PW_STORAGE`·`WALDLUST_INCOMING_PW_SALT`,
 //! 평문 아님 — res/wald-variant/preset_hash.py 로 만든다)를 설정 맵에 넣는다. 값은 custom.txt 와
 //! 같은 형식이라 업스트림 분배 로직(`apply_custom_client_config`)이 키마다 맞는 맵에 넣는다.
-//! 양방향 빌드는 아무것도 하지 않는다. 환경변수 값 검사는 build.rs 가 한다.
+//! 두 변형 모두 `res/wald-variant/common.json` 의 공통 프리셋을 먼저 넣는다(DSK-11 — Android 플로팅 창을
+//! 투명·터치 통과로). 양방향 빌드는 그 밖에 아무것도 하지 않는다. 환경변수 값 검사는 build.rs 가 한다.
 
 use hbb_common::{
     config::{Config, LocalConfig},
@@ -17,6 +18,7 @@ const VARIANT: Option<&str> = option_env!("WALDLUST_VARIANT");
 const INCOMING_PW_STORAGE: Option<&str> = option_env!("WALDLUST_INCOMING_PW_STORAGE");
 const INCOMING_PW_SALT: Option<&str> = option_env!("WALDLUST_INCOMING_PW_SALT");
 const INCOMING_PRESET: &str = include_str!("../res/wald-variant/incoming.json");
+const COMMON_PRESET: &str = include_str!("../res/wald-variant/common.json");
 
 #[inline]
 pub fn is_incoming() -> bool {
@@ -32,9 +34,10 @@ pub fn name() -> &'static str {
     }
 }
 
-/// 수신 전용 빌드면 프리셋을 적용한다. 프로세스마다 설정 파일을 쓰기 전에 불러야 한다
+/// 공통 프리셋을, 수신 전용 빌드면 그 프리셋도 적용한다. 프로세스마다 설정 파일을 쓰기 전에 불러야 한다
 /// (데스크탑 `global_init()` 첫머리, Android 는 APP_DIR 이 정해진 직후). 여러 번 불러도 한 번만 적용한다.
 pub fn apply() {
+    apply_common();
     if !is_incoming() {
         return;
     }
@@ -63,6 +66,16 @@ pub fn apply() {
             Ok(data) => crate::common::apply_custom_client_config(data),
             Err(e) => log::error!("Failed to parse the incoming-only preset: {}", e),
         }
+    });
+}
+
+/// 두 변형 공통 프리셋(DSK-11): Android 플로팅 창(화면 가장자리 버블)을 투명·터치 통과로 만든다.
+/// 창 자체는 남아 '원격 제어 중 화면 켜짐 유지'와 백그라운드 서비스 유지를 계속 맡는다.
+fn apply_common() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| match serde_json::from_str(COMMON_PRESET) {
+        Ok(data) => crate::common::apply_custom_client_config(data),
+        Err(e) => log::error!("Failed to parse the common preset: {}", e),
     });
 }
 
@@ -140,14 +153,20 @@ mod tests {
             assert_eq!(Config::get_option(k), v, "{k}");
         }
         // OVERWRITE_LOCAL(Android Kotlin 은 LocalConfig 로 읽는다)
+        assert_eq!(LocalConfig::get_option("allow-hide-cm"), "N");
+        // 변경 금지: 영구 비밀번호를 바꾸려 해도 거부한다.
+        assert!(!Config::set_permanent_password("changed-by-user"));
+    }
+
+    // 공통 프리셋(DSK-11): 플로팅 창 값이 OVERWRITE_LOCAL 에 들어간다(Android Kotlin 은 LocalConfig 로 읽는다).
+    #[test]
+    fn test_common_preset_maps() {
+        apply_common();
         for (k, v) in [
-            ("allow-hide-cm", "N"),
-            (keys::OPTION_FLOATING_WINDOW_TRANSPARENCY, "10"),
-            (keys::OPTION_FLOATING_WINDOW_UNTOUCHABLE, "N"),
+            (keys::OPTION_FLOATING_WINDOW_TRANSPARENCY, "0"),
+            (keys::OPTION_FLOATING_WINDOW_UNTOUCHABLE, "Y"),
         ] {
             assert_eq!(LocalConfig::get_option(k), v, "{k}");
         }
-        // 변경 금지: 영구 비밀번호를 바꾸려 해도 거부한다.
-        assert!(!Config::set_permanent_password("changed-by-user"));
     }
 }

@@ -15,8 +15,6 @@
     "disable-change-permanent-password": "Y",
     "disable-change-id": "Y",
     "hide-stop-service": "Y",
-    "floating-window-transparency": "10",
-    "floating-window-untouchable": "N",
     "allow-hide-cm": "N"
   }
 }
