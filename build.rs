@@ -115,7 +115,9 @@ fn check_waldlust_variant() {
 }
 
 // Waldlust(DSK-10): 수신 전용 빌드는 res/wald-variant/apply_icons.py 로 ↓ 배지 아이콘을 덮어쓴 뒤 빌드한다.
-// 빠뜨리면 양방향 아이콘이 들어가므로 멈춘다(cargo 빌드가 Flutter 빌드보다 먼저 돈다).
+// 빠뜨리면 양방향 아이콘이 들어가므로 멈춘다(cargo 빌드가 Flutter 빌드보다 먼저 돈다). 덮어쓴 대상 파일은
+// Rust 결과에 영향이 없어 rerun-if-changed 로 감시하지 않는다 — 수정 시각만 바뀌어도 librustdesk 를 통째로 다시
+// 빌드하게 된다. 새 체크아웃·변형 전환(환경변수)·묶음 변경 때 이 검사가 다시 돈다.
 fn check_incoming_icons() {
     let src = std::path::Path::new("res/wald-variant/incoming-icons");
     let mut dirs = vec![src.to_path_buf()];
@@ -141,7 +143,6 @@ fn check_incoming_icons() {
                 continue;
             };
             println!("cargo:rerun-if-changed={}", path.display());
-            println!("cargo:rerun-if-changed={}", dst.display());
             if std::fs::read(&path).ok() != std::fs::read(dst).ok() {
                 panic!(
                     "수신 전용 빌드인데 {} 가 수신 전용 아이콘이 아니다: \

@@ -4,12 +4,14 @@
 res/wald-variant/incoming-icons/ 아래 파일(오른쪽 위 ↓ 배지 아이콘 — res/wald-icon/gen_icons.py --variant incoming)을
 저장소의 같은 상대 경로에 복사한다. 대상 파일이 하나라도 없으면(경로가 바뀌면) 아무것도 복사하지 않고 멈춘다.
 수신 전용 빌드(WALDLUST_VARIANT=incoming)는 cargo·Flutter 빌드 전에 이것을 실행해야 한다 — build.rs 가 확인한다.
-작업 트리의 추적 파일을 바꾸므로 빌드마다 새로 만드는 체크아웃(CI, 로컬 빌드 스크립트의 worktree)에서만 쓴다.
+작업 트리의 추적 파일을 바꾸므로 빌드마다 새로 만드는 체크아웃(CI, 로컬 빌드 스크립트의 worktree)에서 쓴다.
+공용 작업 폴더(VS Code 실행)에서는 vscode-prelaunch.sh 가 다음 양방향 실행 전에 되돌린다. 바뀐 아이콘은 커밋하지 않는다.
 
 사용(어느 폴더에서나):
   python3 res/wald-variant/apply_icons.py
 """
 
+import filecmp
 import os
 import shutil
 import sys
@@ -33,9 +35,14 @@ def main() -> int:
     if not pairs:
         print(f"수신 전용 아이콘이 없다: {SRC}", file=sys.stderr)
         return 1
+    copied = 0
     for src, dst in pairs:
+        # 이미 같으면 쓰지 않는다(수정 시각을 그대로 둬 증분 빌드가 바뀐 파일로 보지 않게).
+        if filecmp.cmp(src, dst, shallow=False):
+            continue
         shutil.copyfile(src, dst)
-    print(f"수신 전용 아이콘 {len(pairs)}개를 덮어썼다")
+        copied += 1
+    print(f"수신 전용 아이콘 {len(pairs)}개 중 {copied}개를 덮어썼다(나머지는 이미 같다)")
     return 0
 
 
