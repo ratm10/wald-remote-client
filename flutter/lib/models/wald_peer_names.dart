@@ -13,21 +13,26 @@ import 'package:flutter_hbb/models/platform_model.dart';
 /// 디코드할 때(`Peers._decodePeers`) alias 를 바꿔 끼운다. 로컬 피어 파일은 쓰지 않는다 — 파일 수정 시각이
 /// 최근접속목록 순서를 정하기 때문이다. 오프라인에서도 마지막 이름이 보이도록 로컬 옵션에 저장하고,
 /// 로그아웃·토큰 폐기(`UserModel.reset`) 때 지운다.
+///
+/// 브랜드·디바이스 이름도 함께 둬서 카드 부제(`waldPeerSubtitle`)를 주소록과 같게 보인다(DSK-05, 부록 A-16).
 class WaldPeerNames {
   WaldPeerNames._();
   static final instance = WaldPeerNames._();
   static const _kOption = 'wald-peer-names';
 
-  Map<String, String>? _names;
+  // id → [이름, 브랜드, 디바이스]. 브랜드·디바이스는 서버가 줄 때만 있다('' = 미지정).
+  Map<String, List<String>>? _peers;
 
-  Map<String, String> get _map => _names ??= _load();
+  Map<String, List<String>> get _map => _peers ??= _load();
 
-  Map<String, String> _load() {
+  Map<String, List<String>> _load() {
     try {
       if (bind.mainGetLocalOption(key: 'access_token').isEmpty) return {};
       final s = bind.mainGetLocalOption(key: _kOption);
       if (s.isEmpty) return {};
-      return Map<String, String>.from(jsonDecode(s) as Map);
+      // 옛 형식(id → 이름)도 읽는다 — 다음 새로고침 전까지 이름만 바꿔 끼운다.
+      return (jsonDecode(s) as Map).map((k, v) => MapEntry(k as String,
+          v is List ? List<String>.from(v) : <String>[v as String]));
     } catch (e) {
       debugPrint('wald peer names load: $e');
       return {};
@@ -43,11 +48,16 @@ class WaldPeerNames {
     bind.mainLoadFavPeers();
   }
 
-  /// 어드민 이름이 있으면 카드 제목·검색에 쓰이는 alias 를 바꿔 끼운다.
+  /// 어드민 이름이 있으면 카드 제목·검색에 쓰이는 alias 를, 브랜드·디바이스가 있으면 카드 부제 값을 바꿔 끼운다.
   Peer apply(Peer peer) {
-    final name = _map[peer.id];
-    if (name != null && name.isNotEmpty) {
-      peer.alias = name;
+    final p = _map[peer.id];
+    if (p == null) return peer;
+    if (p[0].isNotEmpty) {
+      peer.alias = p[0];
+    }
+    if (p.length >= 3) {
+      peer.waldBrand = p[1];
+      peer.waldDevice = p[2];
     }
     return peer;
   }
@@ -56,24 +66,35 @@ class WaldPeerNames {
 
   /// 주소록에서 이름을 바꾼 뒤 바로 반영한다.
   void set(String id, String name) {
-    _map[id] = name;
+    final p = _map[id];
+    if (p == null) {
+      _map[id] = [name];
+    } else {
+      p[0] = name;
+    }
     _save();
     _reloadLists();
   }
 
-  /// 로그인·시작·새로고침 때(`AbModel.pullAb`) 전체 기기 이름을 다시 받는다. 실패하면 기존 값을 둔다.
+  /// 로그인·시작·새로고침 때(`AbModel.pullAb`) 전체 기기 이름·브랜드·디바이스를 다시 받는다. 실패하면 기존 값을 둔다.
   Future<void> refresh() async {
     if (!gFFI.userModel.isLogin) return;
     final ab =
         Ab(AbProfile('all', 'all', '', '', ShareRule.read.value, null), false);
     if (!await ab.pullAbImpl(quiet: true)) return;
-    _names = {for (final p in ab.peers) p.id: p.alias};
+    _peers = {
+      for (final p in ab.peers)
+        p.id: [
+          p.alias,
+          if (p.waldBrand != null) ...[p.waldBrand!, p.waldDevice ?? ''],
+        ]
+    };
     _save();
     _reloadLists();
   }
 
   void clear() {
-    _names = {};
+    _peers = {};
     bind.mainSetLocalOption(key: _kOption, value: '');
   }
 }

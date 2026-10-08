@@ -135,9 +135,11 @@ class _PeerCardState extends State<_PeerCard>
   }
 
   makeChild(bool isPortrait, Peer peer) {
-    final name = hideUsernameOnCard == true
-        ? peer.hostname
-        : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}';
+    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 브랜드 · 디바이스 · ID · 호스트네임(wald_ab.dart).
+    final name = waldPeerSubtitle(peer) ??
+        (hideUsernameOnCard == true
+            ? peer.hostname
+            : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}');
     final greyStyle = TextStyle(
         fontSize: 11,
         color: Theme.of(context).textTheme.titleLarge?.color?.withOpacity(0.6));
@@ -285,9 +287,11 @@ class _PeerCardState extends State<_PeerCard>
       BuildContext context, Peer peer, Rx<BoxDecoration?> deco) {
     hideUsernameOnCard ??=
         bind.mainGetBuildinOption(key: kHideUsernameOnCard) == 'Y';
-    final name = hideUsernameOnCard == true
-        ? peer.hostname
-        : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}';
+    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 브랜드 · 디바이스 · ID · 호스트네임(wald_ab.dart).
+    final name = waldPeerSubtitle(peer) ??
+        (hideUsernameOnCard == true
+            ? peer.hostname
+            : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}');
     final child = Card(
       color: Colors.transparent,
       elevation: 0,

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common.dart';
+import 'package:flutter_hbb/common/formatter/id_formatter.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
 import 'package:flutter_hbb/common/widgets/peer_card.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
@@ -79,6 +80,22 @@ Widget _waldCardButton(IconData icon, String tooltip, VoidCallback onTap) {
       ),
     ),
   );
+}
+
+/// Waldlust(DSK-05, 부록 A-16): 카드 부제 = 브랜드 · 디바이스 · ID · 호스트네임. 브랜드는 왼쪽 목록에서 골랐어도 다시 적는다.
+/// 브랜드·디바이스가 없으면 '미지정', 호스트네임이 없으면 그 칸만 뺀다. 어드민 정보가 없는 기기(로그아웃, 권한 밖)는
+/// null → 업스트림 부제(username@hostname). 최근접속목록·즐겨찾기는 `WaldPeerNames.apply` 가 값을 채운다.
+String? waldPeerSubtitle(Peer peer) {
+  final brand = peer.waldBrand;
+  if (brand == null) return null;
+  String orUnassigned(String? s) =>
+      s == null || s.isEmpty ? translate('Unassigned') : s;
+  return [
+    orUnassigned(brand),
+    orUnassigned(peer.waldDevice),
+    formatID(peer.id),
+    if (peer.hostname.isNotEmpty) peer.hostname,
+  ].join(' · ');
 }
 
 /// Waldlust(DSK-04): 주소록 왼쪽 패널에 선택 드롭다운·태그 대신 브랜드 목록을 둔다(`address_book.dart`).
