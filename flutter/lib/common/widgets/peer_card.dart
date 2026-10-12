@@ -475,9 +475,11 @@ class _PeerCardState extends State<_PeerCard>
       } else {
         return icon.marginOnly(right: right);
       }
-    } else if (widget.tab == PeerTabIndex.ab) {
-      // Waldlust(DSK-04·DSK-06): 주소록 카드에 연결·파일 전송·(권한이 있으면) 이름 편집 버튼.
-      return waldAbCardActions(context, peer, _actionMore(peer));
+    } else if (widget.tab == PeerTabIndex.ab ||
+        widget.tab == PeerTabIndex.recent ||
+        widget.tab == PeerTabIndex.fav) {
+      // Waldlust(DSK-04·DSK-06): 주소록·최근 세션·즐겨찾기 카드에 연결·파일 전송·(권한이 있으면) 이름 편집 버튼.
+      return waldAbCardActions(context, peer, widget.tab, _actionMore(peer));
     } else {
       return _actionMore(peer);
     }
