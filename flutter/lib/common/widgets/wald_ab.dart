@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common.dart';
+import 'package:flutter_hbb/common/formatter/id_formatter.dart';
 import 'package:flutter_hbb/common/widgets/dialog.dart';
 import 'package:flutter_hbb/common/widgets/peer_card.dart';
 import 'package:flutter_hbb/desktop/widgets/popup_menu.dart';
@@ -20,7 +21,8 @@ bool waldCanRename(BaseAb ab) {
   return info is Map && info['wald_rename'] == true;
 }
 
-void waldRenameAbPeer(Peer peer) {
+/// [ab] 가 없으면 현재 주소록에서, 있으면 그 주소록(최근 세션·즐겨찾기 카드의 '전체')에서 바꾼다.
+void waldRenameAbPeer(Peer peer, {BaseAb? ab}) {
   final oldName = peer.alias;
   renameDialog(
       oldName: oldName,
@@ -28,8 +30,15 @@ void waldRenameAbPeer(Peer peer) {
         if (newName == oldName) return;
         // 업스트림 _renameAction 과 달리 로컬 피어 파일(alias)은 쓰지 않는다 — 저장에 실패해도 로컬 값이 바뀌고,
         // 파일 수정 시각이 최근접속목록 순서를 바꾸기 때문이다. 실패하면 changeAlias 가 오류 토스트를 띄운다.
-        if (await gFFI.abModel.changeAlias(id: peer.id, alias: newName)) {
+        final ok = ab == null
+            ? await gFFI.abModel.changeAlias(id: peer.id, alias: newName)
+            : await ab.changeAlias(id: peer.id, alias: newName);
+        if (ok) {
           WaldPeerNames.instance.set(peer.id, newName);
+          // 다른 주소록에서 바꿨으면 주소록 탭의 현재 목록도 새 이름을 보이게 다시 받는다.
+          if (ab != null) {
+            gFFI.abModel.pullAb(force: ForcePullAb.current, quiet: true);
+          }
         }
       });
 }
@@ -47,23 +56,37 @@ MenuEntryButton<String> waldRenameMenuEntry(Peer peer, EdgeInsets? padding) {
 }
 
 /// 주소록 카드의 수정 버튼(명세 Q-31 기본값: 버튼 + 다이얼로그).
-Widget waldEditButton(Peer peer) {
-  return _waldCardButton(
-      Icons.edit_outlined, translate('Rename'), () => waldRenameAbPeer(peer));
+Widget waldEditButton(Peer peer, {BaseAb? ab}) {
+  return _waldCardButton(Icons.edit_outlined, translate('Rename'),
+      () => waldRenameAbPeer(peer, ab: ab));
 }
 
-/// Waldlust(DSK-04): 주소록 카드 오른쪽 버튼 — 연결, 파일 전송, (권한이 있으면) 이름 편집, 그다음 업스트림 더보기 메뉴.
-/// 그리드 카드는 이름과 한 줄을 나눠 쓰므로 버튼을 작게 둔다.
-Widget waldAbCardActions(BuildContext context, Peer peer, Widget more) {
+/// Waldlust(DSK-04): 주소록·최근 세션·즐겨찾기 카드 오른쪽 버튼 — 연결, 파일 전송, (권한이 있으면) 이름 편집,
+/// 그다음 업스트림 더보기 메뉴. 그리드 카드는 이름과 한 줄을 나눠 쓰므로 버튼을 작게 둔다.
+/// 최근 세션·즐겨찾기(부록 A-17)의 이름 편집은 어드민 기기만, '전체' 주소록의 권한으로 한다(DSK-06).
+Widget waldAbCardActions(
+    BuildContext context, Peer peer, PeerTabIndex tab, Widget more) {
+  Widget? edit;
+  if (tab == PeerTabIndex.ab) {
+    if (waldCanRename(gFFI.abModel.current)) edit = waldEditButton(peer);
+  } else {
+    final all = gFFI.abModel.addressbooks.values
+        .where((e) => e.sharedProfile()?.guid == _kAllAbGuid)
+        .firstOrNull;
+    if (all != null &&
+        waldCanRename(all) &&
+        WaldPeerNames.instance.contains(peer.id)) {
+      edit = waldEditButton(peer, ab: all);
+    }
+  }
   return Row(mainAxisSize: MainAxisSize.min, children: [
     _waldCardButton(Icons.screen_share_outlined, translate('Connect'),
-        () => connectInPeerTab(context, peer, PeerTabIndex.ab)),
+        () => connectInPeerTab(context, peer, tab)),
     _waldCardButton(
         Icons.folder_outlined,
         translate('Transfer file'),
-        () => connectInPeerTab(context, peer, PeerTabIndex.ab,
-            isFileTransfer: true)),
-    if (waldCanRename(gFFI.abModel.current)) waldEditButton(peer),
+        () => connectInPeerTab(context, peer, tab, isFileTransfer: true)),
+    if (edit != null) edit,
     more,
   ]);
 }
@@ -75,10 +98,24 @@ Widget _waldCardButton(IconData icon, String tooltip, VoidCallback onTap) {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(5),
-        child: Icon(icon, size: 18),
+        child: Icon(icon, size: WaldSize.iconLg), // 부록 A-17: 18 → 20
       ),
     ),
   );
+}
+
+/// Waldlust(DSK-05, 부록 A-16·A-17): 카드 부제 = 디바이스 · ID · 호스트네임(A-17 에서 맨 앞 브랜드를 뺐다).
+/// 디바이스가 없으면 '미지정', 호스트네임이 없으면 그 칸만 뺀다. 어드민 정보가 없는 기기(로그아웃, 권한 밖 —
+/// waldBrand 가 null)는 null → 업스트림 부제(username@hostname). 최근접속목록·즐겨찾기는 `WaldPeerNames.apply` 가 값을 채운다.
+String? waldPeerSubtitle(Peer peer) {
+  if (peer.waldBrand == null) return null;
+  String orUnassigned(String? s) =>
+      s == null || s.isEmpty ? translate('Unassigned') : s;
+  return [
+    orUnassigned(peer.waldDevice),
+    formatID(peer.id),
+    if (peer.hostname.isNotEmpty) peer.hostname,
+  ].join(' · ');
 }
 
 /// Waldlust(DSK-04): 주소록 왼쪽 패널에 선택 드롭다운·태그 대신 브랜드 목록을 둔다(`address_book.dart`).

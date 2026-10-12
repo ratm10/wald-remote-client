@@ -135,9 +135,11 @@ class _PeerCardState extends State<_PeerCard>
   }
 
   makeChild(bool isPortrait, Peer peer) {
-    final name = hideUsernameOnCard == true
-        ? peer.hostname
-        : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}';
+    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 디바이스 · ID · 호스트네임(wald_ab.dart).
+    final name = waldPeerSubtitle(peer) ??
+        (hideUsernameOnCard == true
+            ? peer.hostname
+            : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}');
     final greyStyle = TextStyle(
         fontSize: 11,
         color: Theme.of(context).textTheme.titleLarge?.color?.withOpacity(0.6));
@@ -285,9 +287,11 @@ class _PeerCardState extends State<_PeerCard>
       BuildContext context, Peer peer, Rx<BoxDecoration?> deco) {
     hideUsernameOnCard ??=
         bind.mainGetBuildinOption(key: kHideUsernameOnCard) == 'Y';
-    final name = hideUsernameOnCard == true
-        ? peer.hostname
-        : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}';
+    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 디바이스 · ID · 호스트네임(wald_ab.dart).
+    final name = waldPeerSubtitle(peer) ??
+        (hideUsernameOnCard == true
+            ? peer.hostname
+            : '${peer.username}${peer.username.isNotEmpty && peer.hostname.isNotEmpty ? '@' : ''}${peer.hostname}');
     final child = Card(
       color: Colors.transparent,
       elevation: 0,
@@ -471,9 +475,11 @@ class _PeerCardState extends State<_PeerCard>
       } else {
         return icon.marginOnly(right: right);
       }
-    } else if (widget.tab == PeerTabIndex.ab) {
-      // Waldlust(DSK-04·DSK-06): 주소록 카드에 연결·파일 전송·(권한이 있으면) 이름 편집 버튼.
-      return waldAbCardActions(context, peer, _actionMore(peer));
+    } else if (widget.tab == PeerTabIndex.ab ||
+        widget.tab == PeerTabIndex.recent ||
+        widget.tab == PeerTabIndex.fav) {
+      // Waldlust(DSK-04·DSK-06): 주소록·최근 세션·즐겨찾기 카드에 연결·파일 전송·(권한이 있으면) 이름 편집 버튼.
+      return waldAbCardActions(context, peer, widget.tab, _actionMore(peer));
     } else {
       return _actionMore(peer);
     }
@@ -1491,7 +1497,9 @@ Widget getOnline(double rightPadding, bool online) {
       child: Padding(
           padding: EdgeInsets.fromLTRB(0, 4, rightPadding, 4),
           child: CircleAvatar(
-              radius: 3, backgroundColor: online ? Colors.green : kColorWarn)));
+              radius: 3,
+              // Waldlust(DSK-07, 부록 A-17): 오프라인은 주황(kColorWarn) 대신 진한 빨강.
+              backgroundColor: online ? Colors.green : WaldPalette.red600)));
 }
 
 Widget build_more(BuildContext context, {bool invert = false}) {

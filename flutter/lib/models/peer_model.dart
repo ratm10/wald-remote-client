@@ -23,6 +23,9 @@ class Peer {
   String device_group_name;
   String note;
   bool? sameServer;
+  // Waldlust(DSK-05): 어드민 브랜드·디바이스 이름(카드 부제). null = 어드민 정보 없음, '' = 미지정.
+  String? waldBrand;
+  String? waldDevice;
 
   String getId() {
     if (alias != '') {
@@ -46,7 +49,9 @@ class Peer {
         loginName = json['loginName'] ?? '',
         device_group_name = json['device_group_name'] ?? '',
         note = json['note'] is String ? json['note'] : '',
-        sameServer = json['same_server'];
+        sameServer = json['same_server'],
+        waldBrand = json['wald_brand'] is String ? json['wald_brand'] : null,
+        waldDevice = json['wald_device'] is String ? json['wald_device'] : null;
 
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
@@ -80,6 +85,9 @@ class Peer {
     if (includingHash) {
       res['hash'] = hash;
     }
+    // Waldlust(DSK-05): 주소록 캐시에 남겨 오프라인에서도 부제가 보이게 한다.
+    if (waldBrand != null) res['wald_brand'] = waldBrand;
+    if (waldDevice != null) res['wald_device'] = waldDevice;
     return res;
   }
 
@@ -164,6 +172,8 @@ class Peer {
         note: other.note,
         sameServer: other.sameServer);
     peer.online = other.online;
+    peer.waldBrand = other.waldBrand;
+    peer.waldDevice = other.waldDevice;
     return peer;
   }
 }
