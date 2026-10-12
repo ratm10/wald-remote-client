@@ -1497,7 +1497,9 @@ Widget getOnline(double rightPadding, bool online) {
       child: Padding(
           padding: EdgeInsets.fromLTRB(0, 4, rightPadding, 4),
           child: CircleAvatar(
-              radius: 3, backgroundColor: online ? Colors.green : kColorWarn)));
+              radius: 3,
+              // Waldlust(DSK-07, 부록 A-17): 오프라인은 주황(kColorWarn) 대신 진한 빨강.
+              backgroundColor: online ? Colors.green : WaldPalette.red600)));
 }
 
 Widget build_more(BuildContext context, {bool invert = false}) {
