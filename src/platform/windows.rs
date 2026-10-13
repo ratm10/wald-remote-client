@@ -1358,6 +1358,19 @@ fn get_default_install_info() -> (String, String, String, String) {
     get_install_info_with_subkey(get_subkey(&crate::get_app_name(), false))
 }
 
+// Waldlust: 설치 폴더는 APP_NAME(Waldlust) 이 아닌 전용 이름이다. 회사 POS 가 `Program Files (x86)\Waldlust`
+// (32비트 Windows 는 `Program Files\Waldlust`)를 쓰므로 같은 폴더에 들어가면 자체 설치·제거의 폴더 삭제가
+// POS 까지 지운다(DSK-01, 부록 A-21). res/inno/waldlust.iss 의 DefaultDirName 과 같아야 한다.
+const WALD_INSTALL_DIR_NAME: &str = "Waldlust Remote";
+
+// Waldlust: 설치 폴더를 통째로 지워도 되는지 — 전용 폴더 이름일 때만 참.
+fn is_wald_install_dir(path: &str) -> bool {
+    Path::new(path).file_name().map_or(false, |name| {
+        name.to_string_lossy()
+            .eq_ignore_ascii_case(WALD_INSTALL_DIR_NAME)
+    })
+}
+
 fn get_default_install_path() -> String {
     let mut pf = "C:\\Program Files".to_owned();
     if let Ok(x) = std::env::var("ProgramFiles") {
@@ -1372,7 +1385,7 @@ fn get_default_install_path() -> String {
             pf = tmp;
         }
     }
-    format!("{}\\{}", pf, crate::get_app_name())
+    format!("{}\\{}", pf, WALD_INSTALL_DIR_NAME)
 }
 
 pub fn check_update_broker_process() -> ResultType<()> {
@@ -1814,6 +1827,16 @@ fn get_uninstall(kill_self: bool, uninstall_printer: bool) -> String {
         }
     }
     let (subkey, path, start_menu, _) = get_install_info();
+    // Waldlust: 전용 설치 폴더가 아니면(옛 경로·다른 제품 경로) 폴더째 지우지 않는다 — POS 등 다른 프로그램 보호.
+    let remove_install_dir = if is_wald_install_dir(&path) {
+        format!("if exist \"{path}\" rd /s /q \"{path}\"")
+    } else {
+        log::warn!(
+            "Skip removing the install folder, not a dedicated folder: {}",
+            path
+        );
+        "".to_owned()
+    };
     format!(
         "
     {before_uninstall}
@@ -1821,7 +1844,7 @@ fn get_uninstall(kill_self: bool, uninstall_printer: bool) -> String {
     {uninstall_cert_cmd}
     reg delete {subkey} /f
     {uninstall_amyuni_idd}
-    if exist \"{path}\" rd /s /q \"{path}\"
+    {remove_install_dir}
     if exist \"{start_menu}\" rd /s /q \"{start_menu}\"
     if exist \"%PUBLIC%\\Desktop\\{app_name}.lnk\" del /f /q \"%PUBLIC%\\Desktop\\{app_name}.lnk\"
     if exist \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\{app_name} Tray.lnk\" del /f /q \"%PROGRAMDATA%\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\{app_name} Tray.lnk\"
@@ -4546,6 +4569,18 @@ mod tests {
                 }
             }
         }
+    }
+
+    // Waldlust: 설치 폴더는 전용 이름이고, 폴더째 지우는 것은 그 이름일 때만(DSK-01, 부록 A-21).
+    #[test]
+    fn wald_install_dir() {
+        assert!(is_wald_install_dir(r"C:\Program Files (x86)\Waldlust Remote"));
+        assert!(is_wald_install_dir(r"C:\Program Files\waldlust remote"));
+        assert!(!is_wald_install_dir(r"C:\Program Files (x86)\Waldlust"));
+        assert!(!is_wald_install_dir(r"C:\Program Files"));
+        assert!(!is_wald_install_dir(r"C:\"));
+        assert!(!is_wald_install_dir(""));
+        assert!(get_default_install_path().ends_with(r"\Waldlust Remote"));
     }
 
     #[test]

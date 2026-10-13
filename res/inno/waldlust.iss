@@ -6,9 +6,11 @@
 ;  - 이 인스톨러는 파일 복사 + 제어판 등록 + 시작메뉴만 담당한다.
 ;  - 서비스 등록/방화벽/URL 프로토콜 같은 RustDesk 고유 작업은 앱 본체의
 ;    "Waldlust.exe --after-install" 을 호출해서 위임한다(설치 시 메인 exe 를 Waldlust.exe 로 넣음).
-;  - 설치 경로는 반드시 {autopf}\Waldlust 로 고정한다. RustDesk 의 --after-install /
-;    --uninstall 이 get_default_install_path()=="C:\Program Files\<APP_NAME=Waldlust>" 를
-;    기준으로 exe 를 찾기 때문. (경로를 바꾸면 서비스 등록이 어긋난다 → DisableDirPage=yes)
+;  - 설치 경로는 반드시 {autopf}\Waldlust Remote 로 고정한다. RustDesk 의 --after-install /
+;    --uninstall 이 get_default_install_path()=="C:\Program Files\Waldlust Remote"(src/platform/windows.rs
+;    WALD_INSTALL_DIR_NAME) 를 기준으로 exe 를 찾기 때문. (경로를 바꾸면 서비스 등록이 어긋난다 → DisableDirPage=yes,
+;    UsePreviousAppDir=no) APP_NAME(Waldlust) 폴더를 쓰지 않는 것은 회사 POS 가 Program Files (x86)\Waldlust 를
+;    쓰기 때문이다(DSK-01, 부록 A-21).
 ;
 ; 빌드: ISCC.exe /DMyBuildDir=<flutter build 산출물 폴더> waldlust.iss
 ; 수신 전용 빌드(DSK-01)는 /DMyVariantSuffix=-incoming 을 더해 산출물 이름만 바꾼다.
@@ -35,8 +37,9 @@ AppName=Waldlust 원격지원
 AppVersion={#MyAppVersion}
 AppPublisher=Waldlust Co., Ltd.
 AppPublisherURL=https://remote.waldpay.co.kr
-DefaultDirName={autopf}\Waldlust
+DefaultDirName={autopf}\Waldlust Remote
 DisableDirPage=yes
+UsePreviousAppDir=no
 DisableProgramGroupPage=yes
 DefaultGroupName=Waldlust 원격지원
 UninstallDisplayName=Waldlust 원격지원
