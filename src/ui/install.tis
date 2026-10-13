@@ -6,6 +6,7 @@ var install_path = "";
 
 class Install: Reactor.Component {
     function render() {
+        return waldInstall(); // Waldlust(DSK-07): layout in wald.tis; the upstream layout below is not used.
         const install_options = JSON.parse(view.install_options());
         const desktop_icon = { checked: install_options?.DESKTOPSHORTCUTS == '0' ? false : true };
         const startmenu_shortcuts = { checked: install_options?.STARTMENUSHORTCUTS == '0' ? false : true };

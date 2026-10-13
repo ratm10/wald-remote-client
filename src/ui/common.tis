@@ -184,7 +184,7 @@ class ChatBox: Reactor.Component {
       var cls = msg.name == "me" ? "right-side msg" : "left-side msg";
       return <div class={cls}>
         {msg.name == "me" ?
-        <div .name>{msg.time + "  "} me</div> :
+        <div .name>{msg.time}</div> : // Waldlust(DSK-07): drop the untranslated 'me' (right side = own message).
         <div .name>{msg.name} {"  " + msg.time}</div>
         }
         <div .text>{msg.text}</div>

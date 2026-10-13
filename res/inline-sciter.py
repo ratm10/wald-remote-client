@@ -7,9 +7,14 @@ def strip(s): return re.sub(r'\s+\n', '\n', re.sub(r'\n\s+', '\n', s))
 
 common_css = open('src/ui/common.css').read()
 common_tis = open('src/ui/common.tis', encoding='UTF8').read()
+# Waldlust(DSK-07): 수신 전용 화면(wald.css·wald.tis — 한글 주석이 있어 UTF-8 로 읽는다)
+wald_css = open('src/ui/wald.css', encoding='UTF8').read()
+wald_tis = open('src/ui/wald.tis', encoding='UTF8').read()
 
 index = open('src/ui/index.html').read() \
     .replace('@import url(index.css);', open('src/ui/index.css').read()) \
+    .replace('@import url(wald.css);', wald_css) \
+    .replace('include "wald.tis";', wald_tis) \
     .replace('include "index.tis";', open('src/ui/index.tis').read()) \
     .replace('include "msgbox.tis";', open('src/ui/msgbox.tis').read()) \
     .replace('include "ab.tis";', open('src/ui/ab.tis').read())
@@ -27,10 +32,14 @@ remote = open('src/ui/remote.html').read() \
     .replace('include "printer.tis";', open('src/ui/printer.tis').read())
 
 chatbox = open('src/ui/chatbox.html').read()
-install = open('src/ui/install.html').read().replace('include "install.tis";', open('src/ui/install.tis').read())
+install = open('src/ui/install.html').read().replace('include "install.tis";', open('src/ui/install.tis').read()) \
+    .replace('@import url(wald.css);', wald_css) \
+    .replace('include "wald.tis";', wald_tis)
 
 cm = open('src/ui/cm.html').read() \
     .replace('@import url(cm.css);', open('src/ui/cm.css').read()) \
+    .replace('@import url(wald.css);', wald_css) \
+    .replace('include "wald.tis";', wald_tis) \
     .replace('include "cm.tis";', open('src/ui/cm.tis').read())
 
 

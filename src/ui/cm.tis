@@ -1,4 +1,5 @@
 view.windowFrame = is_osx ? #extended : #solid;
+waldInitCm(); // Waldlust(DSK-07): admin tone like the Flutter connection manager (wald.tis)
 
 var body;
 var connections = [];
@@ -25,6 +26,7 @@ class Body: Reactor.Component
     }
 
     function render() {
+        return waldCmBody(this); // Waldlust(DSK-07): layout in wald.tis; the upstream layout below is not used.
         if (connections.length == 0)
           return <div style="size:*; margin: * 0; text-align: center;">
                 Waiting for new connection ...
@@ -485,7 +487,7 @@ function self.ready() {
     adjustBorder();
     var (sw, sh) = view.screenBox(#workarea, #dimension);
     var w = scaleIt(300);
-    var h = scaleIt(400);
+    var h = scaleIt(502); // Waldlust(DSK-07): Flutter connection manager height
     view.move(sw - w, 0, w, h);
 }
 
@@ -560,7 +562,7 @@ function adjustHeader() {
     var arrows = $(div.tab-arrows);
     if (!arrows) return;
     var n = connections.length;
-    var wtab = 80;
+    var wtab = 120; // Waldlust(DSK-07): name up to 100 + padding 10 each side (Flutter maxLabelWidth)
     var max = hw - 98;
     var need_width = n * wtab + scaleIt(2); // include border of active tab
     if (need_width < max) {
