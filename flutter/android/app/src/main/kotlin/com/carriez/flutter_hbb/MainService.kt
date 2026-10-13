@@ -289,6 +289,14 @@ class MainService : Service() {
         super.onCreate()
         Log.d(logTag,"MainService onCreate, sdk int:${Build.VERSION.SDK_INT} reuseVirtualDisplay:$reuseVirtualDisplay")
         FFI.init(this)
+        // 앱 화면 없이 부팅·접근성으로 시작돼도 하드웨어 인코더(H.264/H.265)를 쓰도록
+        thread {
+            try {
+                setCodecInfo(this)
+            } catch (e: Exception) {
+                Log.e(logTag, "Failed to setCodecInfo: ${e.message}", e)
+            }
+        }
         HandlerThread("Service", Process.THREAD_PRIORITY_BACKGROUND).apply {
             start()
             serviceLooper = looper
