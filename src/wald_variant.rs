@@ -138,6 +138,11 @@ mod tests {
             crate::common::get_builtin_option(keys::OPTION_HIDE_STOP_SERVICE),
             "Y"
         );
+        // DSK-02: 'RustDesk 제공' 링크를 숨긴다(Flutter·Sciter 수신 전용 — 부록 A-19).
+        assert_eq!(
+            crate::common::get_builtin_option(keys::OPTION_HIDE_POWERED_BY_ME),
+            "Y"
+        );
         // OVERWRITE
         for (k, v) in [
             (keys::OPTION_VERIFICATION_METHOD, "use-both-passwords"),
