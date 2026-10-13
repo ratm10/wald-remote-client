@@ -4,7 +4,7 @@ stdout.println("is_xfce: ", is_xfce);
 
 // See default height in common.tis `msgbox()`.
 const msgbox_default_height = 180;
-const incoming_only_width = 180;
+const incoming_only_width = wald_home_width; // Waldlust(DSK-07): wald.tis
 
 const outgoing_only = handler.is_outgoing_only();
 const incoming_only = handler.is_incoming_only();
@@ -26,6 +26,8 @@ if (incoming_only) {
 } else {
   view.windowMinSize = (scaleIt(560), scaleIt(300));
 }
+// Waldlust(DSK-07): incoming-only main window frame and height come from wald.tis.
+if (incoming_only) waldInitHomeWindow();
 
 var app;
 var tmp = handler.get_connect_status();
@@ -709,6 +711,12 @@ class App: Reactor.Component
     }
 
     function render() {
+        // Waldlust(DSK-07): incoming-only home follows the Flutter incoming-only layout (wald.tis).
+        if (incoming_only) return <div .wald-home>
+            {waldHome()}
+            <WaldConnectStatus @{this.connect_status} />
+            <div #overlay style="position: absolute;size:*;background:black;opacity:0.5;display:none" />
+        </div>;
         var is_can_screen_recording = handler.is_can_screen_recording(false);
         return
             <div .app>
@@ -1307,6 +1315,7 @@ function formatId(id) {
 }
 
 event keydown (evt) {
+    if (incoming_only) return; // Waldlust(DSK-07): no remote id input / connect button in incoming-only.
     if (view.focus && view.focus.id != 'remote_id') {
         return;
     }
@@ -1389,7 +1398,7 @@ function self.ready() {
     } else {
         centerize(scaleIt(incoming_only ? incoming_only_width : 800), scaleIt(incoming_only ? 390 : 600));
     }
-    if (!handler.get_remote_id()) {
+    if (!incoming_only && !handler.get_remote_id()) { // Waldlust(DSK-07): no #remote_id in incoming-only.
         view.focus = $(#remote_id);
     }
     refreshCurrentUser();
@@ -1644,6 +1653,7 @@ function logout() {
 }
 
 function refreshCurrentUser() {
+    if (disable_account) return; // Waldlust(DSK-02): like Flutter user_model, no API call with a leftover token when accounts are disabled.
     var token = handler.get_local_option("access_token");
     if (!token) { return; }
     abLoading = true;

@@ -35,7 +35,13 @@ fn make_tray() -> hbb_common::ResultType<()> {
     {
         icon = include_bytes!("../res/mac-tray-dark-x2.png"); // use as template, so color is not important
     }
-    #[cfg(not(target_os = "macos"))]
+    // Waldlust(DSK-10): Windows Sciter 빌드에는 flutter_assets 가 없어 아래 load_icon_from_asset() 대신 이 값을 쓴다.
+    // Flutter 트레이와 같은 W. 아이콘(flutter/assets/icon.png)을 넣는다.
+    #[cfg(windows)]
+    {
+        icon = include_bytes!("../flutter/assets/icon.png");
+    }
+    #[cfg(not(any(target_os = "macos", windows)))]
     {
         icon = include_bytes!("../res/tray-icon.ico");
     }
