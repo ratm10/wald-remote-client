@@ -15,7 +15,13 @@
         </style>
         <script type="text/tiscript">
             include "common.tis";
+        </script>
+        <!-- Waldlust(DSK-07): wald.tis is a separate script block (own compile unit). Inlined into one unit,
+             index.tis + wald.tis exceed the TIScript code size limit ("Bad parse code"). It needs Reactor from common.tis. -->
+        <script type="text/tiscript">
             include "wald.tis";
+        </script>
+        <script type="text/tiscript">
             include "install.tis";
         </script>
     </head>
