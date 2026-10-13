@@ -104,17 +104,15 @@ Widget _waldCardButton(IconData icon, String tooltip, VoidCallback onTap) {
   );
 }
 
-/// Waldlust(DSK-05, 부록 A-16·A-17): 카드 부제 = 디바이스 · ID · 호스트네임(A-17 에서 맨 앞 브랜드를 뺐다).
-/// 디바이스가 없으면 '미지정', 호스트네임이 없으면 그 칸만 뺀다. 어드민 정보가 없는 기기(로그아웃, 권한 밖 —
-/// waldBrand 가 null)는 null → 업스트림 부제(username@hostname). 최근접속목록·즐겨찾기는 `WaldPeerNames.apply` 가 값을 채운다.
+/// Waldlust(DSK-05, 부록 A-16~A-18): 카드 부제 = 디바이스 · ID(A-17 에서 맨 앞 브랜드를, A-18 에서 끝의 호스트네임을 뺐다).
+/// 디바이스가 없으면 '미지정'. 어드민 정보가 없는 기기(로그아웃, 권한 밖 — waldBrand 가 null)는 null → 업스트림
+/// 부제(username@hostname). 최근접속목록·즐겨찾기는 `WaldPeerNames.apply` 가 값을 채운다.
 String? waldPeerSubtitle(Peer peer) {
   if (peer.waldBrand == null) return null;
-  String orUnassigned(String? s) =>
-      s == null || s.isEmpty ? translate('Unassigned') : s;
+  final device = peer.waldDevice;
   return [
-    orUnassigned(peer.waldDevice),
+    device == null || device.isEmpty ? translate('Unassigned') : device,
     formatID(peer.id),
-    if (peer.hostname.isNotEmpty) peer.hostname,
   ].join(' · ');
 }
 
@@ -123,6 +121,52 @@ String? waldPeerSubtitle(Peer peer) {
 final waldAbBrandPanel = true;
 
 const _kAllAbGuid = 'all'; // 서버의 '전체' 주소록(권한 범위 전체 기기)
+
+/// Waldlust(DSK-04, 부록 A-18): 주소록 기기 목록 위에 한 줄 — 선택한 브랜드 · 클라이언트 수, 활성·비활성 수.
+/// 활성은 카드 점과 같은 기준(hbbs 온라인 조회 → `Peer.online`)이고, 조회 결과가 오면 목록 모델이 알린다.
+Widget waldAbCountBar(Widget list) {
+  if (!waldAbBrandPanel) return list;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [const _WaldAbCountBar(), Expanded(child: list)],
+  );
+}
+
+class _WaldAbCountBar extends StatelessWidget {
+  const _WaldAbCountBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final model = gFFI.abModel.peersModel;
+    final style = TextStyle(
+        fontSize: 13,
+        color: Theme.of(context).textTheme.titleLarge?.color?.withOpacity(0.6));
+    // 색은 카드 점(peer_card.dart getOnline)과 같다.
+    Widget count(Color color, String label, int n) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(radius: 3, backgroundColor: color).marginOnly(right: 5),
+            Text('${translate(label)} $n', style: style),
+          ],
+        ).marginOnly(left: 14);
+    return ListenableBuilder(
+      listenable: model,
+      builder: (context, _) => Obx(() {
+        final name =
+            gFFI.abModel.translatedName(gFFI.abModel.currentName.value);
+        final total = model.peers.length;
+        final online = model.peers.where((p) => p.online).length;
+        return Row(children: [
+          Flexible(
+              child: Text('$name · ${translate('Clients')} $total',
+                  style: style, overflow: TextOverflow.ellipsis)),
+          count(Colors.green, 'Active', online),
+          count(WaldPalette.red600, 'Inactive', total - online),
+        ]);
+      }),
+    ).marginOnly(left: 2, bottom: 8);
+  }
+}
 
 /// 브랜드(공유 주소록) 목록. 맨 위는 '전체', 나머지는 드롭다운과 같은 이름순. 고르면 오른쪽에 그 기기 목록이 보인다.
 class WaldAbBrandList extends StatelessWidget {
@@ -156,7 +200,12 @@ class WaldAbBrandList extends StatelessWidget {
 
   Widget _buildItem(BuildContext context, String name,
       {required bool isAll, required bool selected}) {
+    // 부록 A-18: 선택은 어드민 주소록 화면과 같게 검정 바탕·흰 글자(다크는 밝은 회색·검정 글자), 둥근 모서리, 구분선 없음.
+    final wald = WaldColors.of(context);
+    final radius = BorderRadius.circular(WaldSize.radius);
+    final fg = selected ? wald.primaryFg : null;
     return InkWell(
+      borderRadius: radius,
       onTap: () async {
         // 업스트림은 이미 받은 주소록을 다시 받지 않는다. 다른 주소록에서 바꾼 이름이 늦게 보이지 않게 다시 받는다.
         final pulled = gFFI.abModel.addressbooks[name]?.initialized == true;
@@ -167,23 +216,21 @@ class WaldAbBrandList extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: selected ? MyTheme.color(context).highlight : null,
-          border: Border(
-              bottom: BorderSide(
-                  width: 0.7,
-                  color: Theme.of(context).dividerColor.withOpacity(0.1))),
+          color: selected ? wald.primaryBg : null,
+          borderRadius: radius,
         ),
         child: Row(
           children: [
             Icon(isAll ? Icons.apps_rounded : Icons.storefront_outlined,
-                    color: MyTheme.accent, size: 19)
+                    color: fg ?? MyTheme.accent, size: 19)
                 .marginOnly(right: 6),
             Expanded(
                 child: Text(gFFI.abModel.translatedName(name),
+                    style: TextStyle(color: fg),
                     overflow: TextOverflow.ellipsis)),
           ],
-        ).paddingSymmetric(vertical: 6),
+        ).paddingSymmetric(horizontal: 10, vertical: 8),
       ),
-    ).marginSymmetric(horizontal: 12).marginOnly(bottom: 4);
+    ).marginSymmetric(horizontal: 8).marginOnly(bottom: 2);
   }
 }

@@ -782,5 +782,9 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Hide", "숨기기"),
         // Waldlust(DSK-05): 주소록·최근 세션 카드 부제의 브랜드·디바이스 없음.
         ("Unassigned", "미지정"),
+        // Waldlust(DSK-04): 주소록 기기 목록 위 클라이언트 수(활성·비활성).
+        ("Clients", "클라이언트"),
+        ("Active", "활성"),
+        ("Inactive", "비활성"),
     ].iter().cloned().collect();
 }
