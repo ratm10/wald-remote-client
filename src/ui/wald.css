@@ -662,7 +662,6 @@ div.wald-install-label {
 div.wald-install-path input {
     width: *;
     height: 32px;
-    margin-right: 10px;
     padding: 0 10px;
     font-size: 14px;
     border: #D4D4D4 solid 1px;

@@ -335,7 +335,8 @@ function waldCmTimeLoop() {
 }
 
 // ---------------------------------------------------------------- 설치 화면
-// 배치 정본: flutter/lib/desktop/pages/install_page.dart. 클릭 처리는 install.tis 의 업스트림 핸들러(#path·#submit 등)를 쓴다.
+// 배치 정본: flutter/lib/desktop/pages/install_page.dart. 클릭 처리는 install.tis 의 업스트림 핸들러(#submit 등)를 쓴다.
+// '경로 변경'(#path)은 두지 않는다 — 설치 경로는 전용 폴더로 고정(부록 A-21, POS 폴더 보호).
 
 function waldInstall() {
     const install_options = JSON.parse(view.install_options());
@@ -346,7 +347,6 @@ function waldInstall() {
         <div .wald-install-path>
             <div .wald-install-label>{translate('Installation Path') + ":"}</div>
             <input|text disabled value={view.install_path()} #path_input />
-            <button .wald-btn-outline #path>{translate('Change Path')}</button>
         </div>
         <div .wald-install-opt><button|checkbox #startmenu {startmenu_shortcuts}>{translate('Create start menu shortcuts')}</button></div>
         <div .wald-install-opt><button|checkbox #desktopicon {desktop_icon}>{translate('Create desktop icon')}</button></div>
