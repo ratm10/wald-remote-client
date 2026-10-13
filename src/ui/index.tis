@@ -1644,6 +1644,7 @@ function logout() {
 }
 
 function refreshCurrentUser() {
+    if (disable_account) return; // Waldlust(DSK-02): like Flutter user_model, no API call with a leftover token when accounts are disabled.
     var token = handler.get_local_option("access_token");
     if (!token) { return; }
     abLoading = true;
