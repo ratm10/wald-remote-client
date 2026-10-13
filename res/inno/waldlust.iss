@@ -12,6 +12,8 @@
 ;
 ; 빌드: ISCC.exe /DMyBuildDir=<flutter build 산출물 폴더> waldlust.iss
 ; 수신 전용 빌드(DSK-01)는 /DMyVariantSuffix=-incoming 을 더해 산출물 이름만 바꾼다.
+; 32비트 Windows(Sciter, DSK-07 부록 A-19)는 /DMyArch=x86 — MyBuildDir 에 wald-remote.exe(Sciter) + sciter.dll 을 둔다.
+;  32비트 설치라 64비트 Windows 에서는 {autopf} = Program Files (x86) 이고, 32비트 앱의 get_default_install_path() 도 같은 곳이다.
 ; AppId·설치 경로·서비스 이름은 두 변형이 같아서, 한쪽 설치 위에 다른 쪽을 덮어 설치하면 ID 가 유지된다.
 
 #ifndef MyAppVersion
@@ -22,6 +24,9 @@
 #endif
 #ifndef MyVariantSuffix
   #define MyVariantSuffix ""
+#endif
+#ifndef MyArch
+  #define MyArch "x64"
 #endif
 
 [Setup]
@@ -36,13 +41,19 @@ DisableProgramGroupPage=yes
 DefaultGroupName=Waldlust 원격지원
 UninstallDisplayName=Waldlust 원격지원
 UninstallDisplayIcon={app}\Waldlust.exe
+#if MyArch == "x86"
+OutputBaseFilename=waldlust-setup-{#MyAppVersion}-x86{#MyVariantSuffix}
+#else
 OutputBaseFilename=waldlust-setup-{#MyAppVersion}-x86_64{#MyVariantSuffix}
+#endif
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=admin
+#if MyArch != "x86"
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
+#endif
 SetupIconFile=..\icon.ico
 CloseApplications=yes
 ; 설치가 끝나면 탐색기에 아이콘 갱신을 알린다(SHChangeNotify SHCNE_ASSOCCHANGED). 같은 경로의 exe 를 덮어쓰면
