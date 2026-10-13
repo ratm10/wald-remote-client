@@ -122,6 +122,52 @@ final waldAbBrandPanel = true;
 
 const _kAllAbGuid = 'all'; // 서버의 '전체' 주소록(권한 범위 전체 기기)
 
+/// Waldlust(DSK-04, 부록 A-18): 주소록 기기 목록 위에 한 줄 — 선택한 브랜드 · 클라이언트 수, 활성·비활성 수.
+/// 활성은 카드 점과 같은 기준(hbbs 온라인 조회 → `Peer.online`)이고, 조회 결과가 오면 목록 모델이 알린다.
+Widget waldAbCountBar(Widget list) {
+  if (!waldAbBrandPanel) return list;
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [const _WaldAbCountBar(), Expanded(child: list)],
+  );
+}
+
+class _WaldAbCountBar extends StatelessWidget {
+  const _WaldAbCountBar();
+
+  @override
+  Widget build(BuildContext context) {
+    final model = gFFI.abModel.peersModel;
+    final style = TextStyle(
+        fontSize: 13,
+        color: Theme.of(context).textTheme.titleLarge?.color?.withOpacity(0.6));
+    // 색은 카드 점(peer_card.dart getOnline)과 같다.
+    Widget count(Color color, String label, int n) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(radius: 3, backgroundColor: color).marginOnly(right: 5),
+            Text('${translate(label)} $n', style: style),
+          ],
+        ).marginOnly(left: 14);
+    return ListenableBuilder(
+      listenable: model,
+      builder: (context, _) => Obx(() {
+        final name =
+            gFFI.abModel.translatedName(gFFI.abModel.currentName.value);
+        final total = model.peers.length;
+        final online = model.peers.where((p) => p.online).length;
+        return Row(children: [
+          Flexible(
+              child: Text('$name · ${translate('Clients')} $total',
+                  style: style, overflow: TextOverflow.ellipsis)),
+          count(Colors.green, 'Active', online),
+          count(WaldPalette.red600, 'Inactive', total - online),
+        ]);
+      }),
+    ).marginOnly(left: 2, bottom: 8);
+  }
+}
+
 /// 브랜드(공유 주소록) 목록. 맨 위는 '전체', 나머지는 드롭다운과 같은 이름순. 고르면 오른쪽에 그 기기 목록이 보인다.
 class WaldAbBrandList extends StatelessWidget {
   final bool isPortrait;

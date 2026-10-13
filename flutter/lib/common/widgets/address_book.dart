@@ -366,9 +366,10 @@ class _AddressBookState extends State<AddressBook> {
     return Expanded(
       child: Align(
           alignment: Alignment.topLeft,
-          child: AddressBookPeersView(
+          // Waldlust(DSK-04): 목록 위에 클라이언트 수(활성·비활성) 한 줄(wald_ab.dart).
+          child: waldAbCountBar(AddressBookPeersView(
             menuPadding: widget.menuPadding,
-          )),
+          ))),
     );
   }
 
