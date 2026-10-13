@@ -154,7 +154,12 @@ class WaldAbBrandList extends StatelessWidget {
 
   Widget _buildItem(BuildContext context, String name,
       {required bool isAll, required bool selected}) {
+    // 부록 A-18: 선택은 어드민 주소록 화면과 같게 검정 바탕·흰 글자(다크는 밝은 회색·검정 글자), 둥근 모서리, 구분선 없음.
+    final wald = WaldColors.of(context);
+    final radius = BorderRadius.circular(WaldSize.radius);
+    final fg = selected ? wald.primaryFg : null;
     return InkWell(
+      borderRadius: radius,
       onTap: () async {
         // 업스트림은 이미 받은 주소록을 다시 받지 않는다. 다른 주소록에서 바꾼 이름이 늦게 보이지 않게 다시 받는다.
         final pulled = gFFI.abModel.addressbooks[name]?.initialized == true;
@@ -165,23 +170,21 @@ class WaldAbBrandList extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: selected ? MyTheme.color(context).highlight : null,
-          border: Border(
-              bottom: BorderSide(
-                  width: 0.7,
-                  color: Theme.of(context).dividerColor.withOpacity(0.1))),
+          color: selected ? wald.primaryBg : null,
+          borderRadius: radius,
         ),
         child: Row(
           children: [
             Icon(isAll ? Icons.apps_rounded : Icons.storefront_outlined,
-                    color: MyTheme.accent, size: 19)
+                    color: fg ?? MyTheme.accent, size: 19)
                 .marginOnly(right: 6),
             Expanded(
                 child: Text(gFFI.abModel.translatedName(name),
+                    style: TextStyle(color: fg),
                     overflow: TextOverflow.ellipsis)),
           ],
-        ).paddingSymmetric(vertical: 6),
+        ).paddingSymmetric(horizontal: 10, vertical: 8),
       ),
-    ).marginSymmetric(horizontal: 12).marginOnly(bottom: 4);
+    ).marginSymmetric(horizontal: 8).marginOnly(bottom: 2);
   }
 }
