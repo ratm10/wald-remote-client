@@ -135,7 +135,7 @@ class _PeerCardState extends State<_PeerCard>
   }
 
   makeChild(bool isPortrait, Peer peer) {
-    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 디바이스 · ID · 호스트네임(wald_ab.dart).
+    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 디바이스 · ID(wald_ab.dart).
     final name = waldPeerSubtitle(peer) ??
         (hideUsernameOnCard == true
             ? peer.hostname
@@ -287,7 +287,7 @@ class _PeerCardState extends State<_PeerCard>
       BuildContext context, Peer peer, Rx<BoxDecoration?> deco) {
     hideUsernameOnCard ??=
         bind.mainGetBuildinOption(key: kHideUsernameOnCard) == 'Y';
-    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 디바이스 · ID · 호스트네임(wald_ab.dart).
+    // Waldlust(DSK-05): 어드민 정보가 있는 기기는 디바이스 · ID(wald_ab.dart).
     final name = waldPeerSubtitle(peer) ??
         (hideUsernameOnCard == true
             ? peer.hostname

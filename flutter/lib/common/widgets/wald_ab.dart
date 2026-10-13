@@ -104,17 +104,15 @@ Widget _waldCardButton(IconData icon, String tooltip, VoidCallback onTap) {
   );
 }
 
-/// Waldlust(DSK-05, 부록 A-16·A-17): 카드 부제 = 디바이스 · ID · 호스트네임(A-17 에서 맨 앞 브랜드를 뺐다).
-/// 디바이스가 없으면 '미지정', 호스트네임이 없으면 그 칸만 뺀다. 어드민 정보가 없는 기기(로그아웃, 권한 밖 —
-/// waldBrand 가 null)는 null → 업스트림 부제(username@hostname). 최근접속목록·즐겨찾기는 `WaldPeerNames.apply` 가 값을 채운다.
+/// Waldlust(DSK-05, 부록 A-16~A-18): 카드 부제 = 디바이스 · ID(A-17 에서 맨 앞 브랜드를, A-18 에서 끝의 호스트네임을 뺐다).
+/// 디바이스가 없으면 '미지정'. 어드민 정보가 없는 기기(로그아웃, 권한 밖 — waldBrand 가 null)는 null → 업스트림
+/// 부제(username@hostname). 최근접속목록·즐겨찾기는 `WaldPeerNames.apply` 가 값을 채운다.
 String? waldPeerSubtitle(Peer peer) {
   if (peer.waldBrand == null) return null;
-  String orUnassigned(String? s) =>
-      s == null || s.isEmpty ? translate('Unassigned') : s;
+  final device = peer.waldDevice;
   return [
-    orUnassigned(peer.waldDevice),
+    device == null || device.isEmpty ? translate('Unassigned') : device,
     formatID(peer.id),
-    if (peer.hostname.isNotEmpty) peer.hostname,
   ].join(' · ');
 }
 
