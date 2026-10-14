@@ -118,6 +118,11 @@ fn start_auto_update_check_(rx_msg: Receiver<UpdateMsg>) {
 }
 
 fn check_update(manually: bool) -> ResultType<()> {
+    // Waldlust(D35): 커스텀 클라이언트는 업스트림(api.rustdesk.com) 업데이트를 조회·설치하지 않는다 — 켜 두면
+    // 공식 RustDesk 설치본으로 바뀔 수 있다. 배포는 어드민 '원격 설치 파일'로만 한다.
+    if crate::is_custom_client() {
+        return Ok(());
+    }
     #[cfg(target_os = "windows")]
     let update_msi = crate::platform::is_msi_installed()? && !crate::is_custom_client();
     if !(manually || config::Config::get_bool_option(config::keys::OPTION_ALLOW_AUTO_UPDATE)) {
