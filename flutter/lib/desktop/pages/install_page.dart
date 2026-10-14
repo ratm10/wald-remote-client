@@ -149,16 +149,9 @@ class _InstallPageBodyState extends State<_InstallPageBody>
                       decoration: InputDecoration(
                         contentPadding: EdgeInsets.all(0.75 * em),
                       ),
-                    ).workaroundFreezeLinuxMint().marginOnly(right: 10),
+                    ).workaroundFreezeLinuxMint(),
                   ),
-                  Obx(
-                    () => OutlinedButton.icon(
-                      icon: Icon(waldIcon(Icons.folder_outlined), size: 16),
-                      onPressed: btnEnabled.value ? selectInstallPath : null,
-                      label: Text(translate('Change Path'),
-                          strutStyle: waldButtonStrut()),
-                    ),
-                  )
+                  // Waldlust(DSK-07): '경로 변경' 숨김 — 설치 경로는 전용 폴더로 고정(부록 A-21, POS 폴더 보호).
                 ],
               ).marginSymmetric(vertical: 2 * em),
               Option(startmenu, label: 'Create start menu shortcuts')
