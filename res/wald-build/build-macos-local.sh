@@ -1,0 +1,208 @@
+#!/bin/zsh
+# Waldlust(wald-remote-client) macOS .app 로컬 빌드 — Apple Silicon(arm64) 호스트.
+# 2026-09-29 에 재현한 절차를 한 파일로 모은 것이다. CI 원본: .github/workflows/wald-macos.yml, .github/workflows/bridge.yml
+#
+# 사용:  zsh ~/wald-build/build-macos-local.sh [커밋·브랜치] [bidirectional|incoming] [dummy|mock|prodtest|release]   (기본 waldlust, bidirectional, dummy)
+#        인자 순서는 build-android-local.sh 와 같다. 슬래시 명령 /build-macos-bidirectional 이 이 스크립트를 부른다.
+# 결과:  ~/wald-build/waldlust-<버전>-macos-localtest[-incoming].app (prodtest 는 -macos-prodtest, ad-hoc 서명), 로그는 ~/wald-build/logs/macos-*.log
+#        + ~/wald-build/dist/<버전>-<sha9>-<대상>/waldlust-<버전>-aarch64[-incoming]-<대상>.dmg 와 manifest-macos-<변형>.txt
+#
+# 원칙
+# - 비관리 빌드: WALDLUST_PRESET_PASSWORD 를 넣지 않는다.
+# - 수신 전용(incoming)은 아직 막아 둔다(DSK-01 macOS 후속). 열 때는 build-android-local.sh 의 'variant incoming' 블록
+#   (테스트 비밀번호 해시·지문)을 옮겨 오고 아래 case 의 incoming 줄을 SUFFIX="-incoming" 으로 바꾼다. 이름·manifest 는 이미 변형을 따른다.
+# - 운영 어드민에 보고하지 않는다: WALDLUST_HEARTBEAT_URL 을 컴파일 때 넣는다(option_env!, 빌드 시점에 박힌다).
+#   dummy: http://127.0.0.1:9/api/heartbeat(받는 곳 없음). WALDLUST_API_SERVER 는 호출자가 준 값을 그대로 쓴다.
+#   mock:  http://127.0.0.1:8787/api/heartbeat + WALDLUST_API_SERVER=http://127.0.0.1:8787/rd
+#          (wald-remote-docs/tools/rd-mock — 앱을 띄우기 전에 먼저 띄운다). build-windows-local.ps1 -Target 과 같다.
+#   prodtest: 운영 서버로 보내는 시험 빌드(계획 ADMIN_LOCAL_PLAN C4, 결정 D16 — 2026-10-14 사용자). heartbeat = https://remote.waldpay.co.kr/api/heartbeat,
+#          WALDLUST_API_SERVER = https://remote.waldpay.co.kr/rd. 비관리·ad-hoc 서명 그대로이고 현장 배포용이 아니다(저장소 이전 전 — REPO_TRANSITION).
+#          시험 기기는 운영 목록에 '미지정'으로 올라간다. 결과 이름이 localtest 가 아니라 prodtest 라 dummy·mock 시험본을 덮지 않는다.
+#   release: 정식 배포본(계획 ADMIN_LOCAL_PLAN 4-1, 결정 D33~D35 — 2026-10-14 사용자). 주소는 prodtest 와 같다.
+#          ref 는 ratm10(origin)에 푸시된 wald-v* 태그만 받는다(재현성 — 소스 링크가 이 태그를 가리킨다).
+#          서명 전에 NOTICE·LICENCE·THIRD_PARTY_NOTICES-macos.txt(res/wald-build/collect-notices.py)를 앱 Resources 에 넣고
+#          dist 에도 둔다. 번들 ID kr.co.waldlust.remote·URL 스킴 waldlust 를 확인한다. 서명은 여전히 ad-hoc(공증 없음 — D34).
+#          cargo-about 0.6.4(cargo install cargo-about --version 0.6.4 --locked)가 있어야 한다.
+# - 공용 작업 폴더는 건드리지 않는다. 별도 git worktree 에서 빌드하고 cargo target(~/wald-build/target-macos)을 분리한다.
+#   vcpkg 루트는 ~/vcpkg(arm64-osx 전용)다. Android 빌드는 ~/vcpkg-android 를 쓴다(같은 루트에 다른 트리플렛을 설치하면 기존 설치분이 purge 된다).
+#
+# 전제(한 번 설치해 둔 것):
+#   Xcode(2026-09-29 기준 27.0, xcode-select 로 선택·라이선스 동의), brew: llvm create-dmg cocoapods cmake nasm pkgconf,
+#   rustup + 1.75(브리지) + 1.81(본 빌드, 타깃 aarch64-apple-darwin), cargo-expand 1.0.95, flutter_rust_bridge_codegen 1.80.1,
+#   ~/fvm/versions/3.24.5(.github/patches/flutter_3.24.4_dropdown_menu_enableFilter.diff 적용 + binding.dart 의 _setFramesEnabledState(false) 주석 처리),
+#   ~/vcpkg(120deac3062162151622ca4860575a33844ba10b, bootstrap 완료)
+set -u
+R=/Users/kimsungchun/Documents/GitHub/wald-remote-client
+OUT="$HOME/wald-build"
+W="$OUT/wt-macos"
+LOG="$OUT/logs"; mkdir -p "$LOG"
+BASE="${1:-waldlust}"
+VARIANT="${2:-bidirectional}"
+case "$VARIANT" in
+  bidirectional) SUFFIX="" ;;
+  incoming) echo "FAIL: macOS 수신 전용은 아직 지원하지 않는다(DSK-01 macOS 후속 — 머리 주석 참고)"; exit 1 ;;
+  *) echo "FAIL: 변형은 bidirectional 또는 incoming(둘째 인자, 대상은 셋째 인자)"; exit 1 ;;
+esac
+TARGET="${3:-dummy}"
+case "$TARGET" in dummy|mock|prodtest|release) ;; *) echo "FAIL: 대상은 dummy·mock·prodtest·release"; exit 1 ;; esac
+KIND=localtest; [ "$TARGET" = prodtest ] && KIND=prodtest; [ "$TARGET" = release ] && KIND=release
+PROD=""; { [ "$TARGET" = prodtest ] || [ "$TARGET" = release ]; } && PROD=1   # 운영 주소로 빌드한다
+FLUTTER_BIN="$HOME/fvm/versions/3.24.5/bin"
+MIN_MACOS_VERSION=12.3
+
+export PATH="$FLUTTER_BIN:$HOME/.cargo/bin:$PATH"
+export VCPKG_ROOT="$HOME/vcpkg"
+export WALDLUST_HEARTBEAT_URL="http://127.0.0.1:9/api/heartbeat"
+if [ "$TARGET" = mock ]; then
+  export WALDLUST_HEARTBEAT_URL="http://127.0.0.1:8787/api/heartbeat"
+  export WALDLUST_API_SERVER="http://127.0.0.1:8787/rd"
+fi
+if [ -n "$PROD" ]; then
+  export WALDLUST_HEARTBEAT_URL="https://remote.waldpay.co.kr/api/heartbeat"
+  export WALDLUST_API_SERVER="https://remote.waldpay.co.kr/rd"
+fi
+unset WALDLUST_PRESET_PASSWORD WALDLUST_VARIANT
+
+step() { echo "== $1 $(date +%T)"; }
+die() { echo "FAIL: $1 (로그: $LOG)"; exit 1; }
+
+xcodebuild -version >/dev/null 2>&1 || die "Xcode 가 선택되지 않았거나 라이선스 미동의(sudo xcode-select -s …, sudo xcodebuild -license accept)"
+
+# release: origin(ratm10)에 있는 wald-v* 태그이고 로컬 태그와 같은 커밋이어야 한다.
+if [ "$TARGET" = release ]; then
+  case "$BASE" in wald-v*) ;; *) die "release 는 wald-v* 태그만 받는다(받은 값: $BASE)" ;; esac
+  rc=$(git -C "$R" ls-remote origin "refs/tags/$BASE^{}" | awk '{print $1}')
+  [ -n "$rc" ] || rc=$(git -C "$R" ls-remote origin "refs/tags/$BASE" | awk '{print $1}')
+  lc=$(git -C "$R" rev-parse -q --verify "$BASE^{commit}")
+  [ -n "$rc" ] && [ "$rc" = "$lc" ] || die "태그 $BASE 가 origin 에 없거나 로컬과 다르다(origin ${rc:-없음}, 로컬 ${lc:-없음})"
+  [ -x "$HOME/.cargo/bin/cargo-about" ] || die "cargo-about 이 없다(cargo install cargo-about --version 0.6.4 --locked)"
+fi
+
+# 0) worktree 를 새로 만든다(공용 작업 폴더와 분리). target 은 worktree 밖에 두고 심볼릭 링크한다.
+#    Xcode 프로젝트가 ../../target/release/liblibrustdesk.dylib 를, build.py 가 target/release/service 를 참조한다.
+step "worktree $BASE"
+[ -d "$W" ] && git -C "$R" worktree remove --force "$W"
+git -C "$R" worktree add --detach "$W" "$BASE" >/dev/null || die worktree
+want=$(git -C "$R" ls-tree "$BASE" libs/hbb_common | awk '{print $3}')
+have=$(git -C "$R/libs/hbb_common" rev-parse HEAD)
+[ "$want" = "$have" ] || die "hbb_common 커밋 불일치(기준 $want, 공용 폴더 $have) — 공용 폴더에서 submodule update 필요"
+rsync -a --exclude .git "$R/libs/hbb_common/" "$W/libs/hbb_common/" || die "submodule 복사"
+mkdir -p "$OUT/target-macos"
+ln -s "$OUT/target-macos" "$W/target" || die "target 링크"
+cd "$W" || die cd
+
+# 1) 브리지 생성. CI 는 Flutter 3.22.3 으로 만들지만, 로컬에서는 본 빌드와 같은 3.24.5 로 만들어 검증했다(pubspec 의 extended_text 는 이미 13.0.0).
+#    ffigen 의 libclang 은 brew llvm(keg-only)을 경로로 넘긴다. 브리지는 CI 처럼 Rust 1.75 로 만든다.
+step bridge
+( export RUSTUP_TOOLCHAIN=1.75
+  (cd flutter && flutter pub get) &&
+  flutter_rust_bridge_codegen --rust-input ./src/flutter_ffi.rs --dart-output ./flutter/lib/generated_bridge.dart \
+    --c-output ./flutter/macos/Runner/bridge_generated.h --llvm-path /opt/homebrew/opt/llvm
+) > "$LOG/macos-bridge.log" 2>&1 || die bridge
+cp flutter/macos/Runner/bridge_generated.h flutter/ios/Runner/bridge_generated.h
+
+# 2) vcpkg 의존성(arm64-osx). 설치돼 있으면 금방 끝난다.
+step vcpkg
+"$VCPKG_ROOT/vcpkg" install --x-install-root="$VCPKG_ROOT/installed" > "$LOG/macos-vcpkg.log" 2>&1 || die vcpkg
+
+# 3) 빌드(wald-macos.yml 재현). 최소 macOS 를 12.3 으로 올리는 sed 는 worktree 안에서만 한다.
+#    Xcode 27 은 배포 타깃 12.0 미만을 오류로 막는다. Pods 타깃(FMDB 10.13, 플러그인 10.14 등)까지 12.3 으로 맞추려고
+#    FLUTTER_XCODE_MACOSX_DEPLOYMENT_TARGET 을 준다(Flutter 가 xcodebuild 명령줄 설정으로 넘겨 모든 타깃에 적용된다).
+step build
+sed -i '' -e "s/MACOSX_DEPLOYMENT_TARGET=[0-9]*\.[0-9]*/MACOSX_DEPLOYMENT_TARGET=${MIN_MACOS_VERSION}/" build.py
+sed -i '' -e "s/platform :osx, '.*'/platform :osx, '${MIN_MACOS_VERSION}'/" flutter/macos/Podfile
+sed -i '' -e "s/osx_minimum_system_version = \"[0-9]*\.[0-9]*\"/osx_minimum_system_version = \"${MIN_MACOS_VERSION}\"/" Cargo.toml
+sed -i '' -e "s/MACOSX_DEPLOYMENT_TARGET = [0-9]*\.[0-9]*;/MACOSX_DEPLOYMENT_TARGET = ${MIN_MACOS_VERSION};/" flutter/macos/Runner.xcodeproj/project.pbxproj
+( export RUSTUP_TOOLCHAIN=1.81 FLUTTER_XCODE_MACOSX_DEPLOYMENT_TARGET=$MIN_MACOS_VERSION
+  python3 build.py --flutter --hwcodec --unix-file-copy-paste --screencapturekit
+) > "$LOG/macos-build.log" 2>&1 || die build
+
+APP=flutter/build/macos/Build/Products/Release/wald-remote.app
+
+# 3-1) release: 오픈소스 고지(D35)를 앱 Resources 에 넣는다 — 서명 전에(넣은 뒤 서명해야 봉인이 맞는다).
+if [ "$TARGET" = release ]; then
+  step notices
+  NOTICES="$LOG/THIRD_PARTY_NOTICES-macos.txt"
+  python3 res/wald-build/collect-notices.py --platform macos --out "$NOTICES" --release "$BASE" \
+    --flutter-notices "$APP/Contents/Frameworks/App.framework/Resources/flutter_assets/NOTICES.Z" \
+    --vcpkg-share "$VCPKG_ROOT/installed/arm64-osx/share" --cargo-about "$HOME/.cargo/bin/cargo-about" \
+    > "$LOG/macos-notices.log" 2>&1 || die notices
+  cp NOTICE "$APP/Contents/Resources/NOTICE.txt" && cp LICENCE "$APP/Contents/Resources/LICENCE.txt" &&
+    cp "$NOTICES" "$APP/Contents/Resources/THIRD_PARTY_NOTICES.txt" || die "고지 파일 복사"
+fi
+
+# 4) ad-hoc 재서명: build.py 가 flutter 서명 뒤에 service 를 복사해 번들 서명이 깨진다(CI 와 같은 처리).
+step sign
+codesign --force --deep --sign - "$APP" > "$LOG/macos-sign.log" 2>&1 || die sign
+codesign --verify --deep --strict "$APP" >> "$LOG/macos-sign.log" 2>&1 || die "서명 검증"
+VER=$(grep -E '^version:' flutter/pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+DEST="$OUT/waldlust-$VER-macos-$KIND$SUFFIX.app"
+pgrep -f "$DEST/Contents/MacOS/" >/dev/null && die "$DEST 가 실행 중이다 — 종료한 뒤 다시 돌린다"
+rm -rf "$DEST"
+ditto "$APP" "$DEST" || die "앱 복사"
+
+# 5) 확인: 아키텍처·최소 OS, heartbeat 주소(기대값 1 이상, 운영 0 — prodtest 는 기대값이 곧 운영), API 서버를 넣었으면 그 값(1 이상).
+step verify
+DYLIB="$DEST/Contents/Frameworks/liblibrustdesk.dylib"
+echo "arch: $(lipo -archs "$DEST/Contents/MacOS/wald-remote") / minos: $(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$DEST/Contents/Info.plist")"
+HB_NEEDLE="${WALDLUST_HEARTBEAT_URL#*://}"
+API_URL="${WALDLUST_API_SERVER:-}"; API_URL="${API_URL%/}"; API_NEEDLE="${API_URL#*://}"
+hb=$(strings -a "$DYLIB" | grep -cF "$HB_NEEDLE")
+prod=$(strings -a "$DYLIB" | grep -c 'remote.waldpay.co.kr/api/heartbeat')
+api=-1; [ -n "$API_NEEDLE" ] && api=$(strings -a "$DYLIB" | grep -cF "$API_NEEDLE")
+CHECK="heartbeat $HB_NEEDLE=$hb production=$prod / api-server ${API_NEEDLE:--}=$api"
+echo "$CHECK"
+{ [ "$hb" -ge 1 ] && { [ "$prod" -eq 0 ] || [ -n "$PROD" ]; }; } || die "heartbeat 주소 확인 실패 — 이 앱은 실행하지 않는다"
+[ -z "$API_NEEDLE" ] || [ "$api" -ge 1 ] || die "API 서버 값이 빌드에 없다 — 이 앱은 실행하지 않는다"
+BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$DEST/Contents/Info.plist")
+SCHEMES=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleURLTypes:0:CFBundleURLSchemes' "$DEST/Contents/Info.plist" | tr -d ' {}\n' | sed 's/Array//')
+echo "bundle id: $BUNDLE_ID / url scheme: $SCHEMES"
+if [ "$TARGET" = release ]; then
+  [ "$BUNDLE_ID" = kr.co.waldlust.remote ] && [ "$SCHEMES" = waldlust ] || die "번들 ID·URL 스킴이 정식 값이 아니다(D35)"
+  for f in NOTICE.txt LICENCE.txt THIRD_PARTY_NOTICES.txt; do
+    [ -s "$DEST/Contents/Resources/$f" ] || die "고지 파일 $f 가 앱에 없다"
+  done
+fi
+echo "done: $DEST"
+
+# 6) dmg(wald-macos.yml 'Create unsigned dmg' 와 같은 인자)를 dist/<버전>-<sha9>-<대상>/ 에 manifest 와 함께 모은다.
+#    대상 이름을 파일명에 넣어 시험본을 배포본으로 착각하지 않게 한다(build-windows-local.ps1 -Inno 와 같은 규칙).
+#    create-dmg 는 원본을 폴더로 다루므로(cd "$2") wald-remote.app 하나만 든 폴더를 넘긴다.
+#    Finder AppleScript(창 배치)가 권한 문제로 실패하면 배치 없이(--skip-jenkins) 다시 만든다.
+step dmg
+COMMIT=$(git rev-parse HEAD)
+DIST="$OUT/dist/$VER-${COMMIT[1,9]}-$TARGET"
+mkdir -p "$DIST"
+DMG="$DIST/waldlust-$VER-aarch64$SUFFIX-$TARGET.dmg"
+DMG_NOTE=""
+STAGE="$OUT/dmg-stage-macos"
+rm -rf "$STAGE" "$DMG"; mkdir -p "$STAGE"
+ditto "$APP" "$STAGE/wald-remote.app" || die "dmg 원본 복사"
+DMG_ARGS=(--icon wald-remote.app 200 190 --hide-extension wald-remote.app --window-size 800 400 --app-drop-link 600 185)
+if ! create-dmg "${DMG_ARGS[@]}" "$DMG" "$STAGE" > "$LOG/macos-dmg.log" 2>&1; then
+  rm -f "$DMG"
+  create-dmg --skip-jenkins "${DMG_ARGS[@]}" "$DMG" "$STAGE" >> "$LOG/macos-dmg.log" 2>&1 || die dmg
+  DMG_NOTE=" (Finder 창 배치 생략 — --skip-jenkins)"
+fi
+rm -rf "$STAGE"
+hdiutil verify "$DMG" >> "$LOG/macos-dmg.log" 2>&1 || die "dmg 검증"
+{
+  echo "ref: $BASE ($COMMIT)"
+  echo "platform: macos-aarch64"
+  echo "variant: $VARIANT"
+  echo "target: $TARGET"
+  echo "api-server: ${WALDLUST_API_SERVER:-(none - account features disabled)}"
+  echo "heartbeat: $WALDLUST_HEARTBEAT_URL"
+  echo "check: $CHECK"
+  echo "bundle id: $BUNDLE_ID / url scheme: $SCHEMES"
+  echo "signature: ad-hoc (not notarized)"
+  echo "dmg: ${DMG:t}$DMG_NOTE"
+  echo "size: $(stat -f %z "$DMG")"
+  echo "sha256: $(shasum -a 256 "$DMG" | awk '{print $1}')"
+  echo "built: $(date '+%Y-%m-%d %H:%M:%S')"
+} > "$DIST/manifest-macos-$VARIANT.txt"
+if [ "$TARGET" = release ]; then
+  cp NOTICE "$DIST/NOTICE.txt" && cp LICENCE "$DIST/LICENCE.txt" && cp "$NOTICES" "$DIST/THIRD_PARTY_NOTICES-macos.txt" || die "dist 고지 복사"
+fi
+echo "dmg: $DMG$DMG_NOTE"
+echo "첫 실행: 미서명(ad-hoc) 앱이라 막히면 시스템 설정 > 개인정보 보호 및 보안 > '그래도 열기'. 화면 기록·손쉬운 사용 권한은 시스템 설정에서 허용."

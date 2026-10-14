@@ -59,6 +59,11 @@ CloseApplications=yes
 ; 설치가 끝나면 탐색기에 아이콘 갱신을 알린다(SHChangeNotify SHCNE_ASSOCCHANGED). 같은 경로의 exe 를 덮어쓰면
 ; 탐색기가 바탕화면·시작 메뉴 바로가기에 옛 아이콘을 계속 보여 주기 때문이다(DSK-10).
 ChangesAssociations=yes
+; 오픈소스 고지(D35 — 명세 부록 A-25): 설치 첫 화면에 안내(GPL 은 동의를 요구하지 않으므로 LicenseFile 대신
+; InfoBeforeFile). 라이선스·수정 고지·제3자 고지 파일(LICENCE.txt·NOTICE.txt·THIRD_PARTY_NOTICES.txt)은 빌드 스크립트가
+; MyBuildDir 에 넣어 두고 아래 [Files] 의 폴더 복사로 함께 설치된다.
+AppCopyright=Copyright © 2025 Purslane Ltd. Modifications © 2026 Waldlust Co., Ltd. (AGPL-3.0)
+InfoBeforeFile=notice-ko.txt
 ; 코드서명은 SignTool 을 등록해 두면 여기서 자동 적용된다(향후):
 ; SignTool=mysigner
 ; SignedUninstaller=yes
