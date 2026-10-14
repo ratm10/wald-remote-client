@@ -203,6 +203,20 @@ button.wald-btn-outline:active {
     background: #E8E8E8;
 }
 
+/* D35: 오픈소스 고지·Sciter 표기 — 작은 회색 밑줄 링크(Flutter loadPowered: 9px·불투명도 0.5) */
+div.wald-legal {
+    margin: 4px 14px 10px 14px;
+    text-align: center;
+}
+
+div.wald-legal-link {
+    font-size: 10px;
+    color: #737373;
+    text-decoration: underline;
+    cursor: pointer;
+    margin-top: 2px;
+}
+
 /* 설치·업그레이드 카드: n900 바탕·흰 글자, 흰 테두리 버튼 150 */
 div.wald-card {
     margin: 20px 0;

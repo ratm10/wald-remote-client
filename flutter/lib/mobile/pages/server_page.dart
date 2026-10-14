@@ -215,6 +215,8 @@ class _ServerPageState extends State<ServerPage> {
                             : ServiceNotRunningNotification(),
                         const ConnectionManager(),
                         const PermissionChecker(),
+                        // Waldlust(D35): 수신 전용은 설정 탭이 없어 오픈소스 고지 링크를 여기 둔다.
+                        if (bind.isIncomingOnly()) loadPowered(context),
                         SizedBox.fromSize(size: const Size(0, 15.0)),
                       ],
                     ),

@@ -93,11 +93,24 @@ function waldHome() {
             </div>
             <WaldPasswordBoard />
             {waldHelpCard()}
+            {waldLegal()}
         </div>
         <div style="position:absolute; left:-10000px; top:-10000px; width:0; height:0; overflow:hidden"><MyIdMenu /></div>
     </div>;
 }
 // 위 화면 밖 MyIdMenu: 업스트림 상태 갱신(checkConnectStatus 등)이 myIdMenu 를 부르므로 둔다. 설정 진입점(⋮)은 없다 — DSK-02.
+
+// D35(부록 A-25): 원저작물·소스 위치·제3자 고지 링크(Flutter loadPowered 와 같은 문구)와
+// Sciter 무료 라이선스가 요구하는 표기(About 또는 비슷한 곳에 Terra Informatica 링크 — sciter-sdk license.htm).
+const WALD_OSS_URL = "https://remote.waldpay.co.kr/oss";
+function waldLegal() {
+    return <div .wald-legal>
+        <div .wald-legal-link #wald-oss>{translate('powered_by_me')}</div>
+        <div .wald-legal-link #wald-sciter title="This Application uses Sciter Engine (http://sciter.com/), copyright Terra Informatica Software, Inc.">
+            This application uses Sciter Engine (sciter.com), © Terra Informatica Software, Inc.
+        </div>
+    </div>;
+}
 
 // 설치 안 됨 → 어두운 설치 카드, 낮은 버전 → 업그레이드 카드, 그 밖 → 오른쪽 '종료' 버튼(Flutter buildHelpCards).
 function waldHelpCard() {
@@ -199,6 +212,14 @@ event click $(#wald-upgrade) {
 
 event click $(#wald-quit) {
     view.close();
+}
+
+event click $(#wald-oss) {
+    handler.open_url(WALD_OSS_URL);
+}
+
+event click $(#wald-sciter) {
+    handler.open_url("http://sciter.com/");
 }
 
 // Flutter showToast 처럼 아래쪽에 잠깐 띄운다.

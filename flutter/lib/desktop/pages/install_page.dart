@@ -185,10 +185,10 @@ class _InstallPageBodyState extends State<_InstallPageBody>
                               .marginOnly(bottom: em),
                           InkWell(
                             hoverColor: Colors.transparent,
-                            onTap: () => launchUrlString(
-                                'https://rustdesk.com/privacy.html'),
+                            // Waldlust(D35): 라이선스 안내는 자사 오픈소스 고지(AGPL-3.0·원저작물·소스 위치)
+                            onTap: () => launchUrlString(kWaldOssUrl),
                             child: Tooltip(
-                              message: 'https://rustdesk.com/privacy.html',
+                              message: kWaldOssUrl,
                               child: Row(children: [
                                 Icon(waldIcon(Icons.launch_outlined), size: 16)
                                     .marginOnly(right: 5),

@@ -2454,7 +2454,8 @@ class _AboutState extends State<_About> {
                         .marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://rustdesk.com/privacy.html');
+                    // Waldlust(D35): 이 앱이 보내는 정보(자사 공개 페이지)
+                    launchUrlString(kWaldPrivacyUrl);
                   },
                   child: Text(
                     translate('Privacy Statement'),
@@ -2462,10 +2463,11 @@ class _AboutState extends State<_About> {
                   ).marginSymmetric(vertical: 4.0)),
               InkWell(
                   onTap: () {
-                    launchUrlString('https://rustdesk.com');
+                    // Waldlust(D35): 웹사이트(rustdesk.com) 대신 오픈소스 고지
+                    launchUrlString(kWaldOssUrl);
                   },
                   child: Text(
-                    translate('Website'),
+                    translate('Open source notices'),
                     style: linkStyle,
                   ).marginSymmetric(vertical: 4.0)),
               Container(
@@ -2481,7 +2483,10 @@ class _AboutState extends State<_About> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Ltd.\n$license',
+                            // Waldlust(D35 — AGPL §5): 원저작권 줄은 그대로 두고 수정 사실·라이선스·무보증을 덧붙인다.
+                            'Copyright © ${DateTime.now().toString().substring(0, 4)} Purslane Ltd.\n'
+                            'Modifications © 2026 Waldlust Co., Ltd.\n'
+                            'Licensed under the GNU AGPL-3.0, without any warranty.\n$license',
                             style: const TextStyle(color: Colors.white),
                           ),
                           Text(

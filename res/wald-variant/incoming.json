@@ -15,7 +15,6 @@
     "disable-change-permanent-password": "Y",
     "disable-change-id": "Y",
     "hide-stop-service": "Y",
-    "allow-hide-cm": "N",
-    "hide-powered-by-me": "Y"
+    "allow-hide-cm": "N"
   }
 }

@@ -51,7 +51,7 @@ class Install: Reactor.Component {
     }
 
     event click $(#agreement) {
-        view.open_url("http://rustdesk.com/privacy");
+        view.open_url("https://remote.waldpay.co.kr/oss"); // Waldlust D35: open source notices
     }
 
     event click $(#submit) {

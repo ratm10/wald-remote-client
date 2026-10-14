@@ -58,7 +58,8 @@ class SettingsPage extends StatefulWidget implements PageShape {
   State<SettingsPage> createState() => _SettingsState();
 }
 
-const url = 'https://rustdesk.com/';
+// Waldlust(D35): rustdesk.com 대신 자사 오픈소스 고지
+const url = kWaldOssUrl;
 
 enum KeepScreenOn {
   never,
@@ -985,7 +986,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
                 title: Text(translate("Version: ") + version),
                 value: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Text('rustdesk.com',
+                  child: Text(translate('Open source notices'),
                       style: TextStyle(
                         decoration: TextDecoration.underline,
                       )),
@@ -1010,7 +1011,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
             SettingsTile(
               title: Text(translate("Privacy Statement")),
               onPressed: (context) =>
-                  launchUrlString('https://rustdesk.com/privacy.html'),
+                  launchUrlString(kWaldPrivacyUrl), // Waldlust(D35): 이 앱이 보내는 정보
               leading: Icon(waldIcon(Icons.privacy_tip)),
             )
           ],

@@ -14,7 +14,6 @@ lazy_static::lazy_static! {
     static ref CURRENT_2FA: Mutex<Option<(TOTPInfo, TOTP)>> = Mutex::new(None);
 }
 
-const ISSUER: &str = "RustDesk";
 const TAG_LOGIN: &str = "Connection";
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -33,7 +32,8 @@ impl TOTPInfo {
             1,
             30,
             self.secret.clone(),
-            Some(format!("{} {}", ISSUER, TAG_LOGIN)),
+            // Waldlust(D35): 인증 앱에 보이는 발급자 = 앱 이름(업스트림은 "RustDesk" 고정). 코드 검증은 비밀값만 본다.
+            Some(format!("{} {}", crate::get_app_name(), TAG_LOGIN)),
             self.name.clone(),
         )?;
         Ok(totp)

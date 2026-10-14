@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common/formatter/id_formatter.dart';
 import 'package:flutter_hbb/common/wald_icons.dart';
+import 'package:flutter_hbb/common/wald_links.dart';
 import 'package:flutter_hbb/common/wald_theme.dart';
 import 'package:flutter_hbb/desktop/widgets/refresh_wrapper.dart';
 import 'package:flutter_hbb/desktop/widgets/tabbar_widget.dart';
@@ -53,6 +54,7 @@ import 'package:flutter_hbb/utils/http_service.dart' as http;
 // Waldlust(DSK-07): 어드민 톤 토큰(WaldPalette·WaldColors 등)을 common.dart 를 쓰는 곳에 함께 내보낸다.
 export 'package:flutter_hbb/common/wald_icons.dart';
 export 'package:flutter_hbb/common/wald_theme.dart';
+export 'package:flutter_hbb/common/wald_links.dart';
 
 final globalKey = GlobalKey<NavigatorState>();
 final navigationBarKey = GlobalKey();
@@ -3705,8 +3707,10 @@ Widget loadPowered(BuildContext context) {
   return MouseRegion(
     cursor: SystemMouseCursors.click,
     child: GestureDetector(
+      // Waldlust(D35): rustdesk.com 대신 자사 오픈소스 고지(원저작물·소스 위치·제3자 라이선스). 문구는
+      // 'RustDesk 기반 · 오픈소스 고지'(번역 키 powered_by_me — 앱 이름 치환에서 빠지는 키라 RustDesk 가 그대로 남는다).
       onTap: () {
-        launchUrl(Uri.parse('https://rustdesk.com'));
+        launchUrl(Uri.parse(kWaldOssUrl));
       },
       child: Opacity(
           opacity: 0.5,

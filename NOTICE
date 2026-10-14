@@ -1,0 +1,38 @@
+Waldlust Remote (Waldlust 원격지원)
+===================================
+
+This program is a modified version of RustDesk.
+
+  RustDesk — https://github.com/rustdesk/rustdesk
+  Copyright © Purslane Ltd. and the RustDesk contributors.
+  Licensed under the GNU Affero General Public License, version 3 (see LICENCE).
+
+Modifications — Copyright © 2026 Waldlust Co., Ltd.
+
+  Modified since 2026-06-28. The fork point is upstream commit 4a54029ca; every change made for
+  Waldlust is a commit after it in this repository's history. Main areas changed:
+  - Branding: application name, icons, UI tone, identifiers (kr.co.waldlust.remote, waldlust://)
+  - Build variants: bidirectional and incoming-only (preset common password, stored as a hash only)
+  - Reporting to the Waldlust admin server (heartbeat) and login/address book against its API
+  - Android unattended start flow, file transfer UI, Windows 32-bit (Sciter) incoming-only UI
+  - Windows installer (res/inno) and release build scripts (res/wald-build)
+
+The modified program is licensed under the GNU Affero General Public License, version 3.
+It is distributed WITHOUT ANY WARRANTY; see LICENCE for details.
+
+Source code
+  https://github.com/ratm10/wald-remote-client — each release is tagged wald-v<version>-r<n>.
+  Submodule libs/hbb_common: https://github.com/stevewoochoi/hbb_common (commit pinned in this repository).
+
+Open source notices (per release, including third-party licenses)
+  https://remote.waldpay.co.kr/oss
+  Each build also ships THIRD_PARTY_NOTICES-<platform>.txt.
+
+The 32-bit Windows build uses Sciter Engine (http://sciter.com/), copyright Terra Informatica Software, Inc.
+
+----------------------------------------------------------------------------------------------------
+한국어 요약
+
+이 프로그램은 RustDesk(© Purslane Ltd. 및 기여자, GNU AGPL-3.0)를 Waldlust Co., Ltd. 가 2026-06-28 부터
+수정한 것이다. 수정본도 GNU AGPL-3.0 으로 배포하며 어떠한 보증도 하지 않는다. 릴리즈별 소스 코드는 위 저장소의
+태그(wald-v<버전>-r<번호>), 제3자 라이선스를 포함한 고지는 https://remote.waldpay.co.kr/oss 에 있다.
