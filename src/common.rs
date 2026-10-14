@@ -217,7 +217,7 @@ fn measure_server_latency() -> i64 {
 
 // 저장공간(전체, 여유 — 바이트). 앱과 OS 가 놓인 볼륨 하나만 본다: Android = 내부 저장소(/data),
 // Windows = 시스템 드라이브(%SystemDrive%), 그 밖 = 루트(/). 여유는 앱이 쓸 수 있는 양이다(예약 블록 제외).
-// 읽지 못하면 None — heartbeat 에서 필드를 뺀다.
+// 읽지 못하면 None — heartbeat 에서 필드를 뺀다. 보고는 운영 어드민 규약대로 diskUsed(= 전체 − 여유)·diskTotal.
 fn waldlust_disk_space() -> Option<(u64, u64)> {
     #[cfg(windows)]
     {
@@ -333,8 +333,8 @@ fn send_waldlust_heartbeat(client: &reqwest::blocking::Client, include_apps: boo
         "variant": crate::wald_variant::name(), // "bidirectional"/"incoming"
     });
     if let Some((total, free)) = disk {
+        body["diskUsed"] = serde_json::json!(total.saturating_sub(free));
         body["diskTotal"] = serde_json::json!(total);
-        body["diskFree"] = serde_json::json!(free);
     }
     if !apps.is_empty() {
         body["apps"] = serde_json::json!(apps);
