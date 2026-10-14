@@ -23,7 +23,7 @@
 #          ref 는 ratm10(origin)에 푸시된 wald-v* 태그만 받는다. 수신 전용은 운영 공통 비밀번호(incoming-prod.env)만 받는다.
 #          서명 = 릴리즈 키(~/wald-build/keys/android-release.properties — make-android-release-key.sh 가 만든다, debug 치환 안 함),
 #          서명 지문은 ~/wald-build/keys/android-release.sha256 과 같아야 한다. versionCode = WALD_VERSION_CODE(필수, 2100 이상 —
-#          옛 현장 설치본 2066 보다 크게), 패키지 = kr.co.waldlust.remote(D35). dist 에 NOTICE·LICENCE·THIRD_PARTY_NOTICES-android.txt.
+#          옛 현장 설치본 2066 보다 크게), 패키지 = co.kr.waldlust.remote(D35). dist 에 NOTICE·LICENCE·THIRD_PARTY_NOTICES-android.txt.
 #          cargo-about 0.6.4(cargo install cargo-about --version 0.6.4 --locked)가 있어야 한다.
 # - 수신 전용(DSK-01): ~/wald-build/incoming-test.env(git 밖, 권한 600)의 테스트 비밀번호·솔트
 #   (WALDLUST_INCOMING_PASSWORD·WALDLUST_INCOMING_SALT — 운영 값 아님)를 preset_hash.py 로 해시해 넣는다. 값은 출력하지 않는다.
@@ -209,7 +209,7 @@ rm -f "$LOG/check.so"
 PKG_LINE=$(echo "$BADGING" | grep -E '^package:')
 if [ "$TARGET" = release ]; then
   [ "$SIGNER" = "$(tr -d ' \n' < "$KEYS/android-release.sha256")" ] || die "서명 지문이 릴리즈 키와 다르다 — 이 APK 는 배포하지 않는다"
-  echo "$PKG_LINE" | grep -q "name='kr.co.waldlust.remote'" || die "패키지가 kr.co.waldlust.remote 가 아니다(D35)"
+  echo "$PKG_LINE" | grep -q "name='co.kr.waldlust.remote'" || die "패키지가 co.kr.waldlust.remote 가 아니다(D35)"
   echo "$PKG_LINE" | grep -q "versionCode='$WALD_VERSION_CODE'" || die "versionCode 가 $WALD_VERSION_CODE 가 아니다"
 fi
 echo "done: $APK"
@@ -248,7 +248,7 @@ if [ "$TARGET" = release ]; then
 fi
 echo "dist: $DAPK"
 if [ "$TARGET" = release ]; then
-  echo "주의: 앱 ID 가 kr.co.waldlust.remote 로 바뀌었다(D35) — 옛 앱(com.carriez.flutter_hbb)은 따로 지운다. 새 설치는 ID 가 새로 생긴다."
+  echo "주의: 앱 ID 가 co.kr.waldlust.remote 로 바뀌었다(D35) — 옛 앱(com.carriez.flutter_hbb)은 따로 지운다. 새 설치는 ID 가 새로 생긴다."
 else
   echo "주의: versionCode 는 pubspec 값(현재 66)이다. 기존 설치(2066)는 제자리 업데이트가 안 되고 지웠다 깔아야 한다 — 명세 F-46."
 fi

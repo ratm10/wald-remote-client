@@ -8,7 +8,7 @@
 PRODUCT_NAME = wald-remote
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = kr.co.waldlust.remote
+PRODUCT_BUNDLE_IDENTIFIER = co.kr.waldlust.remote
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2025 Purslane Ltd. Modifications © 2026 Waldlust Co., Ltd. Licensed under AGPL-3.0.

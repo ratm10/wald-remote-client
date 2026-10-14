@@ -97,7 +97,7 @@ android {
 
     defaultConfig {
         // Waldlust(Q-29, D35): 공식 RustDesk(com.carriez.flutter_hbb)와 겹치지 않는 자사 ID. Kotlin 네임스페이스(package)는 그대로 둔다.
-        applicationId "kr.co.waldlust.remote"
+        applicationId "co.kr.waldlust.remote"
         minSdkVersion 22
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()

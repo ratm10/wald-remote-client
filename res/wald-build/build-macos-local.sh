@@ -21,7 +21,7 @@
 #   release: 정식 배포본(계획 ADMIN_LOCAL_PLAN 4-1, 결정 D33~D35 — 2026-10-14 사용자). 주소는 prodtest 와 같다.
 #          ref 는 ratm10(origin)에 푸시된 wald-v* 태그만 받는다(재현성 — 소스 링크가 이 태그를 가리킨다).
 #          서명 전에 NOTICE·LICENCE·THIRD_PARTY_NOTICES-macos.txt(res/wald-build/collect-notices.py)를 앱 Resources 에 넣고
-#          dist 에도 둔다. 번들 ID kr.co.waldlust.remote·URL 스킴 waldlust 를 확인한다. 서명은 여전히 ad-hoc(공증 없음 — D34).
+#          dist 에도 둔다. 번들 ID co.kr.waldlust.remote·URL 스킴 waldlust 를 확인한다. 서명은 여전히 ad-hoc(공증 없음 — D34).
 #          cargo-about 0.6.4(cargo install cargo-about --version 0.6.4 --locked)가 있어야 한다.
 # - 공용 작업 폴더는 건드리지 않는다. 별도 git worktree 에서 빌드하고 cargo target(~/wald-build/target-macos)을 분리한다.
 #   vcpkg 루트는 ~/vcpkg(arm64-osx 전용)다. Android 빌드는 ~/vcpkg-android 를 쓴다(같은 루트에 다른 트리플렛을 설치하면 기존 설치분이 purge 된다).
@@ -158,7 +158,7 @@ BUNDLE_ID=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$DEST/Conten
 SCHEMES=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleURLTypes:0:CFBundleURLSchemes' "$DEST/Contents/Info.plist" | tr -d ' {}\n' | sed 's/Array//')
 echo "bundle id: $BUNDLE_ID / url scheme: $SCHEMES"
 if [ "$TARGET" = release ]; then
-  [ "$BUNDLE_ID" = kr.co.waldlust.remote ] && [ "$SCHEMES" = waldlust ] || die "번들 ID·URL 스킴이 정식 값이 아니다(D35)"
+  [ "$BUNDLE_ID" = co.kr.waldlust.remote ] && [ "$SCHEMES" = waldlust ] || die "번들 ID·URL 스킴이 정식 값이 아니다(D35)"
   for f in NOTICE.txt LICENCE.txt THIRD_PARTY_NOTICES.txt; do
     [ -s "$DEST/Contents/Resources/$f" ] || die "고지 파일 $f 가 앱에 없다"
   done
