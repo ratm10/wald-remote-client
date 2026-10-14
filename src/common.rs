@@ -215,6 +215,45 @@ fn measure_server_latency() -> i64 {
     -1
 }
 
+// 저장공간(전체, 여유 — 바이트). 앱과 OS 가 놓인 볼륨 하나만 본다: Android = 내부 저장소(/data),
+// Windows = 시스템 드라이브(%SystemDrive%), 그 밖 = 루트(/). 여유는 앱이 쓸 수 있는 양이다(예약 블록 제외).
+// 읽지 못하면 None — heartbeat 에서 필드를 뺀다.
+fn waldlust_disk_space() -> Option<(u64, u64)> {
+    #[cfg(windows)]
+    {
+        use windows::{core::PCWSTR, Win32::Storage::FileSystem::GetDiskFreeSpaceExW};
+        let drive = std::env::var("SystemDrive").unwrap_or("C:".to_owned());
+        let path: Vec<u16> = format!("{drive}\\").encode_utf16().chain(Some(0)).collect();
+        let (mut free, mut total) = (0u64, 0u64);
+        unsafe {
+            GetDiskFreeSpaceExW(
+                PCWSTR::from_raw(path.as_ptr()),
+                Some(&mut free),
+                Some(&mut total),
+                None,
+            )
+        }
+        .ok()?;
+        Some((total, free))
+    }
+    #[cfg(not(windows))]
+    {
+        use hbb_common::libc;
+        let path = if cfg!(target_os = "android") {
+            "/data"
+        } else {
+            "/"
+        };
+        let path = std::ffi::CString::new(path).ok()?;
+        let mut st: libc::statvfs = unsafe { std::mem::zeroed() };
+        if unsafe { libc::statvfs(path.as_ptr(), &mut st) } != 0 {
+            return None;
+        }
+        let unit = st.f_frsize as u64;
+        Some((st.f_blocks as u64 * unit, st.f_bavail as u64 * unit))
+    }
+}
+
 fn send_waldlust_heartbeat(client: &reqwest::blocking::Client, include_apps: bool) {
     use hbb_common::config::{Config, LocalConfig};
     use hbb_common::sysinfo::System;
@@ -248,6 +287,7 @@ fn send_waldlust_heartbeat(client: &reqwest::blocking::Client, include_apps: boo
     system.refresh_memory();
     let mem_total = system.total_memory();
     let mem_used = mem_total.saturating_sub(system.available_memory());
+    let disk = waldlust_disk_space();
 
     // CPU 사용률은 두 번 샘플링해야 정확.
     system.refresh_cpu();
@@ -292,6 +332,10 @@ fn send_waldlust_heartbeat(client: &reqwest::blocking::Client, include_apps: boo
         "netType": net_type,
         "variant": crate::wald_variant::name(), // "bidirectional"/"incoming"
     });
+    if let Some((total, free)) = disk {
+        body["diskTotal"] = serde_json::json!(total);
+        body["diskFree"] = serde_json::json!(free);
+    }
     if !apps.is_empty() {
         body["apps"] = serde_json::json!(apps);
     }
