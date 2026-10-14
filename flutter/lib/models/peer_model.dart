@@ -278,8 +278,11 @@ class Peers extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Waldlust(DSK-04, 부록 A-26): 바로 앞 목록에 없던 기기도 마지막으로 본 온라인 상태로 시작한다 —
+  // 주소록(브랜드)을 오갈 때 조회 응답 전까지 점이 빨강이 되고 상태 정렬이 흔들리지 않게.
+  final Map<String, bool> _lastOnlineStates = {};
   Map<String, bool> _getOnlineStates() {
-    var onlineStates = <String, bool>{};
+    var onlineStates = _lastOnlineStates;
     for (var peer in peers) {
       onlineStates[peer.id] = peer.online;
     }
