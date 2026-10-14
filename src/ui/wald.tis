@@ -102,12 +102,13 @@ function waldHome() {
 
 // D35(부록 A-25): 원저작물·소스 위치·제3자 고지 링크(Flutter loadPowered 와 같은 문구)와
 // Sciter 무료 라이선스가 요구하는 표기(About 또는 비슷한 곳에 Terra Informatica 링크 — sciter-sdk license.htm).
+// 화면 글자는 ASCII 만 쓴다 — Sciter 가 인라인 HTML 을 시스템 코드페이지(cp949)로 읽어 '©'(UTF-8 C2 A9)가 '짤'로 보였다.
 const WALD_OSS_URL = "https://remote.waldpay.co.kr/oss";
 function waldLegal() {
     return <div .wald-legal>
         <div .wald-legal-link #wald-oss>{translate('powered_by_me')}</div>
         <div .wald-legal-link #wald-sciter title="This Application uses Sciter Engine (http://sciter.com/), copyright Terra Informatica Software, Inc.">
-            This application uses Sciter Engine (sciter.com), © Terra Informatica Software, Inc.
+            This application uses Sciter Engine (sciter.com), copyright Terra Informatica Software, Inc.
         </div>
     </div>;
 }
