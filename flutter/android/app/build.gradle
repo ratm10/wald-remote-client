@@ -96,8 +96,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.carriez.flutter_hbb"
+        // Waldlust(Q-29, D35): 공식 RustDesk(com.carriez.flutter_hbb)와 겹치지 않는 자사 ID. Kotlin 네임스페이스(package)는 그대로 둔다.
+        applicationId "kr.co.waldlust.remote"
         minSdkVersion 22
         targetSdkVersion 33
         versionCode flutterVersionCode.toInteger()

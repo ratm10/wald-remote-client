@@ -45,7 +45,8 @@ object RootUtil {
      */
     fun ensureUnattendedGrants(pkg: String) {
         // 접근성(입력) 활성화
-        val service = "$pkg/$pkg.InputService"
+        // applicationId(kr.co.waldlust.remote)와 Kotlin 네임스페이스가 달라 클래스 이름은 전체 이름으로 적는다(Q-29, D35).
+        val service = "$pkg/com.carriez.flutter_hbb.InputService"
         val current = runAsRoot("settings get secure enabled_accessibility_services")?.trim() ?: ""
         if (!current.contains(service)) {
             val merged = if (current.isBlank() || current == "null") service else "$current:$service"

@@ -21,9 +21,11 @@
 #   ./provision-android-kiosk.sh --apk waldlust.apk   # 설치까지
 set -euo pipefail
 
-PKG="com.carriez.flutter_hbb"
-ACCESS_SVC="$PKG/$PKG.InputService"
-MAIN_ACT="$PKG/.MainActivity"
+# 앱 ID(kr.co.waldlust.remote)와 클래스 네임스페이스(com.carriez.flutter_hbb)가 다르다 — 클래스는 전체 이름으로(Q-29, D35)
+PKG="kr.co.waldlust.remote"
+NS="com.carriez.flutter_hbb"
+ACCESS_SVC="$PKG/$NS.InputService"
+MAIN_ACT="$PKG/$NS.MainActivity"
 
 SERIAL=""
 APK=""

@@ -213,7 +213,7 @@ exclude = ["vdi/host", "examples/custom_plugin", "tools/online_probe"]
 libxdo-sys = { path = "libs/libxdo-sys-stub" }
 
 [package.metadata.winres]
-LegalCopyright = "Copyright © 2025 Purslane Ltd. All rights reserved."
+LegalCopyright = "Copyright © 2025 Purslane Ltd. Modifications © 2026 Waldlust Co., Ltd. Licensed under AGPL-3.0."
 ProductName = "Waldlust 원격지원"
 FileDescription = "Waldlust 원격지원"
 OriginalFilename = "rustdesk.exe"
@@ -233,7 +233,7 @@ docopt = "1.1"
 
 [package.metadata.bundle]
 name = "Waldlust 원격지원"
-identifier = "com.carriez.rustdesk"
+identifier = "kr.co.waldlust.remote"
 icon = ["res/32x32.png", "res/128x128.png", "res/128x128@2x.png"]
 osx_minimum_system_version = "10.14"
 
