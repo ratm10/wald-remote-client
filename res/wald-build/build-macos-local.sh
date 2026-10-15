@@ -5,7 +5,8 @@
 # 사용:  zsh ~/wald-build/build-macos-local.sh [커밋·브랜치] [bidirectional|incoming] [dummy|mock|prodtest|release]   (기본 waldlust, bidirectional, dummy)
 #        인자 순서는 build-android-local.sh 와 같다. 슬래시 명령 /build-macos-bidirectional 이 이 스크립트를 부른다.
 # 결과:  ~/wald-build/waldlust-<버전>-macos-localtest[-incoming].app (prodtest 는 -macos-prodtest, ad-hoc 서명), 로그는 ~/wald-build/logs/macos-*.log
-#        + ~/wald-build/dist/<버전>-<sha9>-<대상>/waldlust-<버전>-aarch64[-incoming]-<대상>.dmg 와 manifest-macos-<변형>.txt
+#        + ~/wald-build/dist/<버전>-<sha9>-<대상>/waldlust-remote[-incoming]-<버전>-macos-arm64[-<대상>].dmg 와 manifest-macos-<변형>.txt
+#        (설치 파일 이름 규칙 — 결정 D36: release 는 '-<대상>' 을 붙이지 않는다. 예 waldlust-remote-1.5.0-macos-arm64.dmg)
 #
 # 원칙
 # - 비관리 빌드: WALDLUST_PRESET_PASSWORD 를 넣지 않는다.
@@ -19,7 +20,8 @@
 #          WALDLUST_API_SERVER = https://remote.waldpay.co.kr/rd. 비관리·ad-hoc 서명 그대로이고 현장 배포용이 아니다(저장소 이전 전 — REPO_TRANSITION).
 #          시험 기기는 운영 목록에 '미지정'으로 올라간다. 결과 이름이 localtest 가 아니라 prodtest 라 dummy·mock 시험본을 덮지 않는다.
 #   release: 정식 배포본(계획 ADMIN_LOCAL_PLAN 4-1, 결정 D33~D35 — 2026-10-14 사용자). 주소는 prodtest 와 같다.
-#          ref 는 ratm10(origin)에 푸시된 wald-v* 태그만 받는다(재현성 — 소스 링크가 이 태그를 가리킨다).
+#          ref 는 waldlustpos(origin)에 푸시된 wald-v* 태그만 받는다(재현성 — 소스 링크가 이 태그를 가리킨다).
+#          태그 wald-v<버전>-r<N> 의 버전이 소스(pubspec·Cargo.toml) 버전과 달라도 멈춘다(D36).
 #          서명 전에 NOTICE·LICENCE·THIRD_PARTY_NOTICES-macos.txt(res/wald-build/collect-notices.py)를 앱 Resources 에 넣고
 #          dist 에도 둔다. 번들 ID co.kr.waldlust.remote·URL 스킴 waldlust 를 확인한다. 서명은 여전히 ad-hoc(공증 없음 — D34).
 #          cargo-about 0.6.4(cargo install cargo-about --version 0.6.4 --locked)가 있어야 한다.
@@ -47,6 +49,7 @@ TARGET="${3:-dummy}"
 case "$TARGET" in dummy|mock|prodtest|release) ;; *) echo "FAIL: 대상은 dummy·mock·prodtest·release"; exit 1 ;; esac
 KIND=localtest; [ "$TARGET" = prodtest ] && KIND=prodtest; [ "$TARGET" = release ] && KIND=release
 PROD=""; { [ "$TARGET" = prodtest ] || [ "$TARGET" = release ]; } && PROD=1   # 운영 주소로 빌드한다
+TSUF="-$TARGET"; [ "$TARGET" = release ] && TSUF=""   # dist 설치 파일 이름 끝(D36 — 정식본은 대상 이름 없음)
 FLUTTER_BIN="$HOME/fvm/versions/3.24.5/bin"
 MIN_MACOS_VERSION=12.3
 
@@ -68,9 +71,9 @@ die() { echo "FAIL: $1 (로그: $LOG)"; exit 1; }
 
 xcodebuild -version >/dev/null 2>&1 || die "Xcode 가 선택되지 않았거나 라이선스 미동의(sudo xcode-select -s …, sudo xcodebuild -license accept)"
 
-# release: origin(ratm10)에 있는 wald-v* 태그이고 로컬 태그와 같은 커밋이어야 한다.
+# release: origin(waldlustpos)에 있는 wald-v* 태그이고 로컬 태그와 같은 커밋이어야 한다.
 if [ "$TARGET" = release ]; then
-  case "$BASE" in wald-v*) ;; *) die "release 는 wald-v* 태그만 받는다(받은 값: $BASE)" ;; esac
+  [[ "$BASE" =~ '^wald-v[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+$' ]] || die "release 는 wald-v<버전>-r<N> 태그만 받는다(받은 값: $BASE)"
   rc=$(git -C "$R" ls-remote origin "refs/tags/$BASE^{}" | awk '{print $1}')
   [ -n "$rc" ] || rc=$(git -C "$R" ls-remote origin "refs/tags/$BASE" | awk '{print $1}')
   lc=$(git -C "$R" rev-parse -q --verify "$BASE^{commit}")
@@ -90,6 +93,12 @@ rsync -a --exclude .git "$R/libs/hbb_common/" "$W/libs/hbb_common/" || die "subm
 mkdir -p "$OUT/target-macos"
 ln -s "$OUT/target-macos" "$W/target" || die "target 링크"
 cd "$W" || die cd
+if [ "$TARGET" = release ]; then
+  TAG_VER=${${BASE#wald-v}%-r*}
+  SRC_VER=$(grep -E '^version:' flutter/pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+  CARGO_VER=$(grep -m1 -E '^version *=' Cargo.toml | cut -d'"' -f2)
+  [ "$TAG_VER" = "$SRC_VER" ] && [ "$TAG_VER" = "$CARGO_VER" ] || die "태그 버전($TAG_VER)과 소스 버전(pubspec $SRC_VER, Cargo.toml $CARGO_VER)이 다르다"
+fi
 
 # 1) 브리지 생성. CI 는 Flutter 3.22.3 으로 만들지만, 로컬에서는 본 빌드와 같은 3.24.5 로 만들어 검증했다(pubspec 의 extended_text 는 이미 13.0.0).
 #    ffigen 의 libclang 은 brew llvm(keg-only)을 경로로 넘긴다. 브리지는 CI 처럼 Rust 1.75 로 만든다.
@@ -166,14 +175,14 @@ fi
 echo "done: $DEST"
 
 # 6) dmg(wald-macos.yml 'Create unsigned dmg' 와 같은 인자)를 dist/<버전>-<sha9>-<대상>/ 에 manifest 와 함께 모은다.
-#    대상 이름을 파일명에 넣어 시험본을 배포본으로 착각하지 않게 한다(build-windows-local.ps1 -Inno 와 같은 규칙).
+#    시험본은 대상 이름을 파일명에 넣어 배포본으로 착각하지 않게 한다(build-windows-local.ps1 -Inno 와 같은 규칙 — D36).
 #    create-dmg 는 원본을 폴더로 다루므로(cd "$2") wald-remote.app 하나만 든 폴더를 넘긴다.
 #    Finder AppleScript(창 배치)가 권한 문제로 실패하면 배치 없이(--skip-jenkins) 다시 만든다.
 step dmg
 COMMIT=$(git rev-parse HEAD)
 DIST="$OUT/dist/$VER-${COMMIT[1,9]}-$TARGET"
 mkdir -p "$DIST"
-DMG="$DIST/waldlust-$VER-aarch64$SUFFIX-$TARGET.dmg"
+DMG="$DIST/waldlust-remote$SUFFIX-$VER-macos-arm64$TSUF.dmg"
 DMG_NOTE=""
 STAGE="$OUT/dmg-stage-macos"
 rm -rf "$STAGE" "$DMG"; mkdir -p "$STAGE"

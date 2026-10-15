@@ -5,7 +5,8 @@
 #
 # 사용:  zsh ~/wald-build/build-android-local.sh [커밋·브랜치] [bidirectional|incoming] [dummy|mock|prodtest|release]   (기본 waldlust, bidirectional, dummy)
 # 결과:  ~/wald-build/waldlust-<버전>-android-localtest[-incoming].apk(prodtest 는 -android-prodtest), 로그는 ~/wald-build/logs/
-#        + ~/wald-build/dist/<버전>-<sha9>-<대상>/waldlust-<버전>-android[-incoming]-<대상>.apk 와 manifest-android-<변형>.txt
+#        + ~/wald-build/dist/<버전>-<sha9>-<대상>/waldlust-remote[-incoming]-<버전>-android[-<대상>].apk 와 manifest-android-<변형>.txt
+#        (설치 파일 이름 규칙 — 결정 D36: release 는 '-<대상>' 을 붙이지 않는다. 예 waldlust-remote-incoming-1.5.0-android.apk)
 #
 # 원칙
 # - 비관리 빌드: WALDLUST_PRESET_PASSWORD 를 넣지 않는다(무인 기본값·기기별 비밀번호 없음).
@@ -20,10 +21,13 @@
 #          시험 기기는 운영 목록에 '미지정'으로 올라간다. 결과 이름이 localtest 가 아니라 prodtest 라 dummy·mock 시험본을 덮지 않는다.
 #          기기는 인터넷으로 운영에 닿는다(adb reverse 필요 없음). 수신 전용 비밀번호는 여전히 테스트 값이 기본이다.
 #   release: 정식 배포본(계획 ADMIN_LOCAL_PLAN 4-1, 결정 D33~D35 — 2026-10-14 사용자). 주소는 prodtest 와 같다.
-#          ref 는 ratm10(origin)에 푸시된 wald-v* 태그만 받는다. 수신 전용은 운영 공통 비밀번호(incoming-prod.env)만 받는다.
+#          ref 는 waldlustpos(origin)에 푸시된 wald-v<버전>-r<N> 태그만 받는다(태그 버전 = 소스 버전이어야 한다 — D36).
+#          수신 전용은 운영 공통 비밀번호(incoming-prod.env)만 받는다.
 #          서명 = 릴리즈 키(~/wald-build/keys/android-release.properties — make-android-release-key.sh 가 만든다, debug 치환 안 함),
-#          서명 지문은 ~/wald-build/keys/android-release.sha256 과 같아야 한다. versionCode = WALD_VERSION_CODE(필수, 2100 이상 —
-#          옛 현장 설치본 2066 보다 크게), 패키지 = co.kr.waldlust.remote(D35). dist 에 NOTICE·LICENCE·THIRD_PARTY_NOTICES-android.txt.
+#          서명 지문은 ~/wald-build/keys/android-release.sha256 과 같아야 한다. versionCode 는 태그에서 계산한다(D36):
+#          M×1,000,000 + m×10,000 + p×100 + r — wald-v1.5.0-r1 = 1050001(옛 규칙 2100+r 의 r3 = 2103 보다 크다).
+#          WALD_VERSION_CODE 를 주면 계산값과 같아야 한다. 패키지 = co.kr.waldlust.remote(D35).
+#          dist 에 NOTICE·LICENCE·THIRD_PARTY_NOTICES-android.txt.
 #          cargo-about 0.6.4(cargo install cargo-about --version 0.6.4 --locked)가 있어야 한다.
 # - 수신 전용(DSK-01): ~/wald-build/incoming-test.env(git 밖, 권한 600)의 테스트 비밀번호·솔트
 #   (WALDLUST_INCOMING_PASSWORD·WALDLUST_INCOMING_SALT — 운영 값 아님)를 preset_hash.py 로 해시해 넣는다. 값은 출력하지 않는다.
@@ -56,6 +60,7 @@ TARGET="${3:-dummy}"
 case "$TARGET" in dummy|mock|prodtest|release) ;; *) echo "FAIL: 대상은 dummy·mock·prodtest·release"; exit 1 ;; esac
 KIND=localtest; [ "$TARGET" = prodtest ] && KIND=prodtest; [ "$TARGET" = release ] && KIND=release
 PROD=""; { [ "$TARGET" = prodtest ] || [ "$TARGET" = release ]; } && PROD=1   # 운영 주소로 빌드한다
+TSUF="-$TARGET"; [ "$TARGET" = release ] && TSUF=""   # dist 설치 파일 이름 끝(D36 — 정식본은 대상 이름 없음)
 KEYS="$OUT/keys"
 
 export PATH="$HOME/.cargo/bin:$PATH"
@@ -86,16 +91,19 @@ export BINDGEN_EXTRA_CLANG_ARGS_armv7_linux_androideabi="--sysroot=$NDKSYS"
 step() { echo "== $1 $(date +%T)"; }
 die() { echo "FAIL: $1 (로그: $LOG)"; exit 1; }
 
-# release: origin(ratm10)에 있는 wald-v* 태그·릴리즈 키·versionCode·운영 비밀번호를 빌드 전에 확인한다.
+# release: origin(waldlustpos)에 있는 wald-v* 태그·릴리즈 키·versionCode·운영 비밀번호를 빌드 전에 확인한다.
 if [ "$TARGET" = release ]; then
-  case "$BASE" in wald-v*) ;; *) die "release 는 wald-v* 태그만 받는다(받은 값: $BASE)" ;; esac
+  [[ "$BASE" =~ '^wald-v[0-9]+\.[0-9]+\.[0-9]+-r[0-9]+$' ]] || die "release 는 wald-v<버전>-r<N> 태그만 받는다(받은 값: $BASE)"
   rc=$(git -C "$R" ls-remote origin "refs/tags/$BASE^{}" | awk '{print $1}')
   [ -n "$rc" ] || rc=$(git -C "$R" ls-remote origin "refs/tags/$BASE" | awk '{print $1}')
   lc=$(git -C "$R" rev-parse -q --verify "$BASE^{commit}")
   [ -n "$rc" ] && [ "$rc" = "$lc" ] || die "태그 $BASE 가 origin 에 없거나 로컬과 다르다(origin ${rc:-없음}, 로컬 ${lc:-없음})"
   [ -f "$KEYS/android-release.properties" ] && [ -s "$KEYS/android-release.sha256" ] || die "릴리즈 키가 없다($KEYS — make-android-release-key.sh)"
-  case "${WALD_VERSION_CODE:-}" in ''|*[!0-9]*) die "WALD_VERSION_CODE(숫자, 2100 이상)가 필요하다" ;; esac
-  [ "$WALD_VERSION_CODE" -ge 2100 ] || die "WALD_VERSION_CODE 는 2100 이상이어야 한다(옛 현장 설치본 2066)"
+  TAG_VER=${${BASE#wald-v}%-r*}; TAG_PARTS=(${(s:.:)TAG_VER}); TAG_R=${BASE##*-r}
+  VCODE=$(( TAG_PARTS[1]*1000000 + TAG_PARTS[2]*10000 + TAG_PARTS[3]*100 + TAG_R ))   # D36
+  [ -z "${WALD_VERSION_CODE:-}" ] || [ "$WALD_VERSION_CODE" = "$VCODE" ] || die "WALD_VERSION_CODE($WALD_VERSION_CODE)가 태그에서 계산한 값($VCODE)과 다르다 — 빼고 돌린다"
+  [ "$VCODE" -ge 2100 ] || die "versionCode $VCODE 는 2100 이상이어야 한다(옛 현장 설치본 2066)"
+  echo "versionCode $VCODE ($BASE)"
   [ "$VARIANT" != incoming ] || [ "${${WALD_INCOMING_ENV:-}:t}" = incoming-prod.env ] || die "release 수신 전용은 WALD_INCOMING_ENV=$OUT/incoming-prod.env 만 받는다"
   [ -x "$HOME/.cargo/bin/cargo-about" ] || die "cargo-about 이 없다(cargo install cargo-about --version 0.6.4 --locked)"
 fi
@@ -110,6 +118,11 @@ have=$(git -C "$R/libs/hbb_common" rev-parse HEAD)
 [ "$want" = "$have" ] || die "hbb_common 커밋 불일치(기준 $want, 공용 폴더 $have) — 공용 폴더에서 submodule update 필요"
 rsync -a --exclude .git "$R/libs/hbb_common/" "$W/libs/hbb_common/" || die "submodule 복사"
 cd "$W" || die cd
+if [ "$TARGET" = release ]; then
+  SRC_VER=$(grep -E '^version:' flutter/pubspec.yaml | awk '{print $2}' | cut -d+ -f1)
+  CARGO_VER=$(grep -m1 -E '^version *=' Cargo.toml | cut -d'"' -f2)
+  [ "$TAG_VER" = "$SRC_VER" ] && [ "$TAG_VER" = "$CARGO_VER" ] || die "태그 버전($TAG_VER)과 소스 버전(pubspec $SRC_VER, Cargo.toml $CARGO_VER)이 다르다"
+fi
 
 # 수신 전용: 테스트 비밀번호를 해시로 바꿔 넣는다(평문은 하위 셸에만 있고 빌드 환경에는 들어가지 않는다).
 if [ "$VARIANT" = incoming ]; then
@@ -172,7 +185,7 @@ sed -i '' 's/org.gradle.jvmargs=-Xmx1024M/org.gradle.jvmargs=-Xmx2g/g' flutter/a
 BUILD_NUMBER=()
 if [ "$TARGET" = release ]; then
   cp "$KEYS/android-release.properties" flutter/android/key.properties || die "릴리즈 키 설정 복사"   # worktree 안(git 제외 파일)
-  BUILD_NUMBER=(--build-number="$WALD_VERSION_CODE")
+  BUILD_NUMBER=(--build-number="$VCODE")
 else
   sed -i '' 's/signingConfigs.release/signingConfigs.debug/g' flutter/android/app/build.gradle              # CI 와 같은 debug 서명
 fi
@@ -210,16 +223,16 @@ PKG_LINE=$(echo "$BADGING" | grep -E '^package:')
 if [ "$TARGET" = release ]; then
   [ "$SIGNER" = "$(tr -d ' \n' < "$KEYS/android-release.sha256")" ] || die "서명 지문이 릴리즈 키와 다르다 — 이 APK 는 배포하지 않는다"
   echo "$PKG_LINE" | grep -q "name='co.kr.waldlust.remote'" || die "패키지가 co.kr.waldlust.remote 가 아니다(D35)"
-  echo "$PKG_LINE" | grep -q "versionCode='$WALD_VERSION_CODE'" || die "versionCode 가 $WALD_VERSION_CODE 가 아니다"
+  echo "$PKG_LINE" | grep -q "versionCode='$VCODE'" || die "versionCode 가 $VCODE 가 아니다"
 fi
 echo "done: $APK"
 
-# 5) dist/<버전>-<sha9>-<대상>/ 에 대상 이름을 붙인 APK 와 manifest 를 모은다(build-windows-local.ps1 -Inno 와 같은 규칙).
+# 5) dist/<버전>-<sha9>-<대상>/ 에 APK 와 manifest 를 모은다. 시험본은 이름에 대상을 붙인다(build-windows-local.ps1 -Inno 와 같은 규칙 — D36).
 step dist
 COMMIT=$(git rev-parse HEAD)
 DIST="$OUT/dist/$VER-${COMMIT[1,9]}-$TARGET"
 mkdir -p "$DIST"
-DAPK="$DIST/waldlust-$VER-android$SUFFIX-$TARGET.apk"
+DAPK="$DIST/waldlust-remote$SUFFIX-$VER-android$TSUF.apk"
 cp "$APK" "$DAPK" || die "dist 복사"
 {
   echo "ref: $BASE ($COMMIT)"

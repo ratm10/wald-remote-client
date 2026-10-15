@@ -5,7 +5,8 @@
 #         [-Variant bidirectional|incoming] [-Target dummy|mock|prodtest|release] [-Inno]
 #         (default ref: waldlust, default variant: bidirectional, default target: dummy)
 # Result: C:\wald-build\waldlust-<ver>-windows-localtest[-incoming]\ (prodtest: -windows-prodtest; unsigned portable folder, run wald-remote.exe)
-#         With -Inno also C:\wald-build\dist\<ver>-<sha>-<target>\waldlust-setup-<ver>-x86_64[-incoming]-<target>.exe
+#         With -Inno also C:\wald-build\dist\<ver>-<sha>-<target>\waldlust-remote[-incoming]-<ver>-windows-x64[-<target>].exe
+#         (installer name rule - decision D36: no -<target> for release, e.g. waldlust-remote-incoming-1.5.0-windows-x64.exe)
 #         + manifest-<variant>.txt (needs Inno Setup 6 - tools\inno, installed per-user)
 # Logs:   C:\wald-build\logs\windows-*.log
 #
@@ -20,7 +21,8 @@
 #          Still unmanaged/unsigned - not for field deployment (before the repo transfer). The test machine shows up in the
 #          production list as unassigned. Output is named prodtest (not localtest), so dummy/mock builds are not overwritten.
 #   release: official build (plan ADMIN_LOCAL_PLAN 4-1, decisions D33-D35 - 2026-10-14). Same addresses as prodtest.
-#          -Ref must be a wald-v* tag pushed to origin (ratm10) and -Inno is required. Incoming-only takes only
+#          -Ref must be a wald-v<ver>-r<N> tag pushed to origin (waldlustpos) whose version is the source version (D36),
+#          and -Inno is required. Incoming-only takes only
 #          -IncomingEnv C:\wald-build\incoming-prod.env. Before ISCC, NOTICE.txt, LICENCE.txt and THIRD_PARTY_NOTICES.txt
 #          (res\wald-build\collect-notices.py) are put into the installer payload, and copied to dist. Unsigned (D34).
 #          Needs cargo-about 0.6.4 (cargo install cargo-about --version 0.6.4 --locked).
@@ -88,7 +90,7 @@ function Run([string]$Name, [string]$Cmd) {
 # release: a wald-v* tag that exists on origin with the same commit, -Inno, the production password, cargo-about.
 $CargoAbout = Join-Path $env:USERPROFILE '.cargo\bin\cargo-about.exe'
 if ($Target -eq 'release') {
-  if ($Ref -notlike 'wald-v*') { Die "release takes only a wald-v* tag (got $Ref)" }
+  if ($Ref -notmatch '^wald-v\d+\.\d+\.\d+-r\d+$') { Die "release takes only a wald-v<ver>-r<N> tag (got $Ref)" }
   $rc = ((git -C $Client ls-remote origin "refs/tags/$Ref^{}") -split '\s+')[0]
   if (-not $rc) { $rc = ((git -C $Client ls-remote origin "refs/tags/$Ref") -split '\s+')[0] }
   $lc = git -C $Client rev-parse -q --verify "$Ref^{commit}"
@@ -108,6 +110,13 @@ if (Test-Path -LiteralPath $W) {
 }
 git -C $Client worktree add --detach $W $Ref
 if ($LASTEXITCODE -ne 0) { Die worktree }
+if ($Target -eq 'release') {
+  # The tag version (wald-v<ver>-r<N>) must be the source version (decision D36).
+  $tagVer = ($Ref -replace '^wald-v', '') -replace '-r\d+$', ''
+  $srcVer = ((Select-String -Path (Join-Path $W 'flutter\pubspec.yaml') -Pattern '^version:').Line -split '\s+')[1].Split('+')[0]
+  $cargoVer = ((Select-String -Path (Join-Path $W 'Cargo.toml') -Pattern '^version\s*=' | Select-Object -First 1).Line -split '"')[1]
+  if ($tagVer -ne $srcVer -or $tagVer -ne $cargoVer) { Die "tag version $tagVer differs from the source (pubspec $srcVer, Cargo.toml $cargoVer)" }
+}
 $want = (git -C $Client ls-tree $Ref libs/hbb_common) -split '\s+' | Select-Object -Index 2
 $have = git -C (Join-Path $Client 'libs\hbb_common') rev-parse HEAD
 if ($want -ne $have) { Die "hbb_common mismatch (ref $want, shared folder $have) - run git submodule update in $Client" }
@@ -210,13 +219,16 @@ if ($Inno) {
   $defs = "/DMyAppVersion=$ver"
   if ($Suffix) { $defs += " /DMyVariantSuffix=$Suffix" }
   Run inno "cd /d `"$issDir`" && `"$iscc`" $defs waldlust.iss"
-  $setup = Get-ChildItem -LiteralPath $issDir -Recurse -Filter 'waldlust-setup-*.exe' | Select-Object -First 1
+  # Inno output: waldlust-remote[-incoming]-<ver>-windows-x64.exe (older tags: waldlust-setup-<ver>-x86_64[-incoming].exe).
+  $setup = Get-ChildItem -LiteralPath $issDir -Recurse -Filter 'waldlust-*.exe' | Select-Object -First 1
   if (-not $setup) { Die "installer not found under $issDir" }
-  # Collect into dist\<ver>-<sha>-<target>\ with the target in the name, so test installers are not mistaken for releases.
+  # Collect into dist\<ver>-<sha>-<target>\ under the D36 name (whatever the tag's .iss called it). Test installers keep
+  # the target in the name, so they are not mistaken for releases.
   $commit = git -C $W rev-parse HEAD
   $dist = Join-Path $Out "dist\$ver-$($commit.Substring(0, 9))-$Target"
   New-Item -ItemType Directory -Force $dist | Out-Null
-  $installer = Join-Path $dist "$($setup.BaseName)-$Target$($setup.Extension)"
+  $tsuf = if ($Target -eq 'release') { '' } else { "-$Target" }
+  $installer = Join-Path $dist "waldlust-remote$Suffix-$ver-windows-x64$tsuf.exe"
   Copy-Item -LiteralPath $setup.FullName -Destination $installer -Force
   $file = Get-Item -LiteralPath $installer
   $apiText = if ($env:WALDLUST_API_SERVER) { $env:WALDLUST_API_SERVER } else { '(none - account features disabled)' }
