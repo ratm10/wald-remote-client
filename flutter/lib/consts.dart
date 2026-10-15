@@ -702,3 +702,5 @@ extension WindowsTargetExt on int {
 }
 
 const kCheckSoftwareUpdateFinish = 'check_software_update_finish';
+// Waldlust(결정 D37): 어드민 /api/app/latest 가 알려 준 새 버전(src/common.rs wald_check_update).
+const kWaldUpdateAvailable = 'wald_update_available';

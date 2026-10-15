@@ -4098,6 +4098,19 @@ void checkUpdate() {
       Timer(const Duration(seconds: 1), () async {
         bind.mainGetSoftwareUpdateUrl();
       });
+    } else if (isDesktop && !bind.isIncomingOnly()) {
+      // Waldlust(결정 D37): 업스트림 대신 어드민에 묻는다 — 데스크탑 양방향(직원용)만. 같은 바인딩이
+      // src/common.rs check_software_update → wald_check_update(시작 때와 12시간마다)를 연다.
+      platformFFI.registerEventHandler(kWaldUpdateAvailable, kWaldUpdateAvailable,
+          (Map<String, dynamic> evt) async {
+        if (evt['version'] is String && evt['url'] is String) {
+          stateGlobal.waldUpdateUrl.value = evt['url'];
+          stateGlobal.waldUpdateVersion.value = evt['version'];
+        }
+      });
+      Timer(const Duration(seconds: 1), () async {
+        bind.mainGetSoftwareUpdateUrl();
+      });
     }
   }
 }

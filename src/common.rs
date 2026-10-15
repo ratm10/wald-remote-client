@@ -331,6 +331,8 @@ fn send_waldlust_heartbeat(client: &reqwest::blocking::Client, include_apps: boo
         "latencyMs": latency_ms,
         "netType": net_type,
         "variant": crate::wald_variant::name(), // "bidirectional"/"incoming"
+        // 어드민이 기기가 쓰는 설치 파일을 고를 때 Windows 64·32비트(Sciter)를 가른다 — "x86_64"/"x86"/"aarch64"/"arm"(결정 D37).
+        "arch": std::env::consts::ARCH,
     });
     if let Some((total, free)) = disk {
         body["diskUsed"] = serde_json::json!(total.saturating_sub(free));
@@ -1258,11 +1260,70 @@ pub fn is_modifier(evt: &KeyEvent) -> bool {
 
 pub fn check_software_update() {
     if is_custom_client() {
+        // Waldlust(결정 D37): 업스트림(api.rustdesk.com) 대신 어드민에 묻는다. 데스크탑 양방향(직원용)만 —
+        // 현장 수신 전용은 매장 직원이 설치 파일을 받을 수 없어 어드민 클라이언트 목록의 '업데이트 필요'로 관리한다.
+        #[cfg(any(target_os = "windows", target_os = "macos"))]
+        if !crate::wald_variant::is_incoming() {
+            start_wald_update_check();
+        }
         return;
     }
     let opt = LocalConfig::get_option(keys::OPTION_ENABLE_CHECK_UPDATE);
     if config::option2bool(keys::OPTION_ENABLE_CHECK_UPDATE, &opt) {
         std::thread::spawn(move || allow_err!(do_check_software_update()));
+    }
+}
+
+// Waldlust 새 버전 확인(결정 D37): 화면 프로세스(Flutter main_get_software_update_url)에서 한 번 시작해 바로 묻고, 그 뒤 12시간마다.
+// Windows 설치본은 heartbeat 를 서비스 프로세스가 보내 화면으로 전할 길이 없어서, heartbeat 응답 대신 화면 프로세스가 직접 묻는다.
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+fn start_wald_update_check() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| {
+        std::thread::spawn(|| loop {
+            wald_check_update();
+            std::thread::sleep(std::time::Duration::from_secs(12 * 3600));
+        });
+    });
+}
+
+/// 어드민 공개 API `/api/app/latest`(heartbeat 와 같은 서버)에서 이 앱이 쓰는 설치 파일의 최신 게시 버전을 받아,
+/// 지금 버전보다 높으면 화면에 `wald_update_available`(version·url — 어드민 '원격 설치 파일')을 보낸다. 실패는 조용히 넘긴다.
+#[cfg(any(target_os = "windows", target_os = "macos"))]
+fn wald_check_update() {
+    let Some(origin) = WALDLUST_HEARTBEAT_URL
+        .find("://")
+        .map(|i| match WALDLUST_HEARTBEAT_URL[i + 3..].find('/') {
+            Some(j) => &WALDLUST_HEARTBEAT_URL[..i + 3 + j],
+            None => WALDLUST_HEARTBEAT_URL,
+        })
+    else {
+        return;
+    };
+    let url = format!(
+        "{origin}/api/app/latest?os={}&variant={}&arch={}",
+        std::env::consts::OS,
+        crate::wald_variant::name(),
+        std::env::consts::ARCH
+    );
+    let client = reqwest::blocking::Client::builder()
+        .timeout(std::time::Duration::from_secs(15))
+        .build()
+        .unwrap_or_else(|_| reqwest::blocking::Client::new());
+    let Ok(v) = client.get(&url).send().and_then(|r| r.json::<serde_json::Value>()) else {
+        return;
+    };
+    let latest = v["version"].as_str().unwrap_or_default();
+    if latest.is_empty() || get_version_number(latest) <= get_version_number(crate::VERSION) {
+        return;
+    }
+    let page = v["page"].as_str().filter(|p| p.starts_with('/')).unwrap_or("/installers");
+    let link = format!("{origin}{page}");
+    log::info!("wald update: {} -> {latest} ({link})", crate::VERSION);
+    #[cfg(feature = "flutter")]
+    {
+        let data = serde_json::json!({ "name": "wald_update_available", "version": latest, "url": link });
+        let _ = crate::flutter::push_global_event(crate::flutter::APP_TYPE_MAIN, data.to_string());
     }
 }
 

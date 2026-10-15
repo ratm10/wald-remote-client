@@ -645,6 +645,9 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         ("Authenticate", "인증"),
         ("web_id_input_tip", "동일한 서버에 ID를 입력할 수 있으며, 웹 클라이언트에서는 다이렉트 IP 액세스가 지원되지 않습니다.\n다른 서버에 있는 장치에 액세스하려면 서버 주소 (<id>@<server_address>?key=<key_value>)를 추가해 주세요. 예를 들어 \n9123456234@192.168.16.1:21117?key=5Qbwsde3unUcJBtrx9ZkvUmwFNoExHzpryHuPUdqlWM=.\n공용 서버에서 장치에 액세스하려면 \"<id>@public\"을 입력해 주세요. 공용 서버에는 키가 필요하지 않습니다."),
         ("Download", "다운로드"),
+        // Waldlust(결정 D37): 데스크탑 양방향 홈의 새 버전 카드(어드민 /api/app/latest).
+        ("wald-update-title", "새 버전"),
+        ("wald-update-{}-tip", "새 버전 {} 이 나왔습니다. 어드민 '원격 설치 파일'에서 받아 설치합니다."),
         ("Upload folder", "폴더 업로드"),
         ("Upload files", "파일 업로드"),
         ("Clipboard is synchronized", "클립보드가 동기화되었습니다"),

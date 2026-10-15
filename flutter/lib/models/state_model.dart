@@ -26,6 +26,9 @@ class StateGlobal {
   final isPortrait = false.obs;
 
   final updateUrl = ''.obs;
+  // Waldlust(결정 D37): 새 버전·어드민 '원격 설치 파일' 주소 — 데스크탑 양방향 홈 카드.
+  final waldUpdateVersion = ''.obs;
+  final waldUpdateUrl = ''.obs;
 
   String _inputSource = '';
 
