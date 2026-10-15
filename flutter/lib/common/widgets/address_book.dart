@@ -50,8 +50,11 @@ class _AddressBookState extends State<AddressBook> {
           return Column(
             children: [
               // NOT use Offstage to wrap LinearProgressIndicator
+              // Waldlust(DSK-04, 부록 A-26): 브랜드를 바꾸는 동안은 이전 목록이 보이므로 띄우지 않는다.
               if (gFFI.abModel.currentAbLoading.value &&
-                  gFFI.abModel.currentAbEmpty)
+                  gFFI.abModel.currentAbEmpty &&
+                  (!waldAbBrandPanel ||
+                      gFFI.abModel.peersModel.peers.isEmpty))
                 const LinearProgressIndicator(),
               buildErrorBanner(context,
                   loading: gFFI.abModel.currentAbLoading,

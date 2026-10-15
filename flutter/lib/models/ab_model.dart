@@ -138,6 +138,12 @@ class AbModel {
       // Waldlust(DSK-05): 최근접속목록·즐겨찾기에도 같은 이름을 보이도록 권한 범위 전체 기기 이름을 받는다.
       if (force == ForcePullAb.listAndCurrent && !legacyMode.value) {
         await WaldPeerNames.instance.refresh();
+        // Waldlust(DSK-04, 부록 A-26): 브랜드를 처음 눌러도 바로 보이게 나머지 주소록도 미리 받는다.
+        for (final ab in addressbooks.values.toList()) {
+          if (ab.initialized) continue;
+          await ab.pullAb(quiet: true);
+          if (ab.initialized && identical(ab, current)) _refreshTab();
+        }
       }
     } catch (_) {}
     _pulling = false;
@@ -1428,6 +1434,12 @@ class Ab extends BaseAb {
     List<Peer> tmpPeers = [];
     if (!await _fetchPeers(tmpPeers, quiet: quiet)) {
       ret = false;
+    }
+    // Waldlust(DSK-04, 부록 A-26): 다시 받아도 온라인 상태를 잇는다(LegacyAb._deserialize 와 같게).
+    // 잇지 않으면 조회 응답이 올 때까지 점이 빨강으로 바뀌고 상태 정렬이 흔들린다.
+    final oldOnlineIDs = peers.where((e) => e.online).map((e) => e.id).toSet();
+    for (final p in tmpPeers) {
+      p.online = oldOnlineIDs.contains(p.id);
     }
     peers.value = tmpPeers;
     List<AbTag> tmpTags = [];

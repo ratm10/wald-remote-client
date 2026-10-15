@@ -387,7 +387,11 @@ class _PeersViewState extends State<_PeersView>
               p1.username.toLowerCase().compareTo(p2.username.toLowerCase()));
           break;
         case PeerSortType.status:
-          peers.sort((p1, p2) => p1.online ? -1 : 1);
+          // Waldlust(DSK-04, 부록 A-26): 비교자가 일관되지 않아 상태가 하나만 바뀌어도 순서가 섞였다.
+          // 온라인 먼저, 같은 상태끼리는 ID 정렬과 같은 기준.
+          peers.sort((p1, p2) => p1.online != p2.online
+              ? (p1.online ? -1 : 1)
+              : p1.getId().compareTo(p2.getId()));
           break;
       }
     }
