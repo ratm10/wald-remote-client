@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/common/hbbs/hbbs.dart';
+import 'package:flutter_hbb/common/wald_hangul.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
 import 'package:flutter_hbb/models/user_model.dart';
 import 'package:get/get.dart';
@@ -426,6 +427,7 @@ class LoginWidgetUserPass extends StatelessWidget {
               autoFocus: false,
               reRequestFocus: true,
               errorText: passMsg,
+              warnHangul: true,
             ),
             // NOT use Offstage to wrap LinearProgressIndicator
             if (isInProgress) const LinearProgressIndicator(),
@@ -557,6 +559,11 @@ Future<bool?> loginDialog() async {
       }
       if (password.text.isEmpty) {
         setState(() => passwordMsg = translate('Password missed'));
+        return;
+      }
+      // Waldlust(DSK-03 — 부록 A-32): 한글 모드로 친 비밀번호는 보내지 않는다(칸 아래 안내와 같은 문구).
+      if (waldHasHangul(password.text)) {
+        setState(() => passwordMsg = translate(kWaldPasswordHangulTip));
         return;
       }
       curOP.value = 'rustdesk';

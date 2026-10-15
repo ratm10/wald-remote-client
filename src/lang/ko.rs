@@ -648,6 +648,8 @@ pub static ref T: std::collections::HashMap<&'static str, &'static str> =
         // Waldlust(결정 D37): 데스크탑 양방향 홈의 새 버전 카드(어드민 /api/app/latest).
         ("wald-update-title", "새 버전"),
         ("wald-update-{}-tip", "새 버전 {} 이 나왔습니다. 어드민 '원격 설치 파일'에서 받아 설치합니다."),
+        // Waldlust(DSK-03 — 부록 A-32): 로그인 비밀번호 칸에 한글이 들어왔을 때(flutter/lib/common/wald_hangul.dart).
+        ("wald-password-hangul-tip", "한글 입력 상태입니다. 영문으로 바꾼 뒤 비밀번호를 다시 입력하세요."),
         ("Upload folder", "폴더 업로드"),
         ("Upload files", "파일 업로드"),
         ("Clipboard is synchronized", "클립보드가 동기화되었습니다"),
