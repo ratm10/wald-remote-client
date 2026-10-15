@@ -1,6 +1,7 @@
 // Waldlust(DSK-07): 아이콘 세트를 Lucide(lucide_icons_flutter, MIT)로 통일한다.
 //
-// - 기본 굵기 글꼴('Lucide') 하나만 쓴다. 다른 굵기 변형(LucideIcons.x100 … x600)은 섞지 않는다.
+// - 기본 굵기 글꼴('Lucide')을 쓴다. 다른 굵기 변형(LucideIcons.x100 … x600)은 아래 kWaldLucideThinFor
+//   (주소록 카드 버튼)에만 쓴다.
 // - 모든 IconData 는 const 다(릴리스 빌드의 아이콘 글꼴 트리 셰이킹이 그대로 동작한다).
 // - 크기: 버튼·메뉴 16, 툴바·파일 목록 18, 탭·연결 관리 창 머리 20(WaldSize).
 // - IconFont(common.dart)의 상수도 Lucide 를 가리키므로, IconFont 를 쓰는 곳은 호출부를 고치지
@@ -172,6 +173,18 @@ final Map<IconData, IconData> kWaldLucideFor = {
 
 /// [material] 의 Lucide 대응을 돌려준다(대응이 없으면 [material] 그대로).
 IconData waldIcon(IconData material) => kWaldLucideFor[material] ?? material;
+
+/// 주소록·최근 세션·즐겨찾기 카드 버튼(연결·파일 전송·이름 편집)의 가는 선 아이콘(2026-10-15 시험, DSK-04).
+/// Material 아이콘 글꼴은 굵기 변형이 없어 Lucide 굵기 변형으로 그린다 — 300 = 선 1.55(기본 'Lucide' 는 2).
+final Map<IconData, IconData> kWaldLucideThinFor = {
+  Icons.screen_share_outlined: LucideIcons.screenShare300,
+  Icons.folder_outlined: LucideIcons.folder300,
+  Icons.edit_outlined: LucideIcons.pencil300,
+};
+
+/// [material] 의 가는 선 Lucide 대응(없으면 [waldIcon] 과 같다).
+IconData waldThinIcon(IconData material) =>
+    kWaldLucideThinFor[material] ?? waldIcon(material);
 
 /// [widget] 이 대응표에 있는 Material 아이콘이면 같은 크기·색의 Lucide 아이콘으로 바꾼다.
 Widget? waldLucideIconWidget(Widget? widget) {

@@ -98,7 +98,8 @@ Widget _waldCardButton(IconData icon, String tooltip, VoidCallback onTap) {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(5),
-        child: Icon(icon, size: WaldSize.iconLg), // 부록 A-17: 18 → 20
+        // 부록 A-17: 18 → 20. 2026-10-15 시험: 가는 선(waldThinIcon)
+        child: Icon(waldThinIcon(icon), size: WaldSize.iconLg),
       ),
     ),
   );
