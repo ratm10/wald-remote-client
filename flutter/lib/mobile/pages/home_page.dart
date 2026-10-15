@@ -151,8 +151,11 @@ class HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Waldlust(DSK-07): 받은 접속(수신)은 접속한 쪽 이름 없이 ID 만(부록 A-31).
                   Text(
-                    "${currentUser.firstName}   ${currentUser.id}",
+                    currentKey.isOut
+                        ? "${currentUser.firstName}   ${currentUser.id}"
+                        : currentUser.id,
                   ),
                   if (connected)
                     Container(

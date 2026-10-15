@@ -300,8 +300,9 @@ class Header: Reactor.Component
 
     function renderTab(c, i) {
         var cur = body.cur;
+        // Waldlust(DSK-07): ID instead of the controller's name (appendix A-31)
         return <div class={i == cur ? "active-tab tab" : "tab"}>
-            {c.name}
+            {c.peer_id}
             {c.unreaded > 0 ? <span .unreaded id={"unreaded" + c.id}>{c.unreaded}</span> : ""}
         </div>;
     }
@@ -461,7 +462,7 @@ handler.newMessage = function(id, text) {
     });
     var conn = connections[idx];
     if (!conn) return;
-    conn.msgs.push({name: conn.name, text: text, time: getNowStr()});
+    conn.msgs.push({name: "", text: text, time: getNowStr()}); // Waldlust(DSK-07): no controller name in chat (appendix A-31)
     bring_to_top(idx);
     if (idx == body.cur) {
         var shouldAdapt = !show_chat;

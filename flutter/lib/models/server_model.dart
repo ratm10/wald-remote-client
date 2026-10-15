@@ -587,7 +587,8 @@ class ServerModel with ChangeNotifier {
   void _addTab(Client client) {
     tabController.add(TabInfo(
         key: client.id.toString(),
-        label: client.name,
+        // Waldlust(DSK-07): 탭에도 접속한 쪽 이름 대신 ID(부록 A-31).
+        label: client.peerId,
         closable: false,
         onTap: () {},
         page: desktop.buildConnectionCard(client)));

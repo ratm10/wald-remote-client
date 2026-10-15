@@ -892,27 +892,20 @@ class ClientInfo extends StatelessWidget {
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                    Text(client.name, style: const TextStyle(fontSize: 18)),
-                    const SizedBox(width: 8),
-                    Text(client.peerId, style: const TextStyle(fontSize: 10))
+                    // Waldlust(DSK-07): 접속한 쪽 이름(client.name)은 보이지 않는다 — ID 가 이름 자리로(부록 A-31).
+                    Text(client.peerId, style: const TextStyle(fontSize: 18)),
                   ]))
             ],
           ),
         ]));
   }
 
+  // Waldlust(DSK-07): 이름 첫 글자·계정 사진 대신 같은 사람 아이콘(부록 A-31).
   Widget _buildAvatar(BuildContext context) {
-    final fallback = CircleAvatar(
-      backgroundColor: str2color(client.name,
-          Theme.of(context).brightness == Brightness.light ? 255 : 150),
-      child: Text(client.name.isNotEmpty ? client.name[0] : '?'),
+    return CircleAvatar(
+      backgroundColor: WaldPalette.neutral200,
+      child: Icon(waldIcon(Icons.person), color: WaldPalette.neutral600),
     );
-    return buildAvatarWidget(
-          avatar: client.avatar,
-          size: 40,
-          fallback: fallback,
-        ) ??
-        fallback;
   }
 }
 

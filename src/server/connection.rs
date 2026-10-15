@@ -2741,10 +2741,11 @@ impl Connection {
                         }
                         #[cfg(target_os = "macos")]
                         self.retina.on_mouse_event(&mut me, self.display_idx);
+                        // Waldlust(DSK-07): the "show my cursor" label is the controller's ID, not its name (appendix A-31).
                         self.input_mouse(
                             me,
                             self.inner.id(),
-                            self.lr.my_name.clone(),
+                            self.lr.my_id.clone(),
                             self.peer_argb,
                             true,
                             self.show_my_cursor,
@@ -2755,7 +2756,7 @@ impl Connection {
                         self.input_mouse(
                             me,
                             self.inner.id(),
-                            self.lr.my_name.clone(),
+                            self.lr.my_id.clone(),
                             self.peer_argb,
                             false,
                             true,

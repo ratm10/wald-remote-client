@@ -747,7 +747,8 @@ class MainService : Service() {
             .setOngoing(false)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentTitle(translate("Do you accept?"))
-            .setContentText("$type:$username-$peerId")
+            // Waldlust(DSK-07): 접속한 쪽 이름(username)은 알림에 넣지 않는다(부록 A-31).
+            .setContentText("$type:$peerId")
             // .setStyle(MediaStyle().setShowActionsInCompactView(0, 1))
             // .addAction(R.drawable.check_blue, "check", genLoginRequestPendingIntent(true))
             // .addAction(R.drawable.close_red, "close", genLoginRequestPendingIntent(false))
@@ -766,7 +767,8 @@ class MainService : Service() {
             .setOngoing(false)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentTitle("$type ${translate("Established")}")
-            .setContentText("$username - $peerId")
+            // Waldlust(DSK-07): 접속한 쪽 이름(username)은 알림에 넣지 않는다(부록 A-31).
+            .setContentText(peerId)
             .build()
         notificationManager.notify(getClientNotifyID(clientID), notification)
     }
@@ -781,7 +783,8 @@ class MainService : Service() {
             .setOngoing(false)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setContentTitle(translate("Do you accept?"))
-            .setContentText("$type:$username-$peerId")
+            // Waldlust(DSK-07): 접속한 쪽 이름(username)은 알림에 넣지 않는다(부록 A-31).
+            .setContentText("$type:$peerId")
             .build()
         notificationManager.notify(getClientNotifyID(clientID), notification)
     }

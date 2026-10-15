@@ -465,9 +465,10 @@ class _CmHeaderState extends State<_CmHeader>
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Waldlust(DSK-07): 접속한 쪽 이름(client.name)은 보이지 않는다 — ID 가 이름 자리로(부록 A-31).
                 FittedBox(
                     child: Text(
-                  client.name,
+                  client.peerId,
                   style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -476,12 +477,6 @@ class _CmHeaderState extends State<_CmHeader>
                   ),
                   maxLines: 1,
                 )),
-                FittedBox(
-                  child: Text(
-                    "(${client.peerId})",
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
                 if (client.type_() == ClientType.terminal)
                   FittedBox(
                     child: Text(
@@ -569,33 +564,17 @@ class _CmHeaderState extends State<_CmHeader>
   @override
   bool get wantKeepAlive => true;
 
+  // Waldlust(DSK-07): 이름 첫 글자·계정 사진 대신 같은 사람 아이콘(부록 A-31).
   Widget _buildClientAvatar() {
-    return buildAvatarWidget(
-          avatar: client.avatar,
-          size: 70,
-          borderRadius: 15,
-          fallback: _buildInitialAvatar(),
-        ) ??
-        _buildInitialAvatar();
-  }
-
-  Widget _buildInitialAvatar() {
     return Container(
       width: 70,
       height: 70,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: str2color(client.name),
+        color: WaldPalette.neutral700,
         borderRadius: BorderRadius.circular(15.0),
       ),
-      child: Text(
-        client.name.isNotEmpty ? client.name[0] : '?',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-          fontSize: 55,
-        ),
-      ),
+      child: Icon(waldIcon(Icons.person), color: Colors.white, size: 40),
     );
   }
 }

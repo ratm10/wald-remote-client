@@ -29,7 +29,8 @@ var wald_svg = {
     circleAlert: <svg .lucide viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
     info: <svg .lucide viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>,
     triangleAlert: <svg .lucide viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>,
-    circleCheck: <svg .lucide viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></svg>
+    circleCheck: <svg .lucide viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></svg>,
+    user: <svg .lucide viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
 };
 
 // ---------------------------------------------------------------- 메인 창(수신 전용)
@@ -270,7 +271,8 @@ function waldCmBody(me) {
     </div>;
 }
 
-// 머리 카드: n900·반경 8, 아바타 70(반경 15), 이름 20 굵게, (ID) 14, 종류 12, 상태 + 경과 시간, 채팅 아이콘.
+// 머리 카드: n900·반경 8, 아바타 70(반경 15), ID 20 굵게, 종류 12, 상태 + 경과 시간, 채팅 아이콘.
+// 접속한 쪽 이름(c.name)은 보이지 않는다 — 아바타는 이름 첫 글자·계정 사진 대신 같은 사람 아이콘(부록 A-31).
 function waldCmHeader(c, show_chat_icon) {
     var auth = c.authorized;
     var kind = c.is_file_transfer ? translate('Transfer file')
@@ -280,11 +282,9 @@ function waldCmHeader(c, show_chat_icon) {
     var state = auth ? (c.disconnected ? translate('Disconnected') : translate('Connected'))
         : translate('Request access to your device') + "...";
     return <div .wald-cm-header>
-        {c.avatar ? <img .wald-cm-avatar src={c.avatar} />
-            : <div .wald-cm-avatar style={"background: " + string2RGB(c.name, 1)}>{c.name[0].toUpperCase()}</div>}
+        <div .wald-cm-avatar>{wald_svg.user}</div>
         <div .wald-cm-who>
-            <div .wald-cm-name>{c.name}</div>
-            <div .wald-cm-peer>({c.peer_id})</div>
+            <div .wald-cm-name>{c.peer_id}</div>
             {kind ? <div .wald-cm-kind>{kind}</div> : ""}
             <div .wald-cm-state>{state}{auth ? " " : ""}{auth ? <span #wald-time>{waldElapsed(c.time, c.now)}</span> : ""}</div>
         </div>

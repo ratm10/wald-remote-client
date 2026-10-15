@@ -431,12 +431,15 @@ div.wald-cm-header {
     margin-right: 10px;
 }
 
+/* 접속한 쪽 이름 첫 글자 대신 같은 사람 아이콘(부록 A-31): n700 바탕, 흰 아이콘 40 */
 div.wald-cm-avatar {
-    text-align: center;
-    font-size: 55px;
-    line-height: 70px;
-    font-weight: bold;
-    color: white;
+    background: #404040;
+}
+
+div.wald-cm-avatar svg {
+    size: 40px;
+    margin: 15px;
+    stroke: white;
 }
 
 div.wald-cm-who {
@@ -449,11 +452,6 @@ div.wald-cm-name {
     line-height: 25px;
     font-weight: bold;
     @ELLIPSIS;
-}
-
-div.wald-cm-peer {
-    font-size: 14px;
-    line-height: 18px;
 }
 
 div.wald-cm-kind {

@@ -51,7 +51,10 @@ class ChatPage extends StatelessWidget implements PageShape {
                               : waldIcon(Icons.call_received_rounded),
                           color: MyTheme.accent)
                       .marginOnly(right: 6),
-                  Text("${user.firstName}   ${user.id}"),
+                  // Waldlust(DSK-07): 받은 접속(수신)은 접속한 쪽 이름 없이 ID 만(부록 A-31).
+                  Text(key.isOut
+                      ? "${user.firstName}   ${user.id}"
+                      : user.id),
                   if (connected)
                     Container(
                       width: 10,
