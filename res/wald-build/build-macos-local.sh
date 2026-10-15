@@ -126,7 +126,10 @@ sed -i '' -e "s/MACOSX_DEPLOYMENT_TARGET = [0-9]*\.[0-9]*;/MACOSX_DEPLOYMENT_TAR
   python3 build.py --flutter --hwcodec --unix-file-copy-paste --screencapturekit
 ) > "$LOG/macos-build.log" 2>&1 || die build
 
-APP=flutter/build/macos/Build/Products/Release/wald-remote.app
+# 번들 이름 = 이 ref 의 PRODUCT_NAME(부록 A-34 부터 'Waldlust 원격지원' — 공백이 있어 늘 따옴표로 쓴다, 그 전 ref 는 wald-remote).
+APP_BUNDLE="$(sed -n 's/^PRODUCT_NAME = //p' flutter/macos/Runner/Configs/AppInfo.xcconfig).app"
+APP="flutter/build/macos/Build/Products/Release/$APP_BUNDLE"
+[ -d "$APP" ] || die "앱 번들이 없다: $APP"
 
 # 3-1) release: 오픈소스 고지(D35)를 앱 Resources 에 넣는다 — 서명 전에(넣은 뒤 서명해야 봉인이 맞는다).
 if [ "$TARGET" = release ]; then
@@ -153,7 +156,8 @@ ditto "$APP" "$DEST" || die "앱 복사"
 # 5) 확인: 아키텍처·최소 OS, heartbeat 주소(기대값 1 이상, 운영 0 — prodtest 는 기대값이 곧 운영), API 서버를 넣었으면 그 값(1 이상).
 step verify
 DYLIB="$DEST/Contents/Frameworks/liblibrustdesk.dylib"
-echo "arch: $(lipo -archs "$DEST/Contents/MacOS/wald-remote") / minos: $(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$DEST/Contents/Info.plist")"
+EXE=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleExecutable' "$DEST/Contents/Info.plist")   # 부록 A-34 부터 번들 이름과 다르다(Waldlust)
+echo "arch: $(lipo -archs "$DEST/Contents/MacOS/$EXE") / minos: $(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$DEST/Contents/Info.plist")"
 HB_NEEDLE="${WALDLUST_HEARTBEAT_URL#*://}"
 API_URL="${WALDLUST_API_SERVER:-}"; API_URL="${API_URL%/}"; API_NEEDLE="${API_URL#*://}"
 hb=$(strings -a "$DYLIB" | grep -cF "$HB_NEEDLE")
@@ -176,7 +180,7 @@ echo "done: $DEST"
 
 # 6) dmg(wald-macos.yml 'Create unsigned dmg' 와 같은 인자)를 dist/<버전>-<sha9>-<대상>/ 에 manifest 와 함께 모은다.
 #    시험본은 대상 이름을 파일명에 넣어 배포본으로 착각하지 않게 한다(build-windows-local.ps1 -Inno 와 같은 규칙 — D36).
-#    create-dmg 는 원본을 폴더로 다루므로(cd "$2") wald-remote.app 하나만 든 폴더를 넘긴다.
+#    create-dmg 는 원본을 폴더로 다루므로(cd "$2") 앱 번들 하나만 든 폴더를 넘긴다.
 #    Finder AppleScript(창 배치)가 권한 문제로 실패하면 배치 없이(--skip-jenkins) 다시 만든다.
 step dmg
 COMMIT=$(git rev-parse HEAD)
@@ -186,8 +190,8 @@ DMG="$DIST/waldlust-remote$SUFFIX-$VER-macos-arm64$TSUF.dmg"
 DMG_NOTE=""
 STAGE="$OUT/dmg-stage-macos"
 rm -rf "$STAGE" "$DMG"; mkdir -p "$STAGE"
-ditto "$APP" "$STAGE/wald-remote.app" || die "dmg 원본 복사"
-DMG_ARGS=(--icon wald-remote.app 200 190 --hide-extension wald-remote.app --window-size 800 400 --app-drop-link 600 185)
+ditto "$APP" "$STAGE/$APP_BUNDLE" || die "dmg 원본 복사"
+DMG_ARGS=(--icon "$APP_BUNDLE" 200 190 --hide-extension "$APP_BUNDLE" --window-size 800 400 --app-drop-link 600 185)
 if ! create-dmg "${DMG_ARGS[@]}" "$DMG" "$STAGE" > "$LOG/macos-dmg.log" 2>&1; then
   rm -f "$DMG"
   create-dmg --skip-jenkins "${DMG_ARGS[@]}" "$DMG" "$STAGE" >> "$LOG/macos-dmg.log" 2>&1 || die dmg
