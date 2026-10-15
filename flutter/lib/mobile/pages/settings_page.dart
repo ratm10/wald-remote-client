@@ -840,19 +840,7 @@ class _SettingsState extends State<SettingsPage> with WidgetsBindingObserver {
               onPressed: (context) {
                 showLanguageSettings(gFFI.dialogManager);
               }),
-          SettingsTile(
-            title: Text(translate(
-                Theme.of(context).brightness == Brightness.light
-                    ? 'Light Theme'
-                    : 'Dark Theme')),
-            leading: Icon(waldIcon(
-                Theme.of(context).brightness == Brightness.light
-                    ? Icons.dark_mode
-                    : Icons.light_mode)),
-            onPressed: (context) {
-              showThemeSettings(gFFI.dialogManager);
-            },
-          ),
+          // Waldlust(DSK-07, 부록 A-27): 다크 모드 보류 — 테마 항목을 숨긴다(showThemeSettings 는 다시 도입할 때 쓴다).
           if (!bind.isDisableAccount())
             SettingsTile.switchTile(
               title: Text(translate('note-at-conn-end-tip')),

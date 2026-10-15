@@ -293,13 +293,6 @@ class AutocompletePeerTile extends StatefulWidget {
 }
 
 class AutocompletePeerTileState extends State<AutocompletePeerTile> {
-  List _frontN<T>(List list, int n) {
-    if (list.length <= n) {
-      return list;
-    } else {
-      return list.sublist(0, n);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -405,26 +398,7 @@ class AutocompletePeerTileState extends State<AutocompletePeerTile> {
                     )
                   ],
                 ))));
-    final colors = _frontN(widget.peer.tags, 25)
-        .map((e) => gFFI.abModel.getCurrentAbTagColor(e))
-        .toList();
-    return Tooltip(
-      message: !(isDesktop || isWebDesktop)
-          ? ''
-          : widget.peer.tags.isNotEmpty
-              ? '${translate('Tags')}: ${widget.peer.tags.join(', ')}'
-              : '',
-      child: Stack(children: [
-        child,
-        if (colors.isNotEmpty)
-          Positioned(
-            top: 5,
-            right: 10,
-            child: CustomPaint(
-              painter: TagPainter(radius: 3, colors: colors),
-            ),
-          )
-      ]),
-    );
+    // Waldlust(DSK-04, 부록 A-27): 태그(= 매장명, 어드민 /rd) 색 점과 '태그:' 툴팁은 뺐다 — 어드민이 매장을 숨기는 중이라 뜻이 없다.
+    return child;
   }
 }

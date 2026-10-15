@@ -253,33 +253,14 @@ class _PeerCardState extends State<_PeerCard>
       BuildContext context, Peer peer, Rx<BoxDecoration?>? deco) {
     hideUsernameOnCard ??=
         bind.mainGetBuildinOption(key: kHideUsernameOnCard) == 'Y';
-    final colors = _frontN(peer.tags, 25)
-        .map((e) => gFFI.abModel.getCurrentAbTagColor(e))
-        .toList();
-    return Tooltip(
-      message: !(isDesktop || isWebDesktop)
-          ? ''
-          : peer.tags.isNotEmpty
-              ? '${translate('Tags')}: ${peer.tags.join(', ')}'
-              : '',
-      child: Stack(children: [
-        Obx(
-          () => deco == null
-              ? makeChild(stateGlobal.isPortrait.isTrue, peer)
-              : Container(
-                  foregroundDecoration: deco.value,
-                  child: makeChild(stateGlobal.isPortrait.isTrue, peer),
-                ),
-        ),
-        if (colors.isNotEmpty)
-          Obx(() => Positioned(
-                top: 2,
-                right: stateGlobal.isPortrait.isTrue ? 20 : 10,
-                child: CustomPaint(
-                  painter: TagPainter(radius: 3, colors: colors),
-                ),
-              ))
-      ]),
+    // Waldlust(DSK-04, 부록 A-27): 태그(= 매장명, 어드민 /rd) 색 점과 '태그:' 툴팁은 뺐다 — 어드민이 매장을 숨기는 중이라 뜻이 없다.
+    return Obx(
+      () => deco == null
+          ? makeChild(stateGlobal.isPortrait.isTrue, peer)
+          : Container(
+              foregroundDecoration: deco.value,
+              child: makeChild(stateGlobal.isPortrait.isTrue, peer),
+            ),
     );
   }
 
@@ -391,39 +372,16 @@ class _PeerCardState extends State<_PeerCard>
       ),
     );
 
-    final colors = _frontN(peer.tags, 25)
-        .map((e) => gFFI.abModel.getCurrentAbTagColor(e))
-        .toList();
-    return Tooltip(
-      message: peer.tags.isNotEmpty
-          ? '${translate('Tags')}: ${peer.tags.join(', ')}'
-          : '',
-      child: Stack(children: [
-        child,
-        if (_shouldBuildPasswordIcon(peer))
-          Positioned(
-            top: 4,
-            left: 12,
-            child: Icon(Icons.key, size: 12, color: Colors.white),
-          ),
-        if (colors.isNotEmpty)
-          Positioned(
-            top: 4,
-            right: 12,
-            child: CustomPaint(
-              painter: TagPainter(radius: 4, colors: colors),
-            ),
-          )
-      ]),
-    );
-  }
-
-  List _frontN<T>(List list, int n) {
-    if (list.length <= n) {
-      return list;
-    } else {
-      return list.sublist(0, n);
-    }
+    // Waldlust(DSK-04, 부록 A-27): 태그(= 매장명, 어드민 /rd) 색 점과 '태그:' 툴팁은 뺐다 — 어드민이 매장을 숨기는 중이라 뜻이 없다.
+    return Stack(children: [
+      child,
+      if (_shouldBuildPasswordIcon(peer))
+        Positioned(
+          top: 4,
+          left: 12,
+          child: Icon(Icons.key, size: 12, color: Colors.white),
+        ),
+    ]);
   }
 
   Widget checkBoxOrActionMorePortrait(Peer peer) {

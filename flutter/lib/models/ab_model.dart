@@ -495,7 +495,7 @@ class AbModel {
         }
         if (hasSynced) {
           BotToast.showText(
-              contentColor: Colors.lightBlue,
+              contentColor: WaldPalette.neutral800, // Waldlust(부록 A-27)
               text: translate('synced_peer_readded_tip'));
           _syncAllFromRecent = true;
         }

@@ -253,18 +253,20 @@ class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {
 class MyTheme {
   MyTheme._();
 
-  // Waldlust(DSK-07): 어드민 톤. 강조(선택·진행·링크·켜진 토글)는 어드민 파랑, 회색은 무채색 단계.
+  // Waldlust(DSK-07): 어드민 톤. 강조(선택·진행·켜진 토글·체크)는 검정, 회색은 무채색 단계.
+  // 2026-10-15(부록 A-27): 어드민 파랑 → 검정(어드민이 체크·선택·토글을 검정으로 쓴다). 라이트 전용 —
+  // 다크 모드는 보류라(getThemeModePreference) 다크 바탕 위 대비는 다시 도입할 때 본다.
   static const Color grayBg = WaldPalette.neutral100;
-  static const Color accent = WaldPalette.blue600;
-  static const Color accent50 = WaldPalette.blue600a77;
-  static const Color accent80 = WaldPalette.blue600aAA;
+  static const Color accent = WaldPalette.neutral900;
+  static const Color accent50 = WaldPalette.neutral900a77;
+  static const Color accent80 = WaldPalette.neutral900aAA;
   static const Color canvasColor = Color(0xFF212121);
   static const Color border = WaldPalette.neutral300;
   static const Color idColor = Color(0xFF00B6F0);
   static const Color darkGray = WaldPalette.neutral400;
   static const Color cmIdColor = Color(0xFF21790B);
   static const Color dark = Colors.black87;
-  static const Color button = WaldPalette.blue600;
+  static const Color button = WaldPalette.neutral900;
   static const Color hoverBorder = WaldPalette.neutral400;
 
   // ListTile
@@ -276,24 +278,62 @@ class MyTheme {
     ),
   );
 
+  // Waldlust(DSK-07, 부록 A-27): 켜짐·선택 = 검정(어드민 accent-neutral-900), 꺼짐 = 회색. 라이트 값.
   static SwitchThemeData switchTheme() {
     return SwitchThemeData(
-        splashRadius: (isDesktop || isWebDesktop) ? 0 : kRadialReactionRadius);
+      splashRadius: (isDesktop || isWebDesktop) ? 0 : kRadialReactionRadius,
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return WaldPalette.neutral200;
+        }
+        return states.contains(WidgetState.selected)
+            ? WaldPalette.neutral900
+            : WaldPalette.white;
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return WaldPalette.neutral100;
+        }
+        return states.contains(WidgetState.selected)
+            ? WaldPalette.neutral400
+            : WaldPalette.neutral300;
+      }),
+    );
   }
 
   static RadioThemeData radioTheme() {
     return RadioThemeData(
-        splashRadius: (isDesktop || isWebDesktop) ? 0 : kRadialReactionRadius);
+      splashRadius: (isDesktop || isWebDesktop) ? 0 : kRadialReactionRadius,
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.disabled)) {
+          return WaldPalette.neutral300;
+        }
+        return states.contains(WidgetState.selected)
+            ? WaldPalette.neutral900
+            : WaldPalette.neutral500;
+      }),
+    );
   }
 
   // Checkbox
-  static const CheckboxThemeData checkboxTheme = CheckboxThemeData(
+  static final CheckboxThemeData checkboxTheme = CheckboxThemeData(
     splashRadius: 0,
-    shape: RoundedRectangleBorder(
+    shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.all(
         Radius.circular(5),
       ),
     ),
+    fillColor: WidgetStateProperty.resolveWith((states) {
+      if (states.contains(WidgetState.disabled)) {
+        return states.contains(WidgetState.selected)
+            ? WaldPalette.neutral300
+            : null;
+      }
+      return states.contains(WidgetState.selected)
+          ? WaldPalette.neutral900
+          : null;
+    }),
+    checkColor: const WidgetStatePropertyAll(WaldPalette.white),
   );
 
   // TextButton
@@ -385,6 +425,13 @@ class MyTheme {
     hoverColor: WaldPalette.neutral200,
     scaffoldBackgroundColor: Colors.white,
     dialogBackgroundColor: Colors.white,
+    // Waldlust(DSK-07, 부록 A-27): 기본값(Colors.blue)이 비밀번호 보기 아이콘 등에 남아 있었다.
+    primaryColor: WaldPalette.neutral900,
+    textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: WaldPalette.neutral900,
+      selectionColor: WaldPalette.neutral200,
+      selectionHandleColor: WaldPalette.neutral900,
+    ),
     // Waldlust(DSK-07): Android 앱바도 어드민 톤 — 흰 바탕·진한 글자·아래 경계선, 상태 표시줄도
     // 같은 색(데스크탑은 AppBar 를 쓰지 않는다).
     appBarTheme: AppBarTheme(
@@ -430,6 +477,8 @@ class MyTheme {
     textButtonTheme: (isDesktop || isWebDesktop)
         ? TextButtonThemeData(
             style: TextButton.styleFrom(
+              // Waldlust(DSK-07, 부록 A-27): 파일 전송 경로 표시줄·툴바 손잡이 아이콘이 따른다.
+              foregroundColor: WaldPalette.neutral900,
               splashFactory: NoSplash.splashFactory,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(WaldSize.radius),
@@ -455,7 +504,9 @@ class MyTheme {
             MenuStyle(backgroundColor: MaterialStatePropertyAll(Colors.white))),
     colorScheme: ColorScheme.light(
         primary: accent,
+        onPrimary: WaldPalette.white,
         secondary: accent,
+        onSecondary: WaldPalette.white,
         background: grayBg,
         error: WaldPalette.red600),
     popupMenuTheme: PopupMenuThemeData(
@@ -570,7 +621,10 @@ class MyTheme {
   );
 
   static ThemeMode getThemeModePreference() {
-    return themeModeFromString(bind.mainGetLocalOption(key: kCommConfKeyTheme));
+    // Waldlust(DSK-07, 부록 A-27): 다크 모드 보류 — 저장된 값·시스템 설정과 관계없이 라이트로 연다.
+    // 다시 도입할 때 아래 줄을 되살리고 설정의 테마 항목(데스크탑·모바일)을 다시 보인다.
+    // return themeModeFromString(bind.mainGetLocalOption(key: kCommConfKeyTheme));
+    return ThemeMode.light;
   }
 
   static Future<void> changeDarkMode(ThemeMode mode) async {
@@ -1276,10 +1330,10 @@ void msgBox(SessionID sessionId, String type, String title, String text,
   );
 }
 
-// Waldlust(DSK-07): 어드민 톤 상태색(입력·안내 파랑, 성공 초록, 오류 빨강).
+// Waldlust(DSK-07): 어드민 톤 상태색(입력·안내 회색, 성공 초록, 오류 빨강 — 부록 A-27 전에는 입력·안내가 파랑).
 Color? _msgboxColor(String type) {
   if (type == "input-password" || type == "custom-os-password") {
-    return WaldPalette.blue600;
+    return WaldPalette.neutral700;
   }
   if (type.contains("success")) {
     return WaldPalette.green600;
@@ -1287,7 +1341,7 @@ Color? _msgboxColor(String type) {
   if (type.contains("error") || type == "re-input-password") {
     return WaldPalette.red600;
   }
-  return WaldPalette.blue600;
+  return WaldPalette.neutral700;
 }
 
 Widget msgboxIcon(String type) {

@@ -122,7 +122,8 @@ final waldAbBrandPanel = true;
 
 const _kAllAbGuid = 'all'; // 서버의 '전체' 주소록(권한 범위 전체 기기)
 
-/// Waldlust(DSK-04, 부록 A-18): 주소록 기기 목록 위에 한 줄 — 선택한 브랜드 · 클라이언트 수, 활성·비활성 수.
+/// Waldlust(DSK-04, 부록 A-18): 주소록 기기 목록 위에 한 줄 — 전체·활성·비활성 수.
+/// 2026-10-15(부록 A-27): 브랜드명과 '클라이언트'는 뺐다(왼쪽 목록에서 고른 브랜드가 보인다).
 /// 활성은 카드 점과 같은 기준(hbbs 온라인 조회 → `Peer.online`)이고, 조회 결과가 오면 목록 모델이 알린다.
 Widget waldAbCountBar(Widget list) {
   if (!waldAbBrandPanel) return list;
@@ -149,21 +150,18 @@ class _WaldAbCountBar extends StatelessWidget {
             Text('${translate(label)} $n', style: style),
           ],
         ).marginOnly(left: 14);
+    // 주소록을 바꾸면 목록 모델이 다시 채워지며 알린다 — 브랜드명을 읽지 않으므로 Obx 는 두지 않는다.
     return ListenableBuilder(
       listenable: model,
-      builder: (context, _) => Obx(() {
-        final name =
-            gFFI.abModel.translatedName(gFFI.abModel.currentName.value);
+      builder: (context, _) {
         final total = model.peers.length;
         final online = model.peers.where((p) => p.online).length;
         return Row(children: [
-          Flexible(
-              child: Text('$name · ${translate('Clients')} $total',
-                  style: style, overflow: TextOverflow.ellipsis)),
+          Text('${translate('Total')} $total', style: style),
           count(Colors.green, 'Active', online),
           count(WaldPalette.red600, 'Inactive', total - online),
         ]);
-      }),
+      },
     ).marginOnly(left: 2, bottom: 8);
   }
 }
@@ -221,9 +219,10 @@ class WaldAbBrandList extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(isAll ? Icons.apps_rounded : Icons.storefront_outlined,
-                    color: fg ?? MyTheme.accent, size: 19)
-                .marginOnly(right: 6),
+            // 부록 A-27: 브랜드 줄의 가게 모양 아이콘은 뺐다('전체'의 격자 아이콘만 둔다).
+            if (isAll)
+              Icon(Icons.apps_rounded, color: fg ?? MyTheme.accent, size: 19)
+                  .marginOnly(right: 6),
             Expanded(
                 child: Text(gFFI.abModel.translatedName(name),
                     style: TextStyle(color: fg),

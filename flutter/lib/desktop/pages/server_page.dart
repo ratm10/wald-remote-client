@@ -998,7 +998,7 @@ class _CmControlPanel extends StatelessWidget {
         Offstage(
           offstage: !client.fromSwitch,
           child: buildButton(context,
-              color: WaldPalette.blue600,
+              color: WaldPalette.neutral900, // Waldlust(부록 A-27): 파랑 → 검정
               onClick: () => handleSwitchBack(context),
               icon: Icon(waldIcon(Icons.reply), color: Colors.white),
               text: "Switch Sides",

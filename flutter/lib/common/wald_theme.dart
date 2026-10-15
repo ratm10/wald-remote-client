@@ -2,7 +2,9 @@
 //
 // 값은 어드민 실사이트 CSS(Tailwind v4 neutral·green·red·amber·blue)에서 옮겼다.
 // neutral 800·950 과 red 950 은 어드민 CSS 에 없어 Tailwind 기본값으로 보탰다(다크 모드용).
-// 주요 버튼은 검정(다크는 밝은 회색), 선택·진행·링크·켜진 토글은 파랑(blue600)이다.
+// 주요 버튼과 강조(선택·진행·켜진 토글·체크)는 검정(neutral900), 링크는 본문색 + 밑줄이다(어드민과 같다).
+// 파랑(blue600·700)은 어드민 팔레트와 짝을 맞추려고 남겨 둘 뿐 쓰지 않는다(2026-10-15 — 명세 부록 A-27).
+// 다크 모드는 보류다(MyTheme.getThemeModePreference) — 다크 값은 다시 도입할 때를 위해 남긴다.
 // 이 파일은 common.dart 를 import 하지 않는다(common.dart 가 이 파일을 쓴다).
 import 'package:flutter/material.dart';
 
@@ -46,6 +48,8 @@ class WaldPalette {
   // 알파 변형(const 문맥에서 쓰인다).
   static const Color blue600a77 = Color(0x77155DFC);
   static const Color blue600aAA = Color(0xAA155DFC);
+  static const Color neutral900a77 = Color(0x77171717);
+  static const Color neutral900aAA = Color(0xAA171717);
   static const Color neutral200a80 = Color(0x80E5E5E5);
   static const Color neutral800a80 = Color(0x80262626);
 }
@@ -54,6 +58,7 @@ class WaldSize {
   WaldSize._();
 
   static const double radius = 8;
+  static const double cardRadius = 12; // 어드민 카드(rounded-xl)
   static const double dialogRadius = 16;
   static const double buttonHeight = 32;
   static const double buttonFont = 14;
@@ -129,6 +134,14 @@ class WaldColors extends ThemeExtension<WaldColors> {
     );
   }
 }
+
+/// 어드민 카드(흰 바탕 · neutral200 1px 테두리 · 둥글기 12 · 그림자 없음 — `rounded-xl border bg-white`).
+/// 설정 화면 섹션에 쓴다(부록 A-27 — 전에는 M2 Card 의 회색 바탕 + 그림자).
+BoxDecoration waldCardDecoration() => BoxDecoration(
+      color: WaldPalette.white,
+      border: Border.all(color: WaldPalette.neutral200),
+      borderRadius: BorderRadius.circular(WaldSize.cardRadius),
+    );
 
 /// 데스크탑 입력 칸. 채움색은 기존처럼 바탕과 같은 톤으로 두어 테두리 없는 칸(홈 화면 ID·비밀번호 등)이
 /// 바탕에 묻히게 하고, 테두리만 어드민처럼 연한 회색 · 포커스는 진한 색 · 오류는 빨강으로 둔다.

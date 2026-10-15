@@ -336,9 +336,10 @@ class ToolbarState {
 
 class _ToolbarTheme {
   // Waldlust(DSK-07): 어드민 톤. 일반 버튼은 어두운 알약(라이트·다크 모두에서 보인다),
-  // 켜진 상태(핀·현재 화면 등)만 파랑, 닫기·녹화 중은 빨강.
-  static const Color blueColor = MyTheme.button;
-  static const Color hoverBlueColor = WaldPalette.blue700;
+  // 켜진 상태(핀·현재 화면 등)는 밝은 회색 알약, 닫기·녹화 중은 빨강.
+  // 2026-10-15(부록 A-27): 켜짐은 파랑이었다. 검정(n900)은 일반 알약(n800)과 구분이 안 돼 밝은 회색으로 둔다.
+  static const Color blueColor = WaldPalette.neutral500;
+  static const Color hoverBlueColor = WaldPalette.neutral600;
   static const Color pillColor = WaldPalette.neutral800;
   static const Color hoverPillColor = WaldPalette.neutral700;
   static Color inactiveColor = WaldPalette.neutral800;
@@ -1989,7 +1990,8 @@ class _RectValueThumbShape extends SliderComponentShape {
     );
     final Color? evaluatedColor = colorTween.evaluate(enableAnimation);
     final Color? thumbColor = sliderTheme.thumbColor;
-    final Color fillColor = evaluatedColor ?? thumbColor ?? Colors.blueAccent;
+    final Color fillColor =
+        evaluatedColor ?? thumbColor ?? WaldPalette.neutral900;
 
     final RRect rrect = RRect.fromRectAndRadius(
       Rect.fromCenter(center: center, width: width, height: height),
@@ -3386,7 +3388,7 @@ class _DraggableShowHideState extends State<_DraggableShowHide> {
     const double iconSize = 20;
 
     buttonWrapper(VoidCallback? onPressed, Widget child,
-        {Color hoverColor = _ToolbarTheme.blueColor}) {
+        {Color hoverColor = WaldPalette.neutral900}) {
       final bgColor = buttonStyle.backgroundColor?.resolve({});
       return TextButton(
         onPressed: onPressed,
@@ -3610,7 +3612,7 @@ class _MinimizedMonitorSwitchButton extends StatelessWidget {
             padding: MaterialStateProperty.all(EdgeInsets.zero),
             backgroundColor: MaterialStateProperty.resolveWith((states) {
               if (states.contains(MaterialState.hovered)) {
-                return _ToolbarTheme.blueColor.withOpacity(0.15);
+                return WaldPalette.neutral900.withOpacity(0.15);
               }
               return null;
             }),
@@ -3621,7 +3623,7 @@ class _MinimizedMonitorSwitchButton extends StatelessWidget {
               SvgPicture.asset(
                 'assets/display_switcher.svg',
                 colorFilter:
-                    ColorFilter.mode(_ToolbarTheme.blueColor, BlendMode.srcIn),
+                    ColorFilter.mode(WaldPalette.neutral900, BlendMode.srcIn),
                 width: iconSize,
                 height: iconSize,
               ),

@@ -40,7 +40,9 @@ class _DesktopSettingsCardState extends State<DesktopSettingsCard> {
         Flexible(
           child: SizedBox(
             width: _kCardFixedWidth,
-            child: Card(
+            // Waldlust(DSK-07, 부록 A-27): 설정 섹션과 같은 어드민 카드.
+            child: Container(
+              decoration: waldCardDecoration(),
               child: Column(
                 children: [
                   header(),

@@ -1134,9 +1134,11 @@ class _FileManagerViewState extends State<FileManagerView> {
           return Padding(
             padding: EdgeInsets.symmetric(vertical: 1),
             child: Obx(() => Container(
+                // Waldlust(DSK-07, 부록 A-27): 선택 행 = 회색(n300) 바탕 + 진한 글자. 전에는 파랑 + 흰 글자.
+                // 목록 바탕이 n100 이라 n200 은 구분이 약해 n300 으로 둔다.
                 decoration: BoxDecoration(
                   color: selectedItems.items.contains(entry)
-                      ? MyTheme.button
+                      ? WaldPalette.neutral300
                       : Theme.of(context).cardColor,
                   borderRadius: BorderRadius.all(
                     Radius.circular(5.0),
@@ -1183,11 +1185,6 @@ class _FileManagerViewState extends State<FileManagerView> {
                                                     .labelColor),
                                         Expanded(
                                             child: Text(entry.name.nonBreaking,
-                                                style: TextStyle(
-                                                    color: selectedItems.items
-                                                            .contains(entry)
-                                                        ? Colors.white
-                                                        : null),
                                                 overflow:
                                                     TextOverflow.ellipsis))
                                       ]),
@@ -1214,7 +1211,7 @@ class _FileManagerViewState extends State<FileManagerView> {
                                           fontSize: 12,
                                           color: selectedItems.items
                                                   .contains(entry)
-                                              ? Colors.white70
+                                              ? WaldPalette.neutral600
                                               : MyTheme.darkGray,
                                         ),
                                       )),
@@ -1241,7 +1238,7 @@ class _FileManagerViewState extends State<FileManagerView> {
                                         fontSize: 10,
                                         color:
                                             selectedItems.items.contains(entry)
-                                                ? Colors.white70
+                                                ? WaldPalette.neutral600
                                                 : MyTheme.darkGray),
                                   ),
                                 ),

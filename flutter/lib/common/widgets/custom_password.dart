@@ -121,7 +121,7 @@ class PasswordStrengthIndicator extends StatelessWidget {
     if (strength < weakMedium) {
       return Colors.yellow;
     } else if (strength < mediumStrong) {
-      return Colors.blue;
+      return WaldPalette.amber600; // Waldlust(부록 A-27): '보통'은 파랑 대신 주황
     } else {
       return Colors.green;
     }

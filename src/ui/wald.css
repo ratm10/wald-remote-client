@@ -1,8 +1,9 @@
 /* Waldlust(DSK-07): 32비트 Windows 수신 전용(Sciter) 화면 — Flutter 수신 전용과 같은 어드민 톤(wald.tis 참고).
    색 정본 flutter/lib/common/wald_theme.dart (Tailwind v4 neutral 등):
    n100 #F5F5F5 · n200 #E5E5E5 · n300 #D4D4D4 · n400 #A1A1A1 · n500 #737373 · n600 #525252 · n900 #171717
-   blue600 #155DFC · red500 #FB2C36 · red600 #E40014 · green500 #00C758 · green600 #00A544 · amber500 #F99C00
-   구분선 #E7E7E7 = Flutter Divider(#1F000000)를 n100 위에 그린 색. */
+   red500 #FB2C36 · red600 #E40014 · green500 #00C758 · green600 #00A544 · amber500 #F99C00
+   구분선 #E7E7E7 = Flutter Divider(#1F000000)를 n100 위에 그린 색.
+   2026-10-15(부록 A-27): 파랑(blue600) 강조를 검정(n900)으로 — 링크는 본문색 + 밑줄, 켜진 타일·말풍선·탭 밑줄은 검정. */
 
 /* ---------------------------------------------------------------- 메인 창(수신 전용) */
 
@@ -109,7 +110,7 @@ div.wald-board {
 div.wald-bar {
     width: 2px;
     height: 52px;
-    background: #155DFC;
+    background: #171717;
 }
 
 div.wald-board-body {
@@ -295,7 +296,7 @@ div.wald-status-text {
 
 div.wald-start-service {
     margin: 2px 0 0 36px;
-    color: #155DFC;
+    color: #171717;
     text-decoration: underline;
     cursor: pointer;
 }
@@ -366,7 +367,7 @@ html.wald-cm div.tab {
 html.wald-cm div.active-tab {
     background: rgba(255, 255, 255, 0.54);
     border: none;
-    border-bottom: #155DFC solid 1px;
+    border-bottom: #171717 solid 1px;
     color: #171717;
 }
 
@@ -515,11 +516,11 @@ html.wald-cm icon.wald-tile {
 }
 
 html.wald-cm icon.wald-tile.on {
-    background: #155DFC;
+    background: #171717;
 }
 
 html.wald-cm icon.wald-tile.on.locked {
-    background: rgba(21, 93, 252, 0.6);
+    background: rgba(23, 23, 23, 0.6);
 }
 
 html.wald-cm icon.wald-tile.locked {
@@ -627,7 +628,7 @@ html.wald-cm div.chatbox div.text {
 }
 
 html.wald-cm div.chatbox div.right-side div.text {
-    background: #155DFC;
+    background: #171717;
 }
 
 html.wald-cm div.chatbox div.send {
@@ -644,7 +645,7 @@ html.wald-cm div.chatbox div.send input {
 }
 
 html.wald-cm div.chatbox div.send svg {
-    fill: #155DFC;
+    fill: #171717;
 }
 
 /* ---------------------------------------------------------------- 설치 화면 (flutter/lib/desktop/pages/install_page.dart, em = 13) */
@@ -706,7 +707,7 @@ div.wald-install-note > svg {
 
 div.wald-link {
     margin-top: 13px;
-    color: #155DFC;
+    color: #171717;
     text-decoration: underline;
     cursor: pointer;
 }

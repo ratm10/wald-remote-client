@@ -415,8 +415,9 @@ class ScamWarningDialogState extends State<ScamWarningDialog> {
                                       key: "show-scam-warning", value: "N");
                                 }
                               },
+                        // Waldlust(DSK-07, 부록 A-27): 파랑 → 검정(어드민 주요 버튼).
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
+                          backgroundColor: WaldPalette.neutral900,
                         ),
                         child: Text(
                           isButtonLocked
@@ -438,8 +439,9 @@ class ScamWarningDialogState extends State<ScamWarningDialog> {
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
+                        // Waldlust(DSK-07, 부록 A-27): 파랑 → 검정(어드민 주요 버튼).
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
+                          backgroundColor: WaldPalette.neutral900,
                         ),
                         child: Text(
                           translate("Decline"),

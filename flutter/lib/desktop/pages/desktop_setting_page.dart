@@ -28,7 +28,7 @@ import '../../common/widgets/dialog.dart';
 import '../../common/widgets/login.dart';
 
 const double _kTabWidth = 200;
-const double _kTabHeight = 42;
+const double _kTabHeight = 44; // Waldlust(DSK-07, 부록 A-27): 어드민 사이드바 항목 높이
 const double _kCardFixedWidth = 540;
 const double _kCardLeftMargin = 15;
 const double _kContentHMargin = 15;
@@ -36,8 +36,10 @@ const double _kContentHSubMargin = _kContentHMargin + 33;
 const double _kCheckBoxLeftMargin = 10;
 const double _kRadioLeftMargin = 10;
 const double _kListViewBottomMargin = 15;
-const double _kTitleFontSize = 20;
-const double _kContentFontSize = 15;
+// Waldlust(DSK-07, 부록 A-27): 어드민 글자 크기 — '설정' 제목 18 굵게, 섹션 제목 15 굵게, 본문 14(text-sm).
+const double _kHeaderFontSize = 18;
+const double _kTitleFontSize = 15;
+const double _kContentFontSize = 14;
 const Color _accentColor = MyTheme.accent;
 const String _kSettingPageControllerTag = 'settingPageController';
 const String _kSettingPageTabKeyTag = 'settingPageTabKey';
@@ -282,8 +284,9 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    // Waldlust(DSK-07, 부록 A-27): 어드민 배치 — 왼쪽 메뉴 흰색 + 경계선, 내용 영역 neutral50 위 흰 카드.
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: WaldPalette.white,
       body: _buildBlock(
         children: <Widget>[
           SizedBox(
@@ -295,10 +298,11 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
               ],
             ),
           ),
-          const VerticalDivider(width: 1),
+          const VerticalDivider(
+              width: 1, thickness: 1, color: WaldPalette.neutral200),
           Expanded(
             child: Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
+              color: WaldPalette.neutral50,
               child: PageView(
                 controller: controller,
                 physics: NeverScrollableScrollPhysics(),
@@ -316,9 +320,9 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
       translate('Settings'),
       textAlign: TextAlign.left,
       style: const TextStyle(
-        color: _accentColor,
-        fontSize: _kTitleFontSize,
-        fontWeight: FontWeight.w400,
+        color: WaldPalette.neutral900,
+        fontSize: _kHeaderFontSize,
+        fontWeight: FontWeight.w600,
       ),
     );
     return Row(
@@ -358,13 +362,17 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
     );
   }
 
+  // Waldlust(DSK-07, 부록 A-27): 어드민 사이드바 항목 — 둥근 칸, 선택 = 검정 바탕 + 흰 아이콘·글자, hover = neutral100.
   Widget _listItem({required _TabInfo tab}) {
     return Obx(() {
       bool selected = tab.key == selectedTab.value;
-      return SizedBox(
-        width: _kTabWidth,
-        height: _kTabHeight,
+      final fg = selected ? WaldPalette.white : WaldPalette.neutral700;
+      return Material(
+        color: selected ? WaldPalette.neutral900 : Colors.transparent,
+        borderRadius: BorderRadius.circular(WaldSize.radius),
         child: InkWell(
+          borderRadius: BorderRadius.circular(WaldSize.radius),
+          hoverColor: selected ? Colors.transparent : WaldPalette.neutral100,
           onTap: () {
             if (selectedTab.value != tab.key) {
               int index = DesktopSettingPage.tabKeys.indexOf(tab.key);
@@ -375,27 +383,28 @@ class _DesktopSettingPageState extends State<DesktopSettingPage>
             }
             selectedTab.value = tab.key;
           },
-          child: Row(children: [
-            Container(
-              width: 4,
-              height: _kTabHeight * 0.7,
-              color: selected ? _accentColor : null,
-            ),
-            Icon(
-              selected ? tab.selected : tab.unselected,
-              color: selected ? _accentColor : null,
-              size: 20,
-            ).marginOnly(left: 13, right: 10),
-            Text(
-              translate(tab.label),
-              style: TextStyle(
-                  color: selected ? _accentColor : null,
-                  fontWeight: FontWeight.w400,
-                  fontSize: _kContentFontSize),
-            ),
-          ]),
+          child: SizedBox(
+            height: _kTabHeight,
+            child: Row(children: [
+              Icon(
+                selected ? tab.selected : tab.unselected,
+                color: selected ? WaldPalette.white : WaldPalette.neutral600,
+                size: 20,
+              ).marginOnly(left: 14, right: 10),
+              Expanded(
+                child: Text(
+                  translate(tab.label),
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                      color: fg,
+                      fontWeight: FontWeight.w600,
+                      fontSize: _kContentFontSize),
+                ),
+              ),
+            ]),
+          ),
         ),
-      );
+      ).marginSymmetric(horizontal: 12, vertical: 2);
     });
   }
 }
@@ -422,7 +431,7 @@ class _GeneralState extends State<_General> {
       controller: scrollController,
       children: [
         if (!isWeb) service(),
-        theme(),
+        // Waldlust(DSK-07, 부록 A-27): 다크 모드 보류 — 테마 항목을 숨긴다(theme() 는 다시 도입할 때 쓴다).
         _Card(title: 'Language', children: [language()]),
         if (!isWeb) hwcodec(),
         if (!isWeb) audio(context),
@@ -2520,12 +2529,14 @@ Widget _Card(
     {required String title,
     required List<Widget> children,
     List<Widget>? title_suffix}) {
+  // Waldlust(DSK-07, 부록 A-27): M2 Card(회색 바탕 + 그림자) 대신 어드민 카드(흰 바탕 + 테두리).
   return Row(
     children: [
       Flexible(
         child: SizedBox(
           width: _kCardFixedWidth,
-          child: Card(
+          child: Container(
+            decoration: waldCardDecoration(),
             child: Column(
               children: [
                 Row(
@@ -2536,15 +2547,17 @@ Widget _Card(
                       textAlign: TextAlign.start,
                       style: const TextStyle(
                         fontSize: _kTitleFontSize,
+                        fontWeight: FontWeight.w600,
+                        color: WaldPalette.neutral900,
                       ),
                     )),
                     ...?title_suffix
                   ],
-                ).marginOnly(left: _kContentHMargin, top: 10, bottom: 10),
+                ).marginOnly(left: _kContentHMargin, top: 14, bottom: 8),
                 ...children
                     .map((e) => e.marginOnly(top: 4, right: _kContentHMargin)),
               ],
-            ).marginOnly(bottom: 10),
+            ).marginOnly(bottom: 12),
           ).marginOnly(left: _kCardLeftMargin, top: 15),
         ),
       ),
@@ -2878,7 +2891,8 @@ Widget _lock(
           Flexible(
             child: SizedBox(
               width: _kCardFixedWidth,
-              child: Card(
+              // Waldlust(DSK-07, 부록 A-27): 회색 Card 테두리 없이 버튼만(어드민 주요 버튼).
+              child: Container(
                 child: ElevatedButton(
                   child: SizedBox(
                       height: 25,
