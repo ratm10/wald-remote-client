@@ -5,7 +5,14 @@
 // 'flutter create' template.
 
 // The application's name. By default this is also the title of the Flutter window.
-PRODUCT_NAME = wald-remote
+// Waldlust(DSK-10 — 부록 A-34): 번들·Finder·메뉴 막대 이름 = Windows 시작 메뉴·Android 와 같은 제품명.
+// 설정 폴더·IPC·서비스 이름은 APP_NAME(Waldlust)이 정하고 이 값과 무관하다(Q-29). 경로에 공백이 들어가니 스크립트는 따옴표로 감싼다.
+PRODUCT_NAME = Waldlust 원격지원
+// 실행 파일·Swift 모듈 이름은 ASCII 로 둔다. 실행 파일 이름이 한글(NFC)이면 codesign 이 오류 없이 끝나고도 서명을 붙이지 않아
+// Xcode CodeSign 단계가 'code object is not signed at all' 로 실패한다. 실행 파일 = APP_NAME(Windows 의 Waldlust.exe 와 같다),
+// 모듈 = 이전 PRODUCT_NAME(wald-remote)에서 나오던 값 그대로(Objective-C 클래스 이름이 바뀌지 않게).
+EXECUTABLE_NAME = Waldlust
+PRODUCT_MODULE_NAME = wald_remote
 
 // The application's bundle identifier
 PRODUCT_BUNDLE_IDENTIFIER = co.kr.waldlust.remote

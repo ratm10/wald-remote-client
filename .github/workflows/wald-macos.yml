@@ -98,14 +98,15 @@ jobs:
 
       - name: Re-sign app (ad-hoc) — build.py copies service after flutter signs, breaking the bundle signature
         run: |
-          codesign --force --deep --sign - ./flutter/build/macos/Build/Products/Release/wald-remote.app
-          codesign --verify --deep --strict ./flutter/build/macos/Build/Products/Release/wald-remote.app && echo "서명 검증 통과"
+          APP="./flutter/build/macos/Build/Products/Release/Waldlust 원격지원.app"
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict "$APP" && echo "서명 검증 통과"
 
       - name: Create unsigned dmg
         run: |
           CREATE_DMG="$(readlink -f "$(command -v create-dmg)")"
           sed -i -e 's/MAXIMUM_UNMOUNTING_ATTEMPTS=3/MAXIMUM_UNMOUNTING_ATTEMPTS=7/' "$CREATE_DMG" || true
-          create-dmg --icon "wald-remote.app" 200 190 --hide-extension "wald-remote.app" --window-size 800 400 --app-drop-link 600 185 waldlust-${{ env.VERSION }}-aarch64.dmg ./flutter/build/macos/Build/Products/Release/wald-remote.app
+          create-dmg --icon "Waldlust 원격지원.app" 200 190 --hide-extension "Waldlust 원격지원.app" --window-size 800 400 --app-drop-link 600 185 waldlust-${{ env.VERSION }}-aarch64.dmg "./flutter/build/macos/Build/Products/Release/Waldlust 원격지원.app"
           ls -la *.dmg
 
       - name: Upload dmg artifact
