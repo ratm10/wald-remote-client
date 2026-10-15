@@ -21,7 +21,7 @@ The modified program is licensed under the GNU Affero General Public License, ve
 It is distributed WITHOUT ANY WARRANTY; see LICENCE for details.
 
 Source code
-  https://github.com/ratm10/wald-remote-client — each release is tagged wald-v<version>-r<n>.
+  https://github.com/waldlustpos/wald-remote-client — each release is tagged wald-v<version>-r<n>.
   Submodule libs/hbb_common: https://github.com/stevewoochoi/hbb_common (commit pinned in this repository).
 
 Open source notices (per release, including third-party licenses)
