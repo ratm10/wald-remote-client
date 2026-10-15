@@ -9,6 +9,8 @@ This program is a modified version of RustDesk.
 
 Modifications — Copyright © 2026 Waldlust Co., Ltd.
 
+  Based on RustDesk 1.4.8. Waldlust Remote versions (1.5.0 and later) are numbered on their own and
+  do not match upstream RustDesk releases.
   Modified since 2026-06-28. The fork point is upstream commit 4a54029ca; every change made for
   Waldlust is a commit after it in this repository's history. Main areas changed:
   - Branding: application name, icons, UI tone, identifiers (co.kr.waldlust.remote, waldlust://)
@@ -34,5 +36,5 @@ The 32-bit Windows build uses Sciter Engine (http://sciter.com/), copyright Terr
 한국어 요약
 
 이 프로그램은 RustDesk(© Purslane Ltd. 및 기여자, GNU AGPL-3.0)를 Waldlust Co., Ltd. 가 2026-06-28 부터
-수정한 것이다. 수정본도 GNU AGPL-3.0 으로 배포하며 어떠한 보증도 하지 않는다. 릴리즈별 소스 코드는 위 저장소의
+수정한 것이다(RustDesk 1.4.8 기반 — 1.5.0 부터의 앱 버전은 업스트림과 따로 매긴다). 수정본도 GNU AGPL-3.0 으로 배포하며 어떠한 보증도 하지 않는다. 릴리즈별 소스 코드는 위 저장소의
 태그(wald-v<버전>-r<번호>), 제3자 라이선스를 포함한 고지는 https://remote.waldpay.co.kr/oss 에 있다.

@@ -13,6 +13,9 @@ a snapshot is committed here for each release tag (this snapshot: docs commit 07
 | `build-windows-sciter.ps1 -Ref <tag> -Variant incoming -Target release -Inno` | Windows 32-bit (Sciter UI) Inno installer — unsigned |
 | `collect-notices.py` (+ `about.toml`, `about.hbs`, `notices-extra.txt`) | THIRD_PARTY_NOTICES-<platform>.txt |
 
+Installer file names: `waldlust-remote[-incoming]-<version>-<os>[-<arch>].<ext>` (e.g. `waldlust-remote-1.5.0-macos-arm64.dmg`,
+`waldlust-remote-incoming-1.5.0-windows-x86.exe`). A release tag's version must equal the source version (Cargo.toml, pubspec.yaml).
+
 Each script header lists the toolchain it expects (Rust, Flutter, vcpkg commit, NDK, LLVM, Inno Setup).
 The submodule `libs/hbb_common` is pinned at 76cc24163a3dc42d61f8f3104e7d93dcf7b0ae11 (https://github.com/stevewoochoi/hbb_common).
 
@@ -25,6 +28,6 @@ The submodule `libs/hbb_common` is pinned at 76cc24163a3dc42d61f8f3104e7d93dcf7b
 | `WALDLUST_VARIANT` | `incoming` for incoming-only builds, unset for bidirectional |
 | `WALDLUST_INCOMING_PW_STORAGE`, `WALDLUST_INCOMING_PW_SALT` | hash of the common incoming-only password (made by `res/wald-variant/preset_hash.py`; the password itself is a deployment secret and is not published) |
 | `WALDLUST_PRESET_PASSWORD` | unset (unmanaged builds) |
-| Android `--build-number` | `WALD_VERSION_CODE` (2100 or higher) |
+| Android `--build-number` | computed from the tag `wald-v<M>.<m>.<p>-r<N>`: M×1,000,000 + m×10,000 + p×100 + N (e.g. `wald-v1.5.0-r1` → 1050001) |
 
 The Android release signing key and its password are not part of the source (they are kept by Waldlust Co., Ltd.).

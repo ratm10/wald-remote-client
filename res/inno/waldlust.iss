@@ -14,6 +14,7 @@
 ;
 ; 빌드: ISCC.exe /DMyBuildDir=<flutter build 산출물 폴더> waldlust.iss
 ; 수신 전용 빌드(DSK-01)는 /DMyVariantSuffix=-incoming 을 더해 산출물 이름만 바꾼다.
+; 산출물 이름(결정 D36): waldlust-remote[-incoming]-<버전>-windows-<x64|x86>.exe — macOS·Android 설치 파일과 같은 규칙.
 ; 32비트 Windows(Sciter, DSK-07 부록 A-19)는 /DMyArch=x86 — MyBuildDir 에 wald-remote.exe(Sciter) + sciter.dll 을 둔다.
 ;  32비트 설치라 64비트 Windows 에서는 {autopf} = Program Files (x86) 이고, 32비트 앱의 get_default_install_path() 도 같은 곳이다.
 ; AppId·설치 경로·서비스 이름은 두 변형이 같아서, 한쪽 설치 위에 다른 쪽을 덮어 설치하면 ID 가 유지된다.
@@ -45,9 +46,9 @@ DefaultGroupName=Waldlust 원격지원
 UninstallDisplayName=Waldlust 원격지원
 UninstallDisplayIcon={app}\Waldlust.exe
 #if MyArch == "x86"
-OutputBaseFilename=waldlust-setup-{#MyAppVersion}-x86{#MyVariantSuffix}
+OutputBaseFilename=waldlust-remote{#MyVariantSuffix}-{#MyAppVersion}-windows-x86
 #else
-OutputBaseFilename=waldlust-setup-{#MyAppVersion}-x86_64{#MyVariantSuffix}
+OutputBaseFilename=waldlust-remote{#MyVariantSuffix}-{#MyAppVersion}-windows-x64
 #endif
 Compression=lzma2
 SolidCompression=yes
