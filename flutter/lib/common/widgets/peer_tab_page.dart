@@ -265,7 +265,7 @@ class _PeerTabPageState extends State<PeerTabPage>
             child: RotatedBox(
                 quarterTurns: 2,
                 child: Icon(
-                  Icons.refresh,
+                  waldIcon(Icons.refresh),
                   size: 18,
                   color: textColor,
                 ))),
@@ -465,7 +465,7 @@ class _PeerTabPageState extends State<PeerTabPage>
 
           deleteConfirmDialog(onSubmit, translate('Delete'));
         },
-        child: Icon(Icons.delete, color: Colors.red));
+        child: Icon(waldIcon(Icons.delete), color: Colors.red));
   }
 
   Widget addSelectionToFav() {
@@ -532,7 +532,7 @@ class _PeerTabPageState extends State<PeerTabPage>
                   showToast(translate('Successful'));
                 });
               },
-              child: Icon(Icons.tag))
+              child: Icon(waldIcon(Icons.tag)))
           .marginOnly(left: !(isDesktop || isWebDesktop) ? 11 : 6),
     );
   }
@@ -554,7 +554,7 @@ class _PeerTabPageState extends State<PeerTabPage>
         onTap: () {
           model.selectAll();
         },
-        child: Icon(Icons.select_all),
+        child: Icon(waldIcon(Icons.select_all)),
       ).marginOnly(left: 6),
     );
   }
@@ -567,7 +567,7 @@ class _PeerTabPageState extends State<PeerTabPage>
             onTap: () {
               model.setMultiSelectionMode(false);
             },
-            child: Icon(Icons.clear))
+            child: Icon(waldIcon(Icons.clear)))
         .marginOnly(left: 6);
   }
 
@@ -577,7 +577,7 @@ class _PeerTabPageState extends State<PeerTabPage>
         toolTip: translate('Toggle Tags'),
         hoverableWhenfalse: hideAbTagsPanel,
         child: Icon(
-          Icons.tag_rounded,
+          waldIcon(Icons.tag_rounded),
           size: 18,
         ),
         onTap: () async {
@@ -719,7 +719,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
               });
             },
             child: Icon(
-              Icons.search_rounded,
+              waldIcon(Icons.search_rounded),
               color: Theme.of(context).hintColor,
             ));
   }
@@ -745,7 +745,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
                 child: Row(
                   children: [
                     Icon(
-                      Icons.search_rounded,
+                      waldIcon(Icons.search_rounded),
                       color: Theme.of(context).hintColor,
                     ).marginSymmetric(horizontal: 4),
                     Expanded(
@@ -792,7 +792,7 @@ class _PeerSearchBarState extends State<PeerSearchBar> {
                       icon: Tooltip(
                           message: translate('Close'),
                           child: Icon(
-                            Icons.close,
+                            waldIcon(Icons.close),
                             color: Theme.of(context).hintColor,
                           )),
                     ),
@@ -844,10 +844,10 @@ class _PeerViewDropdownState extends State<PeerViewDropdown> {
                                   : 'List'),
                           child: Icon(
                             e == PeerUiType.grid
-                                ? Icons.grid_view_rounded
+                                ? waldIcon(Icons.grid_view_rounded)
                                 : e == PeerUiType.list
-                                    ? Icons.view_list_rounded
-                                    : Icons.view_agenda_rounded,
+                                    ? waldIcon(Icons.view_list_rounded)
+                                    : waldIcon(Icons.view_agenda_rounded),
                             size: 18,
                           )),
                       e,
@@ -878,10 +878,10 @@ class _PeerViewDropdownState extends State<PeerViewDropdown> {
         toolTip: translate('Change view'),
         child: Icon(
           peerCardUiType.value == PeerUiType.grid
-              ? Icons.grid_view_rounded
+              ? waldIcon(Icons.grid_view_rounded)
               : peerCardUiType.value == PeerUiType.list
-                  ? Icons.view_list_rounded
-                  : Icons.view_agenda_rounded,
+                  ? waldIcon(Icons.view_list_rounded)
+                  : waldIcon(Icons.view_agenda_rounded),
           size: 18,
         ),
         onTapDown: (details) {
@@ -957,7 +957,7 @@ class _PeerSortDropdownState extends State<PeerSortDropdown> {
       context: context,
       toolTip: translate('Sort by'),
       child: Icon(
-        Icons.sort_rounded,
+        waldIcon(Icons.sort_rounded),
         size: 18,
       ),
       onTapDown: (details) {

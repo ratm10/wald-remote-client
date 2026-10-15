@@ -129,18 +129,18 @@ class IconFont {
   IconFont._();
 
   // Waldlust(DSK-07): 자체 아이콘 글꼴 대신 Lucide 를 가리킨다(호출부는 그대로 둔다).
-  static const IconData max = LucideIcons.square;
-  static const IconData restore = LucideIcons.copy;
-  static const IconData close = LucideIcons.x;
-  static const IconData min = LucideIcons.minus;
-  static const IconData add = LucideIcons.plus;
-  static const IconData menu = LucideIcons.settings;
-  static const IconData search = LucideIcons.search;
-  static const IconData roundClose = LucideIcons.circleX;
-  static const IconData addressBook = LucideIcons.bookUser;
-  static const IconData deviceGroupOutline = LucideIcons.monitorSmartphone;
-  static const IconData deviceGroupFill = LucideIcons.monitorSmartphone;
-  static const IconData more = LucideIcons.chevronDown;
+  static const IconData max = LucideIcons.square300;
+  static const IconData restore = LucideIcons.copy300;
+  static const IconData close = LucideIcons.x300;
+  static const IconData min = LucideIcons.minus300;
+  static const IconData add = LucideIcons.plus300;
+  static const IconData menu = LucideIcons.settings300;
+  static const IconData search = LucideIcons.search300;
+  static const IconData roundClose = LucideIcons.circleX300;
+  static const IconData addressBook = LucideIcons.bookUser300;
+  static const IconData deviceGroupOutline = LucideIcons.monitorSmartphone300;
+  static const IconData deviceGroupFill = LucideIcons.monitorSmartphone300;
+  static const IconData more = LucideIcons.chevronDown300;
 }
 
 class ColorThemeExtension extends ThemeExtension<ColorThemeExtension> {

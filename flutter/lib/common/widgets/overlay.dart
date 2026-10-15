@@ -133,7 +133,7 @@ class DraggableChatWindow extends StatelessWidget {
               child: Obx(() => Opacity(
                   opacity: chatModel.isWindowFocus.value ? 1.0 : 0.4,
                   child: Row(children: [
-                    Icon(Icons.chat_bubble_outline,
+                    Icon(waldIcon(Icons.chat_bubble_outline),
                         size: 20, color: Theme.of(context).colorScheme.primary),
                     SizedBox(width: 6),
                     Text(translate("Chat"))

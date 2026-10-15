@@ -197,8 +197,9 @@ class _PortForwardPageState extends State<PortForwardPage>
         buildTunnelInputCell(context,
             controller: localPortController,
             inputFormatters: portInputFormatter),
-        const SizedBox(
-            width: _kColumn1Width, child: Icon(Icons.arrow_forward_sharp)),
+        SizedBox(
+            width: _kColumn1Width,
+            child: Icon(waldIcon(Icons.arrow_forward_sharp))),
         buildTunnelInputCell(context,
             controller: remoteHostController, hint: 'localhost'),
         buildTunnelInputCell(context,
@@ -270,7 +271,7 @@ class _PortForwardPageState extends State<PortForwardPage>
         SizedBox(
           width: _kColumn4Width,
           child: IconButton(
-            icon: const Icon(Icons.close),
+            icon: Icon(waldIcon(Icons.close)),
             onPressed: () async {
               await bind.sessionRemovePortForward(
                   sessionId: _ffi.sessionId, localPort: pf.localPort);
@@ -340,9 +341,9 @@ class _PortForwardPageState extends State<PortForwardPage>
                       ).marginOnly(left: 20),
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                       width: _kColumn1Width,
-                      child: Icon(Icons.arrow_forward_sharp)),
+                      child: Icon(waldIcon(Icons.arrow_forward_sharp))),
                   text2('localhost'),
                   text2('RDP'),
                 ]),

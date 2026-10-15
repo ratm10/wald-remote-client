@@ -43,8 +43,9 @@ class _ViewCameraTabPageState extends State<ViewCameraTabPage> {
   final tabController =
       Get.put(DesktopTabController(tabType: DesktopTabType.viewCamera));
   final contentKey = UniqueKey();
-  static const IconData selectedIcon = Icons.desktop_windows_sharp;
-  static const IconData unselectedIcon = Icons.desktop_windows_outlined;
+  static final IconData selectedIcon = waldIcon(Icons.desktop_windows_sharp);
+  static final IconData unselectedIcon =
+      waldIcon(Icons.desktop_windows_outlined);
 
   String? peerId;
   bool _isScreenRectSet = false;

@@ -23,8 +23,8 @@ class _PortForwardTabPageState extends State<PortForwardTabPage> {
   late final DesktopTabController tabController;
   late final bool isRDP;
 
-  static const IconData selectedIcon = Icons.forward_sharp;
-  static const IconData unselectedIcon = Icons.forward_outlined;
+  static final IconData selectedIcon = waldIcon(Icons.forward_sharp);
+  static final IconData unselectedIcon = waldIcon(Icons.forward_outlined);
 
   _PortForwardTabPageState(Map<String, dynamic> params) {
     isRDP = params['isRDP'];

@@ -212,7 +212,7 @@ class FileModel {
       return CustomAlertDialog(
         title: Row(
           children: [
-            const Icon(Icons.warning_rounded, color: Colors.red),
+            Icon(waldIcon(Icons.warning_rounded), color: Colors.red),
             Text(title).paddingOnly(
               left: 10,
             ),
@@ -258,19 +258,19 @@ class FileModel {
         actions: [
           dialogButton(
             "Cancel",
-            icon: Icon(Icons.close_rounded),
+            icon: Icon(waldIcon(Icons.close_rounded)),
             onPressed: cancel,
             isOutline: true,
           ),
           dialogButton(
             "Skip",
-            icon: Icon(Icons.navigate_next_rounded),
+            icon: Icon(waldIcon(Icons.navigate_next_rounded)),
             onPressed: () => close(null),
             isOutline: true,
           ),
           dialogButton(
             "Overwrite",
-            icon: Icon(Icons.done_rounded),
+            icon: Icon(waldIcon(Icons.done_rounded)),
             onPressed: submit,
           ),
         ],
@@ -773,7 +773,7 @@ class FileController {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.warning_rounded, color: Colors.red),
+            Icon(waldIcon(Icons.warning_rounded), color: Colors.red),
             Expanded(
               child: Text(title).paddingOnly(
                 left: 10,
@@ -814,13 +814,13 @@ class FileController {
         actions: [
           dialogButton(
             "Cancel",
-            icon: Icon(Icons.close_rounded),
+            icon: Icon(waldIcon(Icons.close_rounded)),
             onPressed: cancel,
             isOutline: true,
           ),
           dialogButton(
             "OK",
-            icon: Icon(Icons.done_rounded),
+            icon: Icon(waldIcon(Icons.done_rounded)),
             onPressed: submit,
           ),
         ],
@@ -912,13 +912,13 @@ class FileController {
         actions: [
           dialogButton(
             "Cancel",
-            icon: Icon(Icons.close_rounded),
+            icon: Icon(waldIcon(Icons.close_rounded)),
             onPressed: close,
             isOutline: true,
           ),
           dialogButton(
             "OK",
-            icon: Icon(Icons.done_rounded),
+            icon: Icon(waldIcon(Icons.done_rounded)),
             onPressed: submit,
           ),
         ],

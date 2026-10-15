@@ -31,8 +31,8 @@ class TerminalTabPage extends StatefulWidget {
 class _TerminalTabPageState extends State<TerminalTabPage> {
   DesktopTabController get tabController => Get.find<DesktopTabController>();
 
-  static const IconData selectedIcon = Icons.terminal;
-  static const IconData unselectedIcon = Icons.terminal_outlined;
+  static final IconData selectedIcon = waldIcon(Icons.terminal);
+  static final IconData unselectedIcon = waldIcon(Icons.terminal_outlined);
   int _nextTerminalId = 1;
   // Lightweight idempotency guard for async close operations
   final Set<String> _closingTabs = {};

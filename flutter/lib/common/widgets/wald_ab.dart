@@ -98,8 +98,7 @@ Widget _waldCardButton(IconData icon, String tooltip, VoidCallback onTap) {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(5),
-        // 부록 A-17: 18 → 20. 2026-10-15 시험: 가는 선(waldThinIcon)
-        child: Icon(waldThinIcon(icon), size: WaldSize.iconLg),
+        child: Icon(waldIcon(icon), size: WaldSize.iconLg), // 부록 A-17: 18 → 20
       ),
     ),
   );
@@ -222,7 +221,8 @@ class WaldAbBrandList extends StatelessWidget {
           children: [
             // 부록 A-27: 브랜드 줄의 가게 모양 아이콘은 뺐다('전체'의 격자 아이콘만 둔다).
             if (isAll)
-              Icon(Icons.apps_rounded, color: fg ?? MyTheme.accent, size: 19)
+              Icon(waldIcon(Icons.apps_rounded),
+                      color: fg ?? MyTheme.accent, size: 19)
                   .marginOnly(right: 6),
             Expanded(
                 child: Text(gFFI.abModel.translatedName(name),

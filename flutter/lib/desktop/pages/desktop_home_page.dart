@@ -156,7 +156,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                   child: InkWell(
                     child: Obx(
                       () => Icon(
-                        Icons.settings,
+                        waldIcon(Icons.settings),
                         color: _editHover.value
                             ? textColor
                             : Colors.grey.withOpacity(0.5),
@@ -680,7 +680,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
             right: 0,
             child: IconButton(
               icon: Icon(
-                Icons.close,
+                waldIcon(Icons.close),
                 color: Colors.white,
                 size: 20,
               ),
@@ -978,7 +978,7 @@ void setPasswordDialog({VoidCallback? notEmptyCallback}) async {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.key, color: MyTheme.accent),
+          Icon(waldIcon(Icons.key), color: MyTheme.accent),
           Text(translate("Set Password")).paddingOnly(left: 10),
         ],
       ),
@@ -1043,7 +1043,7 @@ void setPasswordDialog({VoidCallback? notEmptyCallback}) async {
             if (statusTip.isNotEmpty)
               Row(
                 children: [
-                  Icon(Icons.info, color: Colors.amber, size: 18)
+                  Icon(waldIcon(Icons.info), color: Colors.amber, size: 18)
                       .marginOnly(right: 6),
                   Expanded(
                       child: Text(
@@ -1079,13 +1079,13 @@ void setPasswordDialog({VoidCallback? notEmptyCallback}) async {
       actions: (() {
         final cancelButton = dialogButton(
           "Cancel",
-          icon: Icon(Icons.close_rounded),
+          icon: Icon(waldIcon(Icons.close_rounded)),
           onPressed: close,
           isOutline: true,
         );
         final removeButton = dialogButton(
           "Remove",
-          icon: Icon(Icons.delete_outline_rounded),
+          icon: Icon(waldIcon(Icons.delete_outline_rounded)),
           onPressed: () async {
             setState(() {
               errMsg0 = "";
@@ -1106,7 +1106,7 @@ void setPasswordDialog({VoidCallback? notEmptyCallback}) async {
         );
         final okButton = dialogButton(
           "OK",
-          icon: Icon(Icons.done_rounded),
+          icon: Icon(waldIcon(Icons.done_rounded)),
           onPressed: canSubmit ? submit : null,
         );
         if (!isDesktop && !isWebDesktop && localPasswordSet) {

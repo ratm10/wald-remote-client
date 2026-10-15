@@ -141,7 +141,7 @@ class _MyGroupState extends State<MyGroup> {
           decoration: InputDecoration(
             filled: false,
             prefixIcon: Icon(
-              Icons.search_rounded,
+              waldIcon(Icons.search_rounded),
               color: Theme.of(context).hintColor,
             ).paddingOnly(top: 2),
             hintText: translate("Search"),

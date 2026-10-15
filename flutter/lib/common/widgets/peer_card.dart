@@ -392,15 +392,16 @@ class _PeerCardState extends State<_PeerCard>
         padding: const EdgeInsets.all(12),
         child: selected
             ? Icon(
-                Icons.check_box,
+                waldIcon(Icons.check_box),
                 color: MyTheme.accent,
               )
-            : Icon(Icons.check_box_outline_blank),
+            : Icon(waldIcon(Icons.check_box_outline_blank)),
       );
     } else {
       return InkWell(
-          child: const Padding(
-              padding: EdgeInsets.all(12), child: Icon(Icons.more_vert)),
+          child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Icon(waldIcon(Icons.more_vert))),
           onTapDown: (e) {
             final x = e.globalPosition.dx;
             final y = e.globalPosition.dy;
@@ -418,10 +419,10 @@ class _PeerCardState extends State<_PeerCard>
     if (peerTabModel.multiSelectionMode) {
       final icon = selected
           ? Icon(
-              Icons.check_box,
+              waldIcon(Icons.check_box),
               color: MyTheme.accent,
             )
-          : Icon(Icons.check_box_outline_blank);
+          : Icon(waldIcon(Icons.check_box_outline_blank));
       bool last = peerTabModel.isShiftDown && peer.id == peerTabModel.lastId;
       double right = isTile ? 4 : 0;
       if (last) {
@@ -616,7 +617,7 @@ abstract class BasePeerCard extends StatelessWidget {
                 child: Transform.scale(
                     scale: 0.8,
                     child: IconButton(
-                      icon: const Icon(Icons.edit),
+                      icon: Icon(waldIcon(Icons.edit)),
                       padding: EdgeInsets.zero,
                       onPressed: () {
                         if (Navigator.canPop(context)) {
@@ -765,7 +766,7 @@ abstract class BasePeerCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Transform.scale(
               scale: 0.8,
-              child: Icon(Icons.delete_forever, color: Colors.red),
+              child: Icon(waldIcon(Icons.delete_forever), color: Colors.red),
             ),
           ).marginOnly(right: 4)),
         ],
@@ -845,7 +846,7 @@ abstract class BasePeerCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Transform.scale(
               scale: 0.8,
-              child: Icon(Icons.star_outline),
+              child: Icon(waldIcon(Icons.star_outline)),
             ),
           ).marginOnly(right: 4)),
         ],
@@ -880,7 +881,7 @@ abstract class BasePeerCard extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: Transform.scale(
               scale: 0.8,
-              child: Icon(Icons.star),
+              child: Icon(waldIcon(Icons.star)),
             ),
           ).marginOnly(right: 4)),
         ],
@@ -1264,7 +1265,7 @@ class AddressBookPeerCard extends BasePeerCard {
             actions: [
               dialogButton(
                 "OK",
-                icon: Icon(Icons.done_rounded),
+                icon: Icon(waldIcon(Icons.done_rounded)),
                 onPressed: close,
               ),
             ],
@@ -1428,8 +1429,8 @@ void _rdpDialog(String id) async {
                                     onPressed: () =>
                                         secure.value = !secure.value,
                                     icon: Icon(secure.value
-                                        ? Icons.visibility_off
-                                        : Icons.visibility))),
+                                        ? waldIcon(Icons.visibility_off)
+                                        : waldIcon(Icons.visibility)))),
                             controller: passwordController,
                           ).workaroundFreezeLinuxMint()),
                     ),
@@ -1475,7 +1476,7 @@ Widget build_more(BuildContext context, {bool invert = false}) {
               : (invert
                   ? Theme.of(context).scaffoldBackgroundColor
                   : Theme.of(context).colorScheme.background),
-          child: Icon(Icons.more_vert,
+          child: Icon(waldIcon(Icons.more_vert),
               size: 18,
               color: hover.value
                   ? Theme.of(context).textTheme.titleLarge?.color

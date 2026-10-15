@@ -165,25 +165,26 @@ class _AddressBookState extends State<AddressBook> {
         return Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            icon(Icons.cloud_off, "Personal"),
+            icon(waldIcon(Icons.cloud_off), "Personal"),
           ],
         );
       } else {
         List<Widget> children = [];
         final rule = gFFI.abModel.current.sharedProfile()?.rule;
         if (rule == ShareRule.read.value) {
-          children.add(
-              icon(Icons.visibility, ShareRule.desc(ShareRule.read.value)));
+          children.add(icon(waldIcon(Icons.visibility),
+              ShareRule.desc(ShareRule.read.value)));
         } else if (rule == ShareRule.readWrite.value) {
-          children
-              .add(icon(Icons.edit, ShareRule.desc(ShareRule.readWrite.value)));
-        } else if (rule == ShareRule.fullControl.value) {
           children.add(icon(
-              Icons.security, ShareRule.desc(ShareRule.fullControl.value)));
+              waldIcon(Icons.edit), ShareRule.desc(ShareRule.readWrite.value)));
+        } else if (rule == ShareRule.fullControl.value) {
+          children.add(icon(waldIcon(Icons.security),
+              ShareRule.desc(ShareRule.fullControl.value)));
         }
         final owner = gFFI.abModel.current.sharedProfile()?.owner;
         if (owner != null) {
-          children.add(icon(Icons.person, "${translate("Owner")}: $owner"));
+          children.add(icon(
+              waldIcon(Icons.person), "${translate("Owner")}: $owner"));
         }
         return Row(
           mainAxisAlignment: MainAxisAlignment.end,
@@ -258,7 +259,7 @@ class _AddressBookState extends State<AddressBook> {
               Expanded(
                   child:
                       buildItem(gFFI.abModel.currentName.value, button: true)),
-              Icon(Icons.arrow_drop_down),
+              Icon(waldIcon(Icons.arrow_drop_down)),
             ]),
           )),
       underline: Container(
@@ -604,8 +605,8 @@ class _AddressBookState extends State<AddressBook> {
                             suffixIcon: IconButton(
                               icon: Icon(
                                   passwordVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
+                                      ? waldIcon(Icons.visibility)
+                                      : waldIcon(Icons.visibility_off),
                                   color: MyTheme.lightTheme.primaryColor),
                               onPressed: () {
                                 setState(() {
@@ -668,7 +669,8 @@ class _AddressBookState extends State<AddressBook> {
             ),
             if (!gFFI.abModel.current.isPersonal())
               Row(children: [
-                Icon(Icons.info, color: Colors.amber).marginOnly(right: 4),
+                Icon(waldIcon(Icons.info), color: Colors.amber)
+                    .marginOnly(right: 4),
                 Text(
                   translate('share_warning_tip'),
                   style: TextStyle(fontSize: 12),
