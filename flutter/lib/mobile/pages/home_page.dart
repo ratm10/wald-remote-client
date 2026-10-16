@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hbb/mobile/pages/server_page.dart';
 import 'package:flutter_hbb/mobile/pages/settings_page.dart';
+import 'package:flutter_hbb/mobile/widgets/wald_app_info.dart';
 import 'package:flutter_hbb/web/settings_page.dart';
 import 'package:get/get.dart';
 import '../../common.dart';
@@ -87,7 +88,11 @@ class HomePageState extends State<HomePage> {
           appBar: AppBar(
             centerTitle: true,
             title: appTitle(),
-            actions: _pages.elementAt(_selectedIndex).appBarActions,
+            actions: [
+              ..._pages.elementAt(_selectedIndex).appBarActions,
+              // Waldlust(DSK-07 — 부록 A-38): 수신 전용은 설정 탭이 없어 버전 등을 여기서 본다.
+              if (isAndroid && bind.isIncomingOnly()) waldAppInfoButton(),
+            ],
           ),
           // Waldlust(DSK-07): 하단 탭은 흰 바탕 + 위 경계선(그림자 없음), 선택된 탭만 파랑.
           // navigationBarKey 는 안쪽 BottomNavigationBar 에 둔다(다른 곳에서 캐스팅한다).
@@ -172,6 +177,8 @@ class HomePageState extends State<HomePage> {
         ],
       );
     }
+    // Waldlust(DSK-10 — 부록 A-38): 수신 전용은 APP_NAME(`Waldlust`) 대신 런처와 같은 이름.
+    if (isAndroid && bind.isIncomingOnly()) return Text(kWaldAppDisplayName);
     return Text(bind.mainGetAppNameSync());
   }
 }
