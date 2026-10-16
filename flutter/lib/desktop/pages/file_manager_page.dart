@@ -468,7 +468,9 @@ class _FileManagerPageState extends State<FileManagerPage>
       _localViewKey.currentState?.waldOpenDropped(details);
       return;
     }
-    final items = SelectedItems(isLocal: false);
+    // Waldlust(DSK-07): 원격 목록에 놓은 내 파일은 원격 폴더로 보낸다. 업스트림은 원격 쪽
+    // 항목으로 만들어 그 경로를 원격에서 받아 왔다(부록 A-37).
+    final items = SelectedItems(isLocal: true);
     for (var file in details.files) {
       final f = File(file.path);
       items.add(Entry()
@@ -476,8 +478,8 @@ class _FileManagerPageState extends State<FileManagerPage>
         ..name = file.name
         ..size = FileSystemEntity.isDirectorySync(f.path) ? 0 : f.lengthSync());
     }
-    final otherSideData = model.localController.directoryData();
-    model.remoteController.sendFiles(items, otherSideData);
+    final otherSideData = model.remoteController.directoryData();
+    model.localController.sendFiles(items, otherSideData);
   }
 }
 
