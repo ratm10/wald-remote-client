@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hbb/common.dart';
 import 'package:flutter_hbb/common/widgets/animated_rotation_widget.dart';
 import 'package:flutter_hbb/common/widgets/custom_password.dart';
+import 'package:flutter_hbb/common/widgets/wald_app_info.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/connection_page.dart';
 import 'package:flutter_hbb/desktop/pages/desktop_setting_page.dart';
@@ -225,6 +226,9 @@ class _DesktopHomePageState extends State<DesktopHomePage>
                         // Waldlust(DSK-02): 수신 전용 + 설정 잠금이면 설정 진입점(⋮)을 숨긴다.
                         if (!(bind.isIncomingOnly() && bind.isDisableSettings()))
                           buildPopupMenu(context)
+                        // Waldlust(DSK-07 — 부록 A-39): 그 자리에 정보(ⓘ) — 버전 등을 볼 곳이 없다.
+                        else
+                          waldDesktopAppInfoButton(context)
                       ],
                     ),
                   ),

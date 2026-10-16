@@ -19,16 +19,54 @@ Widget waldAppInfoButton() {
   );
 }
 
+/// Windows 수신 전용 홈의 ID 줄 오른쪽 — 설정(⋮)을 숨긴 자리 — 정보 버튼(부록 A-39).
+/// ⋮(desktop_home_page.dart `buildPopupMenu`)와 같은 크기·마우스 올림.
+Widget waldDesktopAppInfoButton(BuildContext context) {
+  final textColor = Theme.of(context).textTheme.titleLarge?.color;
+  final hover = false.obs;
+  return InkWell(
+    onTap: showWaldAppInfo,
+    onHover: (value) => hover.value = value,
+    child: Tooltip(
+      message: translate('About'),
+      child: Obx(
+        () => CircleAvatar(
+          radius: 15,
+          backgroundColor: hover.value
+              ? Theme.of(context).scaffoldBackgroundColor
+              : Theme.of(context).colorScheme.background,
+          child: Icon(
+            waldIcon(Icons.info_outline),
+            size: 20,
+            color: hover.value ? textColor : textColor?.withOpacity(0.5),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 /// 앱 이름·버전·빌드 날짜와 공개 고지 링크(데스크탑 설정 '정보'와 같은 항목, 지문은 뺌).
 Future<void> showWaldAppInfo() async {
+  // 데스크탑은 설정 '정보'와 같은 값(Cargo 버전), Android 는 PackageInfo versionName.
+  final appVersion = isDesktop ? await bind.mainGetVersion() : version;
   final buildDate = await bind.mainGetBuildDate();
   gFFI.dialogManager.show((setState, close, context) {
+    // Windows 수신 전용 홈은 폭 280·높이 약 390 창이라(부록 A-39) 데스크탑은 간격을 줄이고
+    // 값은 한 줄로 둔다(넘치면 조금 줄인다 — 빌드 날짜가 두 줄로 꺾여 저작권 줄이 가려졌다).
+    final narrow = isDesktop;
     Widget infoRow(String label, String value) => Row(children: [
           SizedBox(
               width: 80,
               child: Text(label,
                   style: const TextStyle(color: WaldPalette.neutral500))),
-          Expanded(child: SelectableText(value)),
+          Expanded(
+              child: narrow
+                  ? FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(value, softWrap: false))
+                  : SelectableText(value)),
         ]).marginSymmetric(vertical: 4);
     Widget link(String text, String url) => InkWell(
           onTap: () => launchUrlString(url),
@@ -38,7 +76,7 @@ Future<void> showWaldAppInfo() async {
             Icon(waldIcon(Icons.launch_outlined),
                     size: 14, color: WaldPalette.neutral500)
                 .marginOnly(left: 4),
-          ]).marginSymmetric(vertical: 6),
+          ]).marginSymmetric(vertical: narrow ? 4 : 6),
         );
     return CustomAlertDialog(
       title: Text(kWaldAppDisplayName),
@@ -46,9 +84,9 @@ Future<void> showWaldAppInfo() async {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          infoRow(translate('Version'), version),
+          infoRow(translate('Version'), appVersion),
           infoRow(translate('Build Date'), buildDate),
-          const Divider(height: 24),
+          Divider(height: narrow ? 16 : 24),
           // Waldlust(D35): 이 앱이 보내는 정보·오픈소스 고지(자사 공개 페이지).
           link(translate('Privacy Statement'), kWaldPrivacyUrl),
           link(translate('Open source notices'), kWaldOssUrl),
@@ -63,6 +101,10 @@ Future<void> showWaldAppInfo() async {
       ),
       actions: [dialogButton('Close', onPressed: close)],
       onCancel: close,
+      // 바깥 여백도 줄인다(기본 좌우 40·위아래 24).
+      insetPadding: narrow
+          ? const EdgeInsets.symmetric(horizontal: 12, vertical: 8)
+          : null,
     );
   }, backDismiss: true, clickMaskDismiss: true);
 }

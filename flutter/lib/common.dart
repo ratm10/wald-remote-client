@@ -1128,7 +1128,8 @@ class CustomAlertDialog extends StatelessWidget {
       this.contentPadding,
       this.contentBoxConstraints = const BoxConstraints(maxWidth: 500),
       this.onSubmit,
-      this.onCancel})
+      this.onCancel,
+      this.insetPadding})
       : super(key: key);
 
   final Widget? title;
@@ -1139,6 +1140,8 @@ class CustomAlertDialog extends StatelessWidget {
   final BoxConstraints contentBoxConstraints;
   final Function()? onSubmit;
   final Function()? onCancel;
+  // Waldlust(DSK-07 — 부록 A-39): 좁은 창(수신 전용 홈 폭 280)에서 바깥 여백을 줄일 때.
+  final EdgeInsets? insetPadding;
 
   @override
   Widget build(BuildContext context) {
@@ -1186,7 +1189,8 @@ class CustomAlertDialog extends StatelessWidget {
           contentPadding:
               MyTheme.dialogContentPadding(actions: actions is List),
           actionsPadding: MyTheme.dialogActionsPadding(),
-          buttonPadding: MyTheme.dialogButtonPadding),
+          buttonPadding: MyTheme.dialogButtonPadding,
+          insetPadding: insetPadding),
     );
   }
 }

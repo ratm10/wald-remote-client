@@ -7,6 +7,7 @@ import 'package:desktop_multi_window/desktop_multi_window.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide TabBarTheme;
 import 'package:flutter_hbb/common.dart';
+import 'package:flutter_hbb/common/widgets/wald_app_info.dart';
 import 'package:flutter_hbb/consts.dart';
 import 'package:flutter_hbb/desktop/pages/remote_page.dart';
 import 'package:flutter_hbb/desktop/pages/view_camera_page.dart';
@@ -643,7 +644,14 @@ class _DesktopTabState extends State<DesktopTab>
                             child: const Text(
                               "RustDesk",
                               style: TextStyle(fontSize: 13),
-                            ).marginOnly(left: 2))
+                            ).marginOnly(left: 2)),
+                        // Waldlust(DSK-10 — 부록 A-39): 수신 전용 홈 창은 아이콘 옆에 앱 이름.
+                        // OS 창 제목(APP_NAME)은 단일 실행·딥링크가 창을 찾는 데 써서 그대로 둔다.
+                        if (isIncomingHomePage)
+                          const Text(
+                            kWaldAppDisplayName,
+                            style: TextStyle(fontSize: 13),
+                          ).marginOnly(left: 8),
                       ]).marginOnly(
                         left: 5,
                         right: 10,
