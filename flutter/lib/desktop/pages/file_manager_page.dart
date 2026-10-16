@@ -55,6 +55,14 @@ enum MouseFocusScope {
 @visibleForTesting
 bool waldFileManagerPreview = false;
 
+// Waldlust(DSK-07, 부록 A-36): 로컬·원격 목록 : 전송 목록 너비 몫. 전에는 3:3:2(전송 목록 25%) — 22% 로 줄여
+// 파일 목록에 너비를 준다.
+const int _kWaldFilePanelFlex = 7;
+const int _kWaldStatusFlex = 4;
+// 수정일(초까지, 12px·숫자 고정폭 약 116)·크기('1023.9 KB' 약 52 + 오른쪽 여백) 칸의 처음 너비. 남는 너비는 이름 칸.
+const double _kWaldModifiedColWidth = 128;
+const double _kWaldSizeColWidth = 72;
+
 class FileManagerPage extends StatefulWidget {
   FileManagerPage(
       {Key? key,
@@ -177,14 +185,14 @@ class _FileManagerPageState extends State<FileManagerPage>
             children: [
               if (!isWeb)
                 Flexible(
-                    flex: 3,
+                    flex: _kWaldFilePanelFlex,
                     child: dropArea(FileManagerView(
                         model.localController, _ffi, _mouseFocusScope))),
               Flexible(
-                  flex: 3,
+                  flex: _kWaldFilePanelFlex,
                   child: dropArea(FileManagerView(
                       model.remoteController, _ffi, _mouseFocusScope))),
-              Flexible(flex: 2, child: statusList())
+              Flexible(flex: _kWaldStatusFlex, child: statusList())
             ],
           ),
         ));
@@ -559,24 +567,30 @@ class _FileManagerViewState extends State<FileManagerView> {
     );
   }
 
+  // Waldlust(DSK-07, 부록 A-36): 이름 칸을 가장 넓게. 수정일·크기 칸은 글자가 들어가는 너비로 두고 남는 너비를
+  // 이름 칸에 준다. 창 너비가 바뀌면 목록 너비가 바뀐 만큼 이름 칸만 늘고 준다(전에는 세 칸 모두 창 너비 × 0.115 에서
+  // 시작해 창 너비 비율로 늘고 줄었다).
   void _handleColumnPorportions() {
     final windowWidthNow = MediaQuery.of(context).size.width;
+    final listShare = _kWaldFilePanelFlex /
+        ((isWeb ? 1 : 2) * _kWaldFilePanelFlex + _kWaldStatusFlex);
     if (_windowWidthPrev == null) {
       _windowWidthPrev = windowWidthNow;
       final defaultColumnWidth = windowWidthNow * 0.115;
       _fileTransferMinimumWidth = defaultColumnWidth / 3;
-      _nameColWidth.value = defaultColumnWidth;
-      _modifiedColWidth.value = defaultColumnWidth;
-      _sizeColWidth.value = defaultColumnWidth;
+      // 목록 너비 = 패널 너비 − 바깥 여백 16·안쪽 여백 8(양쪽) − 카드 테두리 1(양쪽) − 칸 사이 2 × 2.
+      final listWidth = windowWidthNow * listShare - 54;
+      _modifiedColWidth.value = _kWaldModifiedColWidth;
+      _sizeColWidth.value = _kWaldSizeColWidth;
+      _nameColWidth.value = max(_fileTransferMinimumWidth,
+          listWidth - _kWaldModifiedColWidth - _kWaldSizeColWidth);
     }
 
     if (_windowWidthPrev != windowWidthNow) {
-      final difference = windowWidthNow / _windowWidthPrev!;
+      final delta = (windowWidthNow - _windowWidthPrev!) * listShare;
       _windowWidthPrev = windowWidthNow;
-      _fileTransferMinimumWidth *= difference;
-      _nameColWidth.value *= difference;
-      _modifiedColWidth.value *= difference;
-      _sizeColWidth.value *= difference;
+      _nameColWidth.value =
+          max(_fileTransferMinimumWidth, _nameColWidth.value + delta);
     }
   }
 
@@ -1118,10 +1132,6 @@ class _FileManagerViewState extends State<FileManagerView> {
           final lastModifiedStr = entry.isDrive
               ? " "
               : "${entry.lastModified().toString().replaceAll(".000", "")}   ";
-          // Waldlust(DSK-07, 부록 A-36): 목록은 분까지(초까지는 툴팁).
-          final lastModifiedShort = entry.isDrive
-              ? " "
-              : entry.lastModified().toString().substring(0, 16);
           var secondaryPosition = RelativeRect.fromLTRB(0, 0, 0, 0);
           onTap() {
             final items = selectedItems;
@@ -1245,7 +1255,7 @@ class _FileManagerViewState extends State<FileManagerView> {
                                       message: lastModifiedStr,
                                       // Waldlust(DSK-07, 부록 A-36): n400 → n500(선택 n600), 숫자 고정폭.
                                       child: Text(
-                                        lastModifiedShort,
+                                        lastModifiedStr,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 12,
@@ -1549,10 +1559,10 @@ class _FileManagerViewState extends State<FileManagerView> {
                     },
                     child: BreadCrumb(
                       items: items,
-                      // Waldlust(DSK-07, 부록 A-36): 구분 화살표 16·n400.
+                      // Waldlust(DSK-07, 부록 A-36): 구분 화살표 14·n400.
                       divider: Icon(
                           waldIcon(Icons.keyboard_arrow_right_rounded),
-                          size: WaldSize.iconSm,
+                          size: 14,
                           color: WaldPalette.neutral400),
                       overflow: ScrollableOverflow(
                         controller: _breadCrumbScroller,
@@ -1656,7 +1666,7 @@ class _FileManagerViewState extends State<FileManagerView> {
     if (isWindows && path == '/') {
       breadCrumbList.add(BreadCrumbItem(
           content: TextButton(
-                  child: buildWindowsThisPC(context),
+                  child: buildWindowsThisPC(context, _kWaldPathCurrentStyle),
                   style: ButtonStyle(
                       minimumSize: MaterialStateProperty.all(Size(0, 0))),
                   onPressed: () => onPressed(['/']))
@@ -1667,22 +1677,23 @@ class _FileManagerViewState extends State<FileManagerView> {
         list.asMap().entries.map(
               (e) => BreadCrumbItem(
                 content: TextButton(
-                  // Waldlust(DSK-07, 부록 A-36): 현재 폴더(마지막 조각)만 진하게, 앞 조각은 회색.
+                  // Waldlust(DSK-07, 부록 A-36): 현재 폴더(마지막 조각)만 진하게, 앞 조각은 회색. 더 많이
+                  // 보이게 글자 14 → 12, 조각 좌우 여백 8 → 4·바깥 4 → 2.
                   child: Text(e.value,
                       style: e.key == list.length - 1
-                          ? const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: WaldPalette.neutral900)
-                          : const TextStyle(color: WaldPalette.neutral500)),
+                          ? _kWaldPathCurrentStyle
+                          : _kWaldPathStyle),
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(
                       Size(0, 0),
                     ),
+                    padding: const WidgetStatePropertyAll(
+                        EdgeInsets.symmetric(horizontal: 4, vertical: 8)),
                   ),
                   onPressed: () => onPressed(
                     list.sublist(0, e.key + 1),
                   ),
-                ).marginSymmetric(horizontal: 4),
+                ).marginSymmetric(horizontal: 2),
               ),
             ),
       );
@@ -1717,6 +1728,8 @@ class _FileManagerViewState extends State<FileManagerView> {
         Expanded(
           child: TextField(
             focusNode: _locationNode,
+            // Waldlust(DSK-07, 부록 A-36): 경로 막대와 같은 12.
+            style: const TextStyle(fontSize: WaldSize.smallFont),
             decoration: InputDecoration(
               border: InputBorder.none,
               isDense: true,
@@ -1750,6 +1763,14 @@ Widget buildWindowsThisPC(BuildContext context, [TextStyle? textStyle]) {
     Text(translate('This PC'), style: textStyle)
   ]);
 }
+
+// Waldlust(DSK-07, 부록 A-36): 경로 막대 글자 — 앞 조각 n500, 현재 폴더 굵게 n900.
+const _kWaldPathStyle =
+    TextStyle(fontSize: WaldSize.smallFont, color: WaldPalette.neutral500);
+const _kWaldPathCurrentStyle = TextStyle(
+    fontSize: WaldSize.smallFont,
+    fontWeight: FontWeight.w600,
+    color: WaldPalette.neutral900);
 
 /// Waldlust(DSK-07, 부록 A-36): 파일 목록 행의 마우스 올림 표시. 탭·우클릭은 행 안의 GestureDetector 가 그대로 받는다.
 class _WaldHoverRow extends StatefulWidget {
