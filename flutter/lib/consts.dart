@@ -263,7 +263,8 @@ const int kMobileMaxDisplaySize = 1280;
 const int kDesktopMaxDisplaySize = 3840;
 
 const double kDesktopFileTransferRowHeight = 30.0;
-const double kDesktopFileTransferHeaderHeight = 25.0;
+// Waldlust(DSK-07, 부록 A-36): 파일 목록 머리줄을 행(30)과 같은 높이로(25 → 30).
+const double kDesktopFileTransferHeaderHeight = 30.0;
 
 const double kMinFps = 5;
 const double kDefaultFps = 30;

@@ -207,12 +207,8 @@ class _FileManagerPageState extends State<FileManagerPage>
 
   Widget generateCard(Widget child) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.all(
-          Radius.circular(15.0),
-        ),
-      ),
+      // Waldlust(DSK-07, 부록 A-36): 어드민 카드(흰 바탕·n200 테두리·둥글기 12). 전에는 n100·둥글기 15.
+      decoration: waldCardDecoration(),
       child: child,
     );
   }
@@ -220,8 +216,26 @@ class _FileManagerPageState extends State<FileManagerPage>
   /// transfer status list
   /// watch transfer status
   Widget statusList() {
+    // Waldlust(DSK-07, 부록 A-36): 상태색 — 오류 빨강·일시정지 주황·완료 초록(취소·건너뜀은 회색),
+    // 그 밖은 아이콘 검정·글자 회색. 판정은 JobProgress.display() 와 같다.
+    Color stateColor(JobProgress job, {bool text = false}) {
+      switch (job.state) {
+        case JobState.error:
+          return WaldPalette.red600;
+        case JobState.paused:
+          return WaldPalette.amber600;
+        case JobState.done:
+          if (job.err == 'cancel' || job.err == 'skipped') {
+            return WaldPalette.neutral500;
+          }
+          return text ? WaldPalette.green700 : WaldPalette.green600;
+        default:
+          return text ? WaldPalette.neutral500 : WaldPalette.neutral900;
+      }
+    }
+
     Widget getIcon(JobProgress job) {
-      final color = Theme.of(context).tabBarTheme.labelColor;
+      final color = stateColor(job);
       switch (job.type) {
         case JobType.deleteDir:
         case JobType.deleteFile:
@@ -248,7 +262,7 @@ class _FileManagerPageState extends State<FileManagerPage>
             final item = jobs[index];
             final status = item.getStatus();
             return Padding(
-              padding: const EdgeInsets.only(bottom: 5),
+              padding: const EdgeInsets.only(bottom: 8),
               child: generateCard(
                 Column(
                   mainAxisSize: MainAxisSize.min,
@@ -270,6 +284,8 @@ class _FileManagerPageState extends State<FileManagerPage>
                                   displayName(item),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w500),
                                   overflowWidget: TextOverflowWidget(
                                       child: Text("..."),
                                       position: TextOverflowPosition.start),
@@ -281,20 +297,35 @@ class _FileManagerPageState extends State<FileManagerPage>
                                 child: Text(status,
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: MyTheme.darkGray,
+                                      color: stateColor(item, text: true),
                                     )).marginOnly(top: 6),
                               ),
+                              // Waldlust(DSK-07, 부록 A-36): 30px 막대 가운데 % → 얇은 막대 + 오른쪽 %.
                               Offstage(
                                 offstage: item.type != JobType.transfer ||
                                     item.state != JobState.inProgress,
                                 child: LinearPercentIndicator(
                                   animateFromLastPercent: true,
-                                  center: Text(item.percentText),
-                                  barRadius: Radius.circular(15),
+                                  padding: EdgeInsets.zero,
+                                  trailing: SizedBox(
+                                    width: 44,
+                                    child: Text(
+                                      item.percentText,
+                                      textAlign: TextAlign.right,
+                                      style: const TextStyle(
+                                        fontSize: WaldSize.smallFont,
+                                        color: WaldPalette.neutral600,
+                                        fontFeatures: [
+                                          FontFeature.tabularFigures()
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  barRadius: Radius.circular(3),
                                   percent: item.percent,
                                   progressColor: MyTheme.accent,
                                   backgroundColor: Theme.of(context).hoverColor,
-                                  lineHeight: kDesktopFileTransferRowHeight,
+                                  lineHeight: 6,
                                 ).paddingOnly(top: 8),
                               ),
                               _waldReceivedActions(item),
@@ -354,19 +385,17 @@ class _FileManagerPageState extends State<FileManagerPage>
                     Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
+                        // Waldlust(DSK-07, 부록 A-36): 빈 상태는 옅게(아이콘 n400·글자 n500, 1.2 배율 뺌).
                         children: [
                           waldSvg("assets/transfer.svg",
-                                  color:
-                                      Theme.of(context).tabBarTheme.labelColor,
-                                  height: 40)
+                                  color: WaldPalette.neutral400,
+                                  height: 40,
+                                  iconSize: 32)
                               .paddingOnly(bottom: 10),
                           Text(
                             translate("No transfers in progress"),
                             textAlign: TextAlign.center,
-                            textScaler: TextScaler.linear(1.20),
-                            style: TextStyle(
-                                color:
-                                    Theme.of(context).tabBarTheme.labelColor),
+                            style: TextStyle(color: WaldPalette.neutral500),
                           ),
                         ],
                       ),
@@ -575,14 +604,15 @@ class _FileManagerViewState extends State<FileManagerView> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
+                      // Waldlust(DSK-07, 부록 A-36): 배지 50 → 40, 제목 16·굵게.
                       Container(
-                          width: 50,
-                          height: 50,
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(8)),
                             color: MyTheme.accent,
                           ),
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(7.0),
                           child: FutureBuilder<String>(
                               future: bind.sessionGetPlatform(
                                   sessionId: _ffi.sessionId,
@@ -599,10 +629,15 @@ class _FileManagerViewState extends State<FileManagerView> {
                                   );
                                 }
                               })),
-                      Text(isLocal
-                              ? translate("Local Computer")
-                              : translate("Remote Computer"))
-                          .marginOnly(left: 8.0)
+                      Text(
+                              isLocal
+                                  ? translate("Local Computer")
+                                  : translate("Remote Computer"),
+                              style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: WaldPalette.neutral900))
+                          .marginOnly(left: 10.0)
                     ],
                   ),
                   preferredSize: Size(double.infinity, 70))
@@ -1083,6 +1118,10 @@ class _FileManagerViewState extends State<FileManagerView> {
           final lastModifiedStr = entry.isDrive
               ? " "
               : "${entry.lastModified().toString().replaceAll(".000", "")}   ";
+          // Waldlust(DSK-07, 부록 A-36): 목록은 분까지(초까지는 툴팁).
+          final lastModifiedShort = entry.isDrive
+              ? " "
+              : entry.lastModified().toString().substring(0, 16);
           var secondaryPosition = RelativeRect.fromLTRB(0, 0, 0, 0);
           onTap() {
             final items = selectedItems;
@@ -1131,24 +1170,29 @@ class _FileManagerViewState extends State<FileManagerView> {
                 details.globalPosition.dy);
           }
 
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 1),
-            child: Obx(() => Container(
-                // Waldlust(DSK-07, 부록 A-27): 선택 행 = 회색(n300) 바탕 + 진한 글자. 전에는 파랑 + 흰 글자.
-                // 목록 바탕이 n100 이라 n200 은 구분이 약해 n300 으로 둔다.
+          return _WaldHoverRow(
+            builder: (hovered) => Obx(() => Container(
+                // Waldlust(DSK-07, 부록 A-36): 어드민 표 행 — 흰 바탕 + 아래 n100 구분선(행 사이 1px 틈 없앰),
+                // 마우스 올림 n100, 선택 n200 + 진한 글자(부록 A-27 의 n300 은 n100 행 바탕 기준이었다).
+                // 우클릭 테두리는 그대로다(고르지 않은 테두리에는 둥글기를 줄 수 없어 그때만 둥글기 5).
                 decoration: BoxDecoration(
                   color: selectedItems.items.contains(entry)
-                      ? WaldPalette.neutral300
-                      : Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(5.0),
-                  ),
+                      ? WaldPalette.neutral200
+                      : hovered
+                          ? WaldPalette.neutral100
+                          : WaldPalette.white,
+                  borderRadius: rightClickEntry.value == entry
+                      ? BorderRadius.all(
+                          Radius.circular(5.0),
+                        )
+                      : null,
                   border: rightClickEntry.value == entry
                       ? Border.all(
                           color: MyTheme.button,
                           width: 1.0,
                         )
-                      : null,
+                      : const Border(
+                          bottom: BorderSide(color: WaldPalette.neutral100)),
                 ),
                 key: ValueKey(entry.name),
                 height: kDesktopFileTransferRowHeight,
@@ -1167,22 +1211,17 @@ class _FileManagerViewState extends State<FileManagerView> {
                                       waitDuration: Duration(milliseconds: 500),
                                       message: entry.name,
                                       child: Row(children: [
-                                        entry.isDrive
-                                            ? Image(
-                                                    image: iconHardDrive,
-                                                    fit: BoxFit.scaleDown,
-                                                    color: Theme.of(context)
-                                                        .iconTheme
-                                                        .color
-                                                        ?.withOpacity(0.7))
-                                                .paddingAll(4)
-                                            : waldSvg(
-                                                entry.isFile
-                                                    ? "assets/file.svg"
-                                                    : "assets/folder.svg",
-                                                color: Theme.of(context)
-                                                    .tabBarTheme
-                                                    .labelColor),
+                                        // Waldlust(DSK-07, 부록 A-36): 드라이브·폴더·파일 종류 아이콘 —
+                                        // 폴더만 주황, 드라이브 n600, 파일 n500.
+                                        waldIconBox(
+                                            waldFileEntryIcon(entry.name,
+                                                isDir: !entry.isFile,
+                                                isDrive: entry.isDrive),
+                                            color: entry.isDrive
+                                                ? WaldPalette.neutral600
+                                                : entry.isFile
+                                                    ? WaldPalette.neutral500
+                                                    : WaldPalette.amber500),
                                         Expanded(
                                             child: Text(entry.name.nonBreaking,
                                                 overflow:
@@ -1204,15 +1243,19 @@ class _FileManagerViewState extends State<FileManagerView> {
                                   child: Tooltip(
                                       waitDuration: Duration(milliseconds: 500),
                                       message: lastModifiedStr,
+                                      // Waldlust(DSK-07, 부록 A-36): n400 → n500(선택 n600), 숫자 고정폭.
                                       child: Text(
-                                        lastModifiedStr,
+                                        lastModifiedShort,
                                         overflow: TextOverflow.ellipsis,
                                         style: TextStyle(
                                           fontSize: 12,
                                           color: selectedItems.items
                                                   .contains(entry)
                                               ? WaldPalette.neutral600
-                                              : MyTheme.darkGray,
+                                              : WaldPalette.neutral500,
+                                          fontFeatures: const [
+                                            FontFeature.tabularFigures()
+                                          ],
                                         ),
                                       )),
                                 ),
@@ -1231,16 +1274,22 @@ class _FileManagerViewState extends State<FileManagerView> {
                                 child: Tooltip(
                                   waitDuration: Duration(milliseconds: 500),
                                   message: sizeStr,
+                                  // Waldlust(DSK-07, 부록 A-36): 10 → 12, n400 → n500(선택 n600),
+                                  // 오른쪽 정렬·숫자 고정폭.
                                   child: Text(
                                     sizeStr,
                                     overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.right,
                                     style: TextStyle(
-                                        fontSize: 10,
+                                        fontSize: 12,
                                         color:
                                             selectedItems.items.contains(entry)
                                                 ? WaldPalette.neutral600
-                                                : MyTheme.darkGray),
-                                  ),
+                                                : WaldPalette.neutral500,
+                                        fontFeatures: const [
+                                          FontFeature.tabularFigures()
+                                        ]),
+                                  ).marginOnly(right: 8),
                                 ),
                                 onTap: onTap,
                                 onSecondaryTap: onSecondaryTap,
@@ -1256,26 +1305,36 @@ class _FileManagerViewState extends State<FileManagerView> {
           );
         }).toList(growable: false);
 
-        return Column(
-          children: [
-            // Header
-            Row(
+        // Waldlust(DSK-07, 부록 A-36): 목록을 어드민 표 카드(흰 바탕·n200 테두리·둥글기 12)로 감싼다.
+        // 테두리 안쪽 1px 에 둥글게 잘라 머리줄 바탕이 테두리를 덮지 않게 한다.
+        return Container(
+          margin: const EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.all(1),
+          decoration: waldCardDecoration(),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(WaldSize.cardRadius - 1),
+            child: Column(
               children: [
-                Expanded(child: _buildFileBrowserHeader(context)),
+                // Header
+                Row(
+                  children: [
+                    Expanded(child: _buildFileBrowserHeader(context)),
+                  ],
+                ),
+                // Body
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemExtent: kDesktopFileTransferRowHeight,
+                    itemBuilder: (context, index) {
+                      return rows[index];
+                    },
+                    itemCount: rows.length,
+                  ),
+                ),
               ],
             ),
-            // Body
-            Expanded(
-              child: ListView.builder(
-                controller: scrollController,
-                itemExtent: kDesktopFileTransferRowHeight,
-                itemBuilder: (context, index) {
-                  return rows[index];
-                },
-                itemCount: rows.length,
-              ),
-            ),
-          ],
+          ),
         );
       }),
     );
@@ -1371,9 +1430,14 @@ class _FileManagerViewState extends State<FileManagerView> {
 
   Widget _buildFileBrowserHeader(BuildContext context) {
     final padding = EdgeInsets.all(1.0);
-    return SizedBox(
+    // Waldlust(DSK-07, 부록 A-36): 어드민 표 머리 — n50 바탕 + 아래 n200 선.
+    return Container(
       key: _globalHeaderKey,
       height: kDesktopFileTransferHeaderHeight,
+      decoration: const BoxDecoration(
+        color: WaldPalette.neutral50,
+        border: Border(bottom: BorderSide(color: WaldPalette.neutral200)),
+      ),
       child: Row(
         children: [
           Obx(
@@ -1397,15 +1461,22 @@ class _FileManagerViewState extends State<FileManagerView> {
               padding: padding),
           Expanded(
               child: headerItemFunc(
-                  _sizeColWidth.value, SortBy.size, translate("Size")))
+                  _sizeColWidth.value, SortBy.size, translate("Size"),
+                  alignEnd: true))
         ],
       ),
     );
   }
 
-  Widget headerItemFunc(double? width, SortBy sortBy, String name) {
+  Widget headerItemFunc(double? width, SortBy sortBy, String name,
+      {bool alignEnd = false}) {
+    // Waldlust(DSK-07, 부록 A-36): 머리 글자 12·w500·n500(본문과 구분), [alignEnd] 는 오른쪽 정렬(크기).
     final headerTextStyle =
-        Theme.of(context).dataTableTheme.headingTextStyle ?? TextStyle();
+        (Theme.of(context).dataTableTheme.headingTextStyle ?? TextStyle())
+            .copyWith(
+                fontSize: WaldSize.smallFont,
+                fontWeight: FontWeight.w500,
+                color: WaldPalette.neutral500);
     return ObxValue<Rx<bool?>>(
         (ascending) => InkWell(
               onTap: () {
@@ -1427,13 +1498,16 @@ class _FileManagerViewState extends State<FileManagerView> {
                         name,
                         style: headerTextStyle,
                         overflow: TextOverflow.ellipsis,
-                      ).marginOnly(left: 4),
+                        textAlign: alignEnd ? TextAlign.right : null,
+                      ).marginOnly(left: 4, right: alignEnd ? 8 : 0),
                     ),
                     ascending.value != null
                         ? Icon(
                             ascending.value!
                                 ? waldIcon(Icons.keyboard_arrow_up_rounded)
                                 : waldIcon(Icons.keyboard_arrow_down_rounded),
+                            size: WaldSize.iconSm,
+                            color: WaldPalette.neutral500,
                           )
                         : SizedBox()
                   ],
@@ -1475,8 +1549,11 @@ class _FileManagerViewState extends State<FileManagerView> {
                     },
                     child: BreadCrumb(
                       items: items,
-                      divider:
-                          Icon(waldIcon(Icons.keyboard_arrow_right_rounded)),
+                      // Waldlust(DSK-07, 부록 A-36): 구분 화살표 16·n400.
+                      divider: Icon(
+                          waldIcon(Icons.keyboard_arrow_right_rounded),
+                          size: WaldSize.iconSm,
+                          color: WaldPalette.neutral400),
                       overflow: ScrollableOverflow(
                         controller: _breadCrumbScroller,
                       ),
@@ -1525,13 +1602,10 @@ class _FileManagerViewState extends State<FileManagerView> {
                           menuItems.add(MenuEntryButton(
                               childBuilder: (TextStyle? style) =>
                                   Row(children: [
-                                    Image(
-                                        image: iconHardDrive,
-                                        fit: BoxFit.scaleDown,
-                                        color: Theme.of(context)
-                                            .iconTheme
-                                            .color
-                                            ?.withOpacity(0.7)),
+                                    // Waldlust(DSK-07, 부록 A-36): 목록과 같은 드라이브 아이콘.
+                                    Icon(waldFileEntryIcon('', isDrive: true),
+                                        size: WaldSize.icon,
+                                        color: WaldPalette.neutral600),
                                     SizedBox(width: 10),
                                     Text(
                                       entry.name,
@@ -1593,7 +1667,13 @@ class _FileManagerViewState extends State<FileManagerView> {
         list.asMap().entries.map(
               (e) => BreadCrumbItem(
                 content: TextButton(
-                  child: Text(e.value),
+                  // Waldlust(DSK-07, 부록 A-36): 현재 폴더(마지막 조각)만 진하게, 앞 조각은 회색.
+                  child: Text(e.value,
+                      style: e.key == list.length - 1
+                          ? const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: WaldPalette.neutral900)
+                          : const TextStyle(color: WaldPalette.neutral500)),
                   style: ButtonStyle(
                     minimumSize: MaterialStateProperty.all(
                       Size(0, 0),
@@ -1669,4 +1749,25 @@ Widget buildWindowsThisPC(BuildContext context, [TextStyle? textStyle]) {
     SizedBox(width: 10),
     Text(translate('This PC'), style: textStyle)
   ]);
+}
+
+/// Waldlust(DSK-07, 부록 A-36): 파일 목록 행의 마우스 올림 표시. 탭·우클릭은 행 안의 GestureDetector 가 그대로 받는다.
+class _WaldHoverRow extends StatefulWidget {
+  final Widget Function(bool hovered) builder;
+
+  const _WaldHoverRow({Key? key, required this.builder}) : super(key: key);
+
+  @override
+  State<_WaldHoverRow> createState() => _WaldHoverRowState();
+}
+
+class _WaldHoverRowState extends State<_WaldHoverRow> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) => MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: widget.builder(_hovered),
+      );
 }

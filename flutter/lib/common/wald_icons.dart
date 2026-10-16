@@ -247,6 +247,113 @@ const Map<String, IconData> kWaldAssetIcon = {
 /// [asset] SVG 를 대신할 Lucide 아이콘. 대응이 없으면 null(SVG 를 그대로 쓴다).
 IconData? waldAssetIcon(String asset) => kWaldAssetIcon[asset];
 
+/// 파일 전송 목록의 확장자(소문자, 점 없이) → 파일 종류 아이콘(부록 A-36). 없는 확장자는 [LucideIcons.file300].
+const Map<String, IconData> kWaldFileTypeIcon = {
+  // 이미지
+  'png': LucideIcons.fileImage300,
+  'jpg': LucideIcons.fileImage300,
+  'jpeg': LucideIcons.fileImage300,
+  'gif': LucideIcons.fileImage300,
+  'bmp': LucideIcons.fileImage300,
+  'webp': LucideIcons.fileImage300,
+  'heic': LucideIcons.fileImage300,
+  'svg': LucideIcons.fileImage300,
+  'ico': LucideIcons.fileImage300,
+  'tif': LucideIcons.fileImage300,
+  'tiff': LucideIcons.fileImage300,
+  // 영상
+  'mp4': LucideIcons.filePlay300,
+  'mov': LucideIcons.filePlay300,
+  'avi': LucideIcons.filePlay300,
+  'mkv': LucideIcons.filePlay300,
+  'wmv': LucideIcons.filePlay300,
+  'webm': LucideIcons.filePlay300,
+  'm4v': LucideIcons.filePlay300,
+  // 음악
+  'mp3': LucideIcons.fileMusic300,
+  'wav': LucideIcons.fileMusic300,
+  'flac': LucideIcons.fileMusic300,
+  'aac': LucideIcons.fileMusic300,
+  'm4a': LucideIcons.fileMusic300,
+  'ogg': LucideIcons.fileMusic300,
+  'wma': LucideIcons.fileMusic300,
+  // 압축
+  'zip': LucideIcons.fileArchive300,
+  'rar': LucideIcons.fileArchive300,
+  '7z': LucideIcons.fileArchive300,
+  'tar': LucideIcons.fileArchive300,
+  'gz': LucideIcons.fileArchive300,
+  'tgz': LucideIcons.fileArchive300,
+  'bz2': LucideIcons.fileArchive300,
+  'xz': LucideIcons.fileArchive300,
+  // 표
+  'xls': LucideIcons.fileSpreadsheet300,
+  'xlsx': LucideIcons.fileSpreadsheet300,
+  'csv': LucideIcons.fileSpreadsheet300,
+  'ods': LucideIcons.fileSpreadsheet300,
+  'numbers': LucideIcons.fileSpreadsheet300,
+  // 문서
+  'txt': LucideIcons.fileText300,
+  'md': LucideIcons.fileText300,
+  'log': LucideIcons.fileText300,
+  'rtf': LucideIcons.fileText300,
+  'pdf': LucideIcons.fileText300,
+  'doc': LucideIcons.fileText300,
+  'docx': LucideIcons.fileText300,
+  'hwp': LucideIcons.fileText300,
+  'hwpx': LucideIcons.fileText300,
+  'odt': LucideIcons.fileText300,
+  'pages': LucideIcons.fileText300,
+  // 코드
+  'js': LucideIcons.fileCode300,
+  'ts': LucideIcons.fileCode300,
+  'dart': LucideIcons.fileCode300,
+  'rs': LucideIcons.fileCode300,
+  'py': LucideIcons.fileCode300,
+  'java': LucideIcons.fileCode300,
+  'c': LucideIcons.fileCode300,
+  'cpp': LucideIcons.fileCode300,
+  'h': LucideIcons.fileCode300,
+  'sh': LucideIcons.fileCode300,
+  'html': LucideIcons.fileCode300,
+  'css': LucideIcons.fileCode300,
+  // 설정
+  'ini': LucideIcons.fileCog300,
+  'cfg': LucideIcons.fileCog300,
+  'conf': LucideIcons.fileCog300,
+  'json': LucideIcons.fileCog300,
+  'xml': LucideIcons.fileCog300,
+  'yaml': LucideIcons.fileCog300,
+  'yml': LucideIcons.fileCog300,
+  'toml': LucideIcons.fileCog300,
+  'reg': LucideIcons.fileCog300,
+  // 실행·설치
+  'exe': LucideIcons.fileBox300,
+  'msi': LucideIcons.fileBox300,
+  'bat': LucideIcons.fileBox300,
+  'cmd': LucideIcons.fileBox300,
+  'com': LucideIcons.fileBox300,
+  'ps1': LucideIcons.fileBox300,
+  'apk': LucideIcons.fileBox300,
+  'dmg': LucideIcons.fileBox300,
+  'pkg': LucideIcons.fileBox300,
+  'deb': LucideIcons.fileBox300,
+  'rpm': LucideIcons.fileBox300,
+  'app': LucideIcons.fileBox300,
+};
+
+/// 파일 전송 목록 항목 아이콘: 드라이브·폴더·확장자별 파일(부록 A-36).
+/// 확장자는 마지막 '.' 뒤다('.' 로 시작하는 이름의 첫 점은 확장자로 보지 않는다).
+IconData waldFileEntryIcon(String name,
+    {bool isDir = false, bool isDrive = false}) {
+  if (isDrive) return LucideIcons.hardDrive300;
+  if (isDir) return LucideIcons.folder300;
+  final dot = name.lastIndexOf('.');
+  if (dot <= 0 || dot == name.length - 1) return LucideIcons.file300;
+  return kWaldFileTypeIcon[name.substring(dot + 1).toLowerCase()] ??
+      LucideIcons.file300;
+}
+
 /// 예전 SVG 는 [box] 크기 상자 안에 여백까지 그려져 있었다. 그 자리를 같은 크기 상자 가운데의
 /// Lucide 아이콘([size])으로 대신한다.
 Widget waldIconBox(IconData icon,
