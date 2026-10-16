@@ -98,6 +98,8 @@ class _FileManagerPageState extends State<FileManagerPage>
   final _dropMaskVisible = false.obs; // TODO impl drop mask
   final _overlayKeyState = OverlayKeyState();
   final _uniqueKey = UniqueKey();
+  // Waldlust(DSK-07): 내 파일 목록에 놓은 경로로 옮길 때 쓴다(부록 A-37).
+  final _localViewKey = GlobalKey<_FileManagerViewState>();
 
   late FFI _ffi;
 
@@ -187,7 +189,8 @@ class _FileManagerPageState extends State<FileManagerPage>
                 Flexible(
                     flex: _kWaldFilePanelFlex,
                     child: dropArea(FileManagerView(
-                        model.localController, _ffi, _mouseFocusScope))),
+                        model.localController, _ffi, _mouseFocusScope,
+                        key: _localViewKey))),
               Flexible(
                   flex: _kWaldFilePanelFlex,
                   child: dropArea(FileManagerView(
@@ -461,7 +464,8 @@ class _FileManagerPageState extends State<FileManagerPage>
 
   void handleDragDone(DropDoneDetails details, bool isLocal) {
     if (isLocal) {
-      // ignore local
+      // Waldlust(DSK-07): 내 파일 목록에 놓으면 그 경로로 옮긴다(부록 A-37).
+      _localViewKey.currentState?.waldOpenDropped(details);
       return;
     }
     final items = SelectedItems(isLocal: false);
@@ -482,7 +486,8 @@ class FileManagerView extends StatefulWidget {
   final FFI _ffi;
   final Rx<MouseFocusScope> _mouseFocusScope;
 
-  FileManagerView(this.controller, this._ffi, this._mouseFocusScope);
+  FileManagerView(this.controller, this._ffi, this._mouseFocusScope,
+      {super.key});
 
   @override
   State<StatefulWidget> createState() => _FileManagerViewState();
@@ -1375,6 +1380,40 @@ class _FileManagerViewState extends State<FileManagerView> {
     scrollController.jumpTo(offset);
     selectedEntries.add(searchResult.first);
     debugPrint("focused on ${searchResult.first.name}");
+  }
+
+  /// Waldlust(DSK-07): 내 파일 목록에 끌어 놓은 폴더로 들어간다. 파일이면 든 폴더를
+  /// 열고 놓은 파일을 선택한다(부록 A-37). 여러 개면 첫 항목 기준.
+  Future<void> waldOpenDropped(DropDoneDetails details) async {
+    if (details.files.isEmpty) return;
+    final first = details.files.first.path;
+    final type = FileSystemEntity.typeSync(first);
+    if (type == FileSystemEntityType.notFound) return;
+    if (type == FileSystemEntityType.directory) {
+      selectedItems.clear();
+      await controller.openDirectory(first);
+      return;
+    }
+    final isWindows = controller.options.value.isWindows;
+    final dir = PathUtil.dirname(first, isWindows);
+    if (!await controller.openDirectory(dir)) return;
+    final names = details.files
+        .where((f) => PathUtil.dirname(f.path, isWindows) == dir)
+        .map((f) => f.name)
+        .toSet();
+    final dropped = controller.directory.value.entries
+        .where((e) => names.contains(e.name))
+        .toList();
+    selectedItems.clear();
+    if (dropped.isEmpty) return;
+    // 새 목록이 그려진 뒤에야 스크롤 범위가 맞다.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !_fileListScrollController.hasClients) return;
+      _jumpToEntry(isLocal, dropped.first, _fileListScrollController,
+          kDesktopFileTransferRowHeight);
+      dropped.skip(1).forEach(selectedItems.add);
+      setState(() {});
+    });
   }
 
   void _onSelectedChanged(SelectedItems selectedItems, List<Entry> entries,
