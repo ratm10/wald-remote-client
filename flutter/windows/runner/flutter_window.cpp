@@ -1,5 +1,6 @@
 #include "flutter_window.h"
 
+#include <desktop_drop/desktop_drop_plugin.h>
 #include <desktop_multi_window/desktop_multi_window_plugin.h>
 #include <texture_rgba_renderer/texture_rgba_renderer_plugin_c_api.h>
 #include <flutter_gpu_texture_renderer/flutter_gpu_texture_renderer_plugin_c_api.h>
@@ -90,6 +91,10 @@ bool FlutterWindow::OnCreate() {
         registry->GetRegistrarForPlugin("TextureRgbaRendererPlugin"));
     FlutterGpuTextureRendererPluginCApiRegisterWithRegistrar(
         registry->GetRegistrarForPlugin("FlutterGpuTextureRendererPluginCApi"));
+    // Waldlust(DSK-07): sub windows (file transfer) get no desktop_drop from
+    // desktop_multi_window, so Explorer drops never reached them (A-37).
+    DesktopDropPluginRegisterWithRegistrar(
+        registry->GetRegistrarForPlugin("DesktopDropPlugin"));
   });
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
   return true;
