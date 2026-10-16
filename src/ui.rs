@@ -530,6 +530,11 @@ impl UI {
         get_version()
     }
 
+    // Waldlust(DSK-07 — 부록 A-39): 수신 전용 정보 대화상자(wald.tis)의 빌드 날짜.
+    fn get_build_date(&self) -> String {
+        crate::BUILD_DATE.to_owned()
+    }
+
     fn get_fingerprint(&self) -> String {
         get_fingerprint()
     }
@@ -790,6 +795,7 @@ impl sciter::EventHandler for UI {
         fn get_software_update_url();
         fn get_new_version();
         fn get_version();
+        fn get_build_date();
         fn get_fingerprint();
         fn update_me(String);
         fn show_run_without_install();

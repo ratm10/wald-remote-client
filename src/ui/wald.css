@@ -34,8 +34,17 @@ div.wald-titlebar {
 }
 
 div.wald-caption {
+    flow: horizontal;
     width: *;
     height: *;
+}
+
+/* 부록 A-39: 아이콘 옆 앱 이름(Flutter 제목 표시줄과 같은 13px, 아이콘과 8) */
+div.wald-appname {
+    margin: * 0 * 8px;
+    font-size: 13px;
+    line-height: 17px;
+    color: #171717;
 }
 
 icon.wald-appicon {
@@ -136,6 +145,37 @@ div.wald-id div.wald-bar {
 div.wald-id div.wald-label {
     margin-top: 5px;
     height: 20px;
+}
+
+/* 부록 A-39: ID 이름 줄 오른쪽 정보 버튼 — Flutter 의 ⋮ 자리(원 30, 아이콘 20, n900 50% → 마우스 올리면 흰 원·n900) */
+div.wald-label-row {
+    flow: horizontal;
+    height: 25px;
+}
+
+div.wald-label-row div.wald-label {
+    width: *;
+}
+
+div.wald-about-btn {
+    size: 30px;
+    border-radius: 15px;
+    cursor: pointer;
+}
+
+div.wald-about-btn svg {
+    display: block;
+    size: 20px;
+    margin: 5px 0 0 5px;
+    stroke: rgba(23, 23, 23, 0.5);
+}
+
+div.wald-about-btn:hover {
+    background: white;
+}
+
+div.wald-about-btn:hover svg {
+    stroke: #171717;
 }
 
 div.wald-id-value {
@@ -313,6 +353,80 @@ div.wald-toast {
     background: rgba(23, 23, 23, 0.85);
     color: white;
     font-size: 13px;
+}
+
+/* 부록 A-39: 정보 대화상자 — Flutter CustomAlertDialog(흰 바탕·n200 테두리·반경 16·여백 24, 창 가장자리와 좌우 12),
+   바탕은 Flutter dialogManager 의 Colors.black12 */
+div.wald-dialog-mask {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: *;
+    height: *;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+div.wald-dialog {
+    margin: * 12px;
+    padding: 24px 24px 20px 24px;
+    border: #E5E5E5 solid 1px;
+    border-radius: 16px;
+    background: white;
+    color: #171717;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+div.wald-dialog-title {
+    font-size: 19px;
+    line-height: 24px;
+    margin-bottom: 20px;
+}
+
+div.wald-info-row {
+    flow: horizontal;
+    margin: 4px 0;
+}
+
+div.wald-info-label {
+    width: 80px;
+    color: #737373;
+}
+
+div.wald-info-value {
+    width: *;
+}
+
+div.wald-dialog-divider {
+    height: 1px;
+    margin: 12px 0;
+    background: #E5E5E5;
+}
+
+div.wald-info-link {
+    flow: horizontal;
+    width: max-content;
+    margin: 6px 0;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+div.wald-info-link svg {
+    display: block;
+    size: 14px;
+    margin: 3px 0 0 4px;
+    stroke: #737373;
+}
+
+div.wald-info-copyright {
+    margin-top: 12px;
+    font-size: 11px;
+    line-height: 15px;
+    color: #737373;
+}
+
+div.wald-dialog-actions {
+    margin-top: 20px;
+    text-align: right;
 }
 
 /* ---------------------------------------------------------------- 연결 관리(CM) 창 (flutter/lib/desktop/pages/server_page.dart) */
