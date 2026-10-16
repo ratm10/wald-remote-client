@@ -242,6 +242,14 @@ class _FileTransferPreviewState extends State<_FileTransferPreview> {
         entry('메뉴판_2026.pdf', 4, 2345678, 600),
         entry('report.xlsx', 4, 345678, 7200),
         entry('사진.png', 4, 12345678, 172800),
+        // 부록 A-36: 파일 종류 아이콘 견본.
+        entry('매장 영상.mp4', 4, 104857600, 259200),
+        entry('안내 음성.m4a', 4, 3145728, 345600),
+        entry('백업_1015.zip', 4, 52428800, 90000),
+        entry('notes.txt', 4, 1234, 1200),
+        entry('config.json', 4, 856, 4000),
+        entry('설치.exe', 4, 1048576, 60),
+        entry('README', 4, 512, 600000),
       ]
       ..format(false);
 
@@ -252,10 +260,16 @@ class _FileTransferPreviewState extends State<_FileTransferPreview> {
     remote.directory.value = FileDirectory()
       ..path = 'C:\\Users\\POS\\Desktop'
       ..entries = [
+        // 부록 A-36: 드라이브 아이콘 견본(실제로는 '내 PC' 에만 나온다).
+        entry('C:', 3, 0, 0),
+        entry('D:', 3, 0, 0),
         entry('주문 백업', 1, 0, 1800),
         entry('Logs', 1, 0, 5400),
         entry('설정.ini', 4, 2048, 300),
         entry('sales_0930.csv', 4, 98765, 9000),
+        entry('영수증.jpg', 4, 245760, 7000),
+        entry('POS_Setup.msi', 4, 73400320, 500000),
+        entry('error.log', 4, 40960, 100),
       ]
       ..format(true);
 
