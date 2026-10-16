@@ -109,7 +109,15 @@ class MainFlutterWindow: NSWindow {
             // DesktopLifecyclePlugin.register(with: controller.registrar(forPlugin: "DesktopLifecyclePlugin"))
             // Note: copy below from above RegisterGeneratedPlugins
             self.setMethodHandler(registrar: controller.registrar(forPlugin: "RustDeskPlugin"))
+            // Waldlust(DSK-07): desktop_drop 0.4.4 macOS 는 드롭 영역을 늘 메인 창에 붙여 하위 창(파일 전송)에
+            // 드롭이 들어오지 않는다. 이 창 몫으로 메인 창에 새로 붙은 영역을 이 창으로 옮긴다(부록 A-37).
+            let mainSubviews = flutterViewController.view.subviews
             DesktopDropPlugin.register(with: controller.registrar(forPlugin: "DesktopDropPlugin"))
+            for view in flutterViewController.view.subviews where !mainSubviews.contains(view) {
+                view.removeFromSuperview()
+                view.frame = controller.view.bounds
+                controller.view.addSubview(view)
+            }
             DeviceInfoPlusMacosPlugin.register(with: controller.registrar(forPlugin: "DeviceInfoPlusMacosPlugin"))
             FlutterCustomCursorPlugin.register(with: controller.registrar(forPlugin: "FlutterCustomCursorPlugin"))
             FPPPackageInfoPlusPlugin.register(with: controller.registrar(forPlugin: "FPPPackageInfoPlusPlugin"))
