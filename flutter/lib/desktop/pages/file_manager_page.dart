@@ -468,18 +468,9 @@ class _FileManagerPageState extends State<FileManagerPage>
       _localViewKey.currentState?.waldOpenDropped(details);
       return;
     }
-    // Waldlust(DSK-07): 원격 목록에 놓은 내 파일은 원격 폴더로 보낸다. 업스트림은 원격 쪽
-    // 항목으로 만들어 그 경로를 원격에서 받아 왔다(부록 A-37).
-    final items = SelectedItems(isLocal: true);
-    for (var file in details.files) {
-      final f = File(file.path);
-      items.add(Entry()
-        ..path = file.path
-        ..name = file.name
-        ..size = FileSystemEntity.isDirectorySync(f.path) ? 0 : f.lengthSync());
-    }
-    final otherSideData = model.remoteController.directoryData();
-    model.localController.sendFiles(items, otherSideData);
+    // Waldlust(DSK-07): 원격 목록에 놓아 바로 보내기는 오전송을 막으려고 우선 막는다
+    // (2026-10-16 사용자 결정, 부록 A-37). 보내기는 '보내기' 버튼으로만 한다. 되살릴 때는
+    // 0c5d7027f 의 보내기(내 쪽 항목 → localController.sendFiles)를 쓴다.
   }
 }
 
